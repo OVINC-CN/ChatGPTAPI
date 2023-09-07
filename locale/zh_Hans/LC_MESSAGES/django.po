@@ -1,0 +1,147 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-12-13 11:24+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: apps/account/apps.py:8
+msgid "User Account"
+msgstr "用户账户"
+
+#: apps/account/constants.py:21
+msgid "Personal"
+msgstr "个人"
+
+#: apps/account/constants.py:22
+msgid "Platform"
+msgstr "平台"
+
+#: apps/account/constants.py:30
+msgid "Avatar"
+msgstr "头像"
+
+#: apps/account/constants.py:31
+msgid "Phone Number"
+msgstr "联系电话"
+
+#: apps/account/constants.py:32
+msgid "Mail Address"
+msgstr "邮件地址"
+
+#: apps/account/models.py:22
+msgid "Username Cannot be Empty"
+msgstr "用户名不能为空"
+
+#: apps/account/models.py:39
+msgid "username"
+msgstr "用户名"
+
+#: apps/account/models.py:43
+msgid "already in use"
+msgstr "已被占用"
+
+#: apps/account/models.py:45
+msgid "Nick Name"
+msgstr "用户昵称"
+
+#: apps/account/models.py:47
+msgid "User Type"
+msgstr "用户类型"
+
+#: apps/account/models.py:52
+msgid "Date Joined"
+msgstr "注册时间"
+
+#: apps/account/models.py:59
+msgid "User"
+msgstr "用户"
+
+#: apps/home/apps.py:8
+msgid "Home Module"
+msgstr "首页"
+
+#: apps/home/exceptions.py:8
+msgid "Language Code Invalid"
+msgstr "语言ID非法"
+
+#: apps/home/serializers.py:12
+msgid "Language Code"
+msgstr "语言ID"
+
+#: apps/trace/apps.py:11
+msgid "App Performance"
+msgstr "应用性能"
+
+#: core/constants.py:30
+msgid "LIST"
+msgstr "LIST"
+
+#: core/constants.py:31
+msgid "CREATE"
+msgstr "CREATE"
+
+#: core/constants.py:32
+msgid "UPDATE"
+msgstr "UPDATE"
+
+#: core/constants.py:33
+msgid "PARTIAL_UPDATE"
+msgstr "PARTIAL_UPDATE"
+
+#: core/constants.py:34
+msgid "DESTROY"
+msgstr "DESTROY"
+
+#: core/exceptions.py:54
+msgid "Request Failed"
+msgstr "请求失败"
+
+#: core/exceptions.py:118
+msgid "Server Error"
+msgstr "服务错误"
+
+#: core/exceptions.py:123
+msgid "Login Required"
+msgstr "未登录"
+
+#: core/exceptions.py:128
+msgid "Login Failed"
+msgstr "登录失败"
+
+#: core/exceptions.py:133
+msgid "Permission Denied"
+msgstr "未经授权访问"
+
+#: core/exceptions.py:138
+msgid "Operate Error"
+msgstr "异常操作"
+
+#: core/exceptions.py:143
+msgid "Resource Not Found"
+msgstr "资源未找到"
+
+#: core/exceptions.py:148
+msgid "Service Closed"
+msgstr "服务维护中"
+
+#: core/models.py:192
+msgid "Soft Delete"
+msgstr "软删除"
+
+#: core/paginations.py:19
+msgid "Invalid Page Number"
+msgstr "页码有误"
