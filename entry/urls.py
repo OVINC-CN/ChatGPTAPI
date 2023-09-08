@@ -10,6 +10,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("apps.home.urls")),
     path("", include("apps.chat.urls")),
+    path("", include("apps.trace.urls")),
 ]
 
 handler400 = exceptions.bad_request
