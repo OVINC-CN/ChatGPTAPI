@@ -12,7 +12,6 @@ from rest_framework.request import Request
 
 from apps.chat.constants import OpenAIUnitPrice
 from apps.chat.models import ChatLog, Message
-from core.renderers import APIRenderer
 
 USER_MODEL = get_user_model()
 
@@ -69,10 +68,7 @@ class OpenAIClient(BaseClient):
         )
         for chunk in response:
             self.record(response=chunk)
-            yield APIRenderer().render(
-                data={"content": response.choices[0].delta.get("content", "")},
-                renderer_context={"request": self.request},
-            )
+            yield chunk.choices[0].delta.get("content", "")
         self.finished_at = int(datetime.datetime.now().timestamp() * 1000)
         self.post_chat()
 

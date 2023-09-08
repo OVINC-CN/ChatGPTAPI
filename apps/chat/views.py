@@ -1,3 +1,5 @@
+from corsheaders.middleware import ACCESS_CONTROL_ALLOW_ORIGIN
+from django.conf import settings
 from django.http import StreamingHttpResponse
 
 from apps.chat.client import OpenAIClient
@@ -27,4 +29,10 @@ class ChatViewSet(CreateMixin, MainViewSet):
         streaming_content = OpenAIClient(request=request, **request_data).chat()
 
         # response
-        return StreamingHttpResponse(streaming_content=streaming_content)
+        return StreamingHttpResponse(
+            streaming_content=streaming_content,
+            headers={
+                ACCESS_CONTROL_ALLOW_ORIGIN: settings.FRONTEND_URL,
+                "Trace-ID": getattr(request, "otel_trace_id", ""),
+            },
+        )
