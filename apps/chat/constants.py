@@ -30,14 +30,21 @@ class OpenAIModel(TextChoices):
     OpenAI Model
     """
 
-    GPT4 = "gpt-4", "GPT4"
-    GPT4_0613 = "gpt-4-0613", "GPT4 (0613)"
-    GPT4_32K = "gpt-4-32k", "GPT4 (32K)"
-    GPT4_32K_0613 = "gpt-4-32k-0613", "GPT4 (32K, 0613)"
     GPT35_Turbo = "gpt-3.5-turbo", "GPT3.5 Turbo"
     GPT35_Turbo_0613 = "gpt-3.5-turbo-0613", "GPT3.5 Turbo (0613)"
     GPT35_Turbo_16K = "gpt-3.5-turbo-16k", "GPT3.5 Turbo (16K)"
     GPT35_Turbo_16K_0613 = "gpt-3.5-turbo-16k-0613", "GPT3.5 Turbo (16K, 0613)"
+    GPT4 = "gpt-4", "GPT4"
+    GPT4_0613 = "gpt-4-0613", "GPT4 (0613)"
+    GPT4_32K = "gpt-4-32k", "GPT4 (32K)"
+    GPT4_32K_0613 = "gpt-4-32k-0613", "GPT4 (32K, 0613)"
+
+    @classmethod
+    def get_name(cls, model: str) -> str:
+        for value, label in cls.choices:
+            if value == model:
+                return label
+        return model
 
 
 @dataclass

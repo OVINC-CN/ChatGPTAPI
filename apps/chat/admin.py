@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy
 from rest_framework.settings import api_settings
 
-from apps.chat.models import ChatLog
+from apps.chat.models import ChatLog, ModelPermission
 
 
 @admin.register(ChatLog)
@@ -38,3 +38,10 @@ class ChatLogAdmin(admin.ModelAdmin):
     @admin.display(description=gettext_lazy("Create Time"))
     def created_at_formatted(self, log: ChatLog) -> str:
         return datetime.datetime.fromtimestamp(log.created_at / 1000).strftime(api_settings.DATETIME_FORMAT)
+
+
+@admin.register(ModelPermission)
+class ModelPermissionAdmin(admin.ModelAdmin):
+    list_display = ["id", "user", "model", "expired_at", "created_at"]
+    list_filter = ["model"]
+    search_fields = ["user"]

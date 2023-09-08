@@ -10,7 +10,7 @@ from django.db import transaction
 from openai.openai_object import OpenAIObject
 from rest_framework.request import Request
 
-from apps.chat.constants import OpenAIUnitPrice
+from apps.chat.constants import OpenAIModel, OpenAIUnitPrice
 from apps.chat.models import ChatLog, Message
 
 USER_MODEL = get_user_model()
@@ -102,3 +102,16 @@ class OpenAIClient(BaseClient):
         # save
         self.log.finished_at = self.finished_at
         self.log.save()
+
+    @classmethod
+    def list_models(cls) -> List[dict]:
+        all_models = openai.Model.list(
+            api_base=settings.OPENAI_API_BASE, api_key=settings.OPENAI_API_KEY
+        ).to_dict_recursive()["data"]
+        supported_models = [
+            {"id": model["id"], "name": OpenAIModel.get_name(model["id"])}
+            for model in all_models
+            if model["id"] in OpenAIModel.values
+        ]
+        supported_models.sort(key=lambda model: model["id"])
+        return supported_models

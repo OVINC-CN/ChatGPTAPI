@@ -41,3 +41,11 @@ class OpenAIRequestSerializer(serializers.Serializer):
     top_p = serializers.FloatField(
         label=gettext_lazy("Top Probability"), min_value=TOP_P_MIN, default=TOP_P_DEFAULT, required=False
     )
+
+
+class CheckModelPermissionSerializer(serializers.Serializer):
+    """
+    Model Permission
+    """
+
+    model = serializers.ChoiceField(label=gettext_lazy("Model"), choices=OpenAIModel.choices)

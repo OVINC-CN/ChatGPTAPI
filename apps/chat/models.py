@@ -1,6 +1,9 @@
+import datetime
 from dataclasses import dataclass
 
+from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import Q, QuerySet
 from django.utils.translation import gettext_lazy
 
 from apps.chat.constants import (
@@ -11,6 +14,8 @@ from apps.chat.constants import (
 )
 from core.constants import MAX_CHAR_LENGTH, MEDIUM_CHAR_LENGTH
 from core.models import BaseModel, ForeignKey, UniqIDField
+
+USER_MODEL = get_user_model()
 
 
 class ChatLog(BaseModel):
@@ -64,3 +69,36 @@ class Message:
 
     role: OpenAIRole
     content: str
+
+
+class ModelPermission(BaseModel):
+    """
+    Model Permission
+    """
+
+    id = UniqIDField(gettext_lazy("ID"))
+    user = ForeignKey(gettext_lazy("User"), to="account.User", on_delete=models.PROTECT)
+    model = models.CharField(
+        gettext_lazy("Model"),
+        choices=OpenAIModel.choices,
+        max_length=MEDIUM_CHAR_LENGTH,
+        null=True,
+        blank=True,
+        db_index=True,
+    )
+    expired_at = models.DateTimeField(gettext_lazy("Expire Time"), null=True, blank=True)
+    created_at = models.DateTimeField(gettext_lazy("Create Time"), auto_now_add=True)
+
+    class Meta:
+        verbose_name = gettext_lazy("Model Permission")
+        verbose_name_plural = verbose_name
+        ordering = ["-created_at"]
+        index_together = [["user", "model", "expired_at"]]
+
+    @classmethod
+    def authed_models(cls, user: USER_MODEL, model: str = None) -> QuerySet:
+        q = Q(user=user)
+        if model:
+            q &= Q(model=str(model))
+        q &= Q(Q(expired_at__gt=datetime.datetime.now()) | Q(expired_at__isnull=True))
+        return cls.objects.filter(q)
