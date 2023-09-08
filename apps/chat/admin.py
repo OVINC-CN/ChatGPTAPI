@@ -31,7 +31,9 @@ class ChatLogAdmin(admin.ModelAdmin):
 
     @admin.display(description=gettext_lazy("Duration(ms)"))
     def duration(self, log: ChatLog) -> int:
-        return log.finished_at - log.created_at
+        if log.finished_at and log.created_at:
+            return log.finished_at - log.created_at
+        return -1
 
     @admin.display(description=gettext_lazy("Create Time"))
     def created_at_formatted(self, log: ChatLog) -> str:

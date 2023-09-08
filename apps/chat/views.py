@@ -24,7 +24,7 @@ class ChatViewSet(CreateMixin, MainViewSet):
         request_data = request_serializer.validated_data
 
         # call api
-        streaming_content = OpenAIClient(user=request.user, **request_data).chat()
+        streaming_content = OpenAIClient(request=request, **request_data).chat()
 
         # response
         return StreamingHttpResponse(streaming_content=streaming_content)

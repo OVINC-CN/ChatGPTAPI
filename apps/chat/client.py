@@ -8,9 +8,11 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from openai.openai_object import OpenAIObject
+from rest_framework.request import Request
 
 from apps.chat.constants import OpenAIUnitPrice
 from apps.chat.models import ChatLog, Message
+from core.renderers import APIRenderer
 
 USER_MODEL = get_user_model()
 
@@ -19,6 +21,17 @@ class BaseClient:
     """
     Base Client for Chat
     """
+
+    def __init__(self, request: Request, model: str, messages: List[Message], temperature: float, top_p: float):
+        self.log: ChatLog = None
+        self.request: Request = request
+        self.user: USER_MODEL = request.user
+        self.model: str = model
+        self.messages: List[Message] = messages
+        self.temperature: float = temperature
+        self.top_p: float = top_p
+        self.created_at: int = int()
+        self.finished_at: int = int()
 
     @abc.abstractmethod
     def chat(self, *args, **kwargs) -> any:
@@ -36,29 +49,11 @@ class BaseClient:
 
         raise NotImplementedError()
 
-    @abc.abstractmethod
-    def post_chat(self, *args, **kwargs) -> None:
-        """
-        Post Chat
-        """
-
-        raise NotImplementedError()
-
 
 class OpenAIClient(BaseClient):
     """
     OpenAI Client
     """
-
-    def __init__(self, user: USER_MODEL, model: str, messages: List[Message], temperature: float, top_p: float):
-        self.log: ChatLog = None
-        self.user: USER_MODEL = user
-        self.model: str = model
-        self.messages: List[Message] = messages
-        self.temperature: float = temperature
-        self.top_p: float = top_p
-        self.created_at: int = int()
-        self.finished_at: int = int()
 
     @transaction.atomic()
     def chat(self) -> any:
@@ -74,7 +69,10 @@ class OpenAIClient(BaseClient):
         )
         for chunk in response:
             self.record(response=chunk)
-            yield chunk
+            yield APIRenderer().render(
+                data={"content": response.choices[0].delta.get("content", "")},
+                renderer_context={"request": self.request},
+            )
         self.finished_at = int(datetime.datetime.now().timestamp() * 1000)
         self.post_chat()
 
@@ -95,7 +93,9 @@ class OpenAIClient(BaseClient):
         return self.record(response=response)
 
     def post_chat(self) -> None:
-        # calculate tokens
+        if not self.log:
+            return
+            # calculate tokens
         encoding = tiktoken.encoding_for_model(self.model)
         self.log.prompt_tokens = len(encoding.encode("".join([message["content"] for message in self.log.messages])))
         self.log.completion_tokens = len(encoding.encode(self.log.content))
