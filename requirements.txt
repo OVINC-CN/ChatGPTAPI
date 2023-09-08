@@ -1,5 +1,5 @@
 # Django
-django==4.2.1
+django==4.2.3
 django_environ==0.10.0
 mysqlclient==2.0.3
 djangorestframework==3.14.0
@@ -17,7 +17,7 @@ django-redis==5.2.0
 celery==5.2.2
 
 # Server
-uwsgi==2.0.21
+uwsgi==2.0.22
 
 # Datetime
 arrow==1.2.3
