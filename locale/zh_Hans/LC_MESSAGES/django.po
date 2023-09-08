@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-13 11:24+0800\n"
+"POT-Creation-Date: 2023-09-08 20:55+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,130 +18,173 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: apps/account/apps.py:8
 msgid "User Account"
 msgstr "用户账户"
 
-#: apps/account/constants.py:21
 msgid "Personal"
 msgstr "个人"
 
-#: apps/account/constants.py:22
 msgid "Platform"
 msgstr "平台"
 
-#: apps/account/constants.py:30
 msgid "Avatar"
 msgstr "头像"
 
-#: apps/account/constants.py:31
 msgid "Phone Number"
 msgstr "联系电话"
 
-#: apps/account/constants.py:32
 msgid "Mail Address"
 msgstr "邮件地址"
 
-#: apps/account/models.py:22
 msgid "Username Cannot be Empty"
 msgstr "用户名不能为空"
 
-#: apps/account/models.py:39
 msgid "username"
 msgstr "用户名"
 
-#: apps/account/models.py:43
 msgid "already in use"
 msgstr "已被占用"
 
-#: apps/account/models.py:45
 msgid "Nick Name"
 msgstr "用户昵称"
 
-#: apps/account/models.py:47
 msgid "User Type"
 msgstr "用户类型"
 
-#: apps/account/models.py:52
 msgid "Date Joined"
 msgstr "注册时间"
 
-#: apps/account/models.py:59
+msgid "Is Staff"
+msgstr "是否管理员"
+
 msgid "User"
 msgstr "用户"
 
-#: apps/home/apps.py:8
+msgid "Total Price"
+msgstr "总价"
+
+msgid "Duration(ms)"
+msgstr "耗时(毫秒)"
+
+msgid "Create Time"
+msgstr "创建时间"
+
+msgid "System"
+msgstr "系统"
+
+msgid "Assistant"
+msgstr "助理"
+
+msgid "Unauthorized Model"
+msgstr "未授权的模型"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Chat ID"
+msgstr "对话ID"
+
+msgid "Model"
+msgstr "模型"
+
+msgid "Prompt Content"
+msgstr "提示内容"
+
+msgid "Completion Content"
+msgstr "响应内容"
+
+msgid "Prompt Tokens"
+msgstr "提示Token数量"
+
+msgid "Completion Tokens"
+msgstr "响应Token数量"
+
+msgid "Prompt Token Unit Price"
+msgstr "提示Token单价"
+
+msgid "Completion Token Unit Price"
+msgstr "响应Token单价"
+
+msgid "Finish Time"
+msgstr "完成时间"
+
+msgid "Chat Log"
+msgstr "对话日志"
+
+msgid "Expire Time"
+msgstr "过期时间"
+
+msgid "Model Permission"
+msgstr "模型权限"
+
+msgid "Role"
+msgstr "角色"
+
+msgid "Content"
+msgstr "内容"
+
+msgid "Messages"
+msgstr "消息"
+
+msgid "Temperature"
+msgstr "温度"
+
+msgid "Top Probability"
+msgstr "优选值"
+
 msgid "Home Module"
 msgstr "首页"
 
-#: apps/home/exceptions.py:8
 msgid "Language Code Invalid"
 msgstr "语言ID非法"
 
-#: apps/home/serializers.py:12
 msgid "Language Code"
 msgstr "语言ID"
 
-#: apps/trace/apps.py:11
 msgid "App Performance"
 msgstr "应用性能"
 
-#: core/constants.py:30
 msgid "LIST"
 msgstr "LIST"
 
-#: core/constants.py:31
 msgid "CREATE"
 msgstr "CREATE"
 
-#: core/constants.py:32
 msgid "UPDATE"
 msgstr "UPDATE"
 
-#: core/constants.py:33
 msgid "PARTIAL_UPDATE"
 msgstr "PARTIAL_UPDATE"
 
-#: core/constants.py:34
 msgid "DESTROY"
 msgstr "DESTROY"
 
-#: core/exceptions.py:54
 msgid "Request Failed"
 msgstr "请求失败"
 
-#: core/exceptions.py:118
 msgid "Server Error"
 msgstr "服务错误"
 
-#: core/exceptions.py:123
 msgid "Login Required"
 msgstr "未登录"
 
-#: core/exceptions.py:128
 msgid "Login Failed"
 msgstr "登录失败"
 
-#: core/exceptions.py:133
 msgid "Permission Denied"
 msgstr "未经授权访问"
 
-#: core/exceptions.py:138
 msgid "Operate Error"
 msgstr "异常操作"
 
-#: core/exceptions.py:143
 msgid "Resource Not Found"
 msgstr "资源未找到"
 
-#: core/exceptions.py:148
 msgid "Service Closed"
 msgstr "服务维护中"
 
-#: core/models.py:192
 msgid "Soft Delete"
 msgstr "软删除"
 
-#: core/paginations.py:19
 msgid "Invalid Page Number"
 msgstr "页码有误"

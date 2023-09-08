@@ -1,5 +1,6 @@
 import traceback
 
+from django.http import StreamingHttpResponse
 from rest_framework import mixins
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -65,7 +66,7 @@ class MainViewSet(CacheMixin, GenericViewSet):
                 request.method,
                 request.path,
                 {"params": request.query_params, "body": request.data},
-                self.response.data if hasattr(self.response, "data") else self.response.content,
+                self.load_response_content(),
                 {
                     "user_agent": request.META.get("HTTP_USER_AGENT", ""),
                     "ip": get_ip(request),
@@ -77,6 +78,17 @@ class MainViewSet(CacheMixin, GenericViewSet):
             logger.error(traceback.format_exc())
 
         return self.response
+
+    def load_response_content(self) -> any:
+        """
+        load response content
+        """
+
+        if hasattr(self.response, "data"):
+            return self.response.data
+        if isinstance(self.response, StreamingHttpResponse):
+            return self.response.streaming_content
+        return self.response.content
 
     @classmethod
     def call_action(cls, action: str, request: Request, params: dict = None, *args, **kwargs) -> Response:

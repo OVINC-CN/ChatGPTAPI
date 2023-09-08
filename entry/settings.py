@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "sslserver",
     "apps.account",
     "apps.cel",
+    "apps.chat",
     "apps.home",
     "apps.trace",
 ]
@@ -190,3 +191,9 @@ OTLP_TOKEN = os.getenv("OTLP_TOKEN", "")
 
 # OVINC
 OVINC_API_DOMAIN = getenv_or_raise("OVINC_API_DOMAIN")
+
+# OpenAI
+OPENAI_HTTP_PROXY_URL = os.getenv("OPENAI_HTTP_PROXY_URL")
+OPENAI_HTTPS_PROXY_URL = os.getenv("OPENAI_HTTPS_PROXY_URL", OPENAI_HTTP_PROXY_URL)
+OPENAI_API_KEY = os.getenv("DEFAULT_OPENAI_API_KEY")
+OPENAI_API_BASE = os.getenv("DEFAULT_OPENAI_API_BASE")
