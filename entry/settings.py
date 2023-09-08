@@ -189,6 +189,10 @@ SERVICE_NAME = os.getenv("SERVICE_NAME", APP_CODE)
 OTLP_HOST = os.getenv("OTLP_HOST", "")
 OTLP_TOKEN = os.getenv("OTLP_TOKEN", "")
 
+# RUM
+RUM_ID = os.getenv("RUM_ID", "")
+RUM_HOST = os.getenv("RUM_HOST", "https://rumt-zh.com")
+
 # OVINC
 OVINC_API_DOMAIN = getenv_or_raise("OVINC_API_DOMAIN")
 
