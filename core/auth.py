@@ -1,12 +1,11 @@
 import json
-from typing import Union
+from typing import Tuple, Union
 
 import requests
 from django.conf import settings
-from django.contrib import auth
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
-from rest_framework.authentication import BaseAuthentication, SessionAuthentication
+from django.contrib.auth.backends import BaseBackend
+from rest_framework.authentication import SessionAuthentication
 
 from core.constants import OVINC_APP_HEADER, OVINC_AUTH_URL, OVINC_TOKEN
 from core.exceptions import LoginRequired
@@ -20,28 +19,39 @@ class SessionAuthenticate(SessionAuthentication):
     Session Auth
     """
 
-    def authenticate(self, request) -> Union[tuple, None]:
-        # Get Auth Token
-        auth_token = request.COOKIES.get(settings.AUTH_TOKEN_NAME, None)
-        if not auth_token:
-            return None
-        # Verify Auth Token
-        user = self.check_token(auth_token, request)
-        if not user:
+    def authenticate(self, request) -> Union[Tuple[USER_MODEL, None], None]:
+        user = getattr(request._request, "user", None)
+        if user is None or not user.is_active:
             return None
         return user, None
 
-    def check_token(self, token, request) -> USER_MODEL:
-        # Cache First
-        user = cache.get(token)
-        if user:
-            return user
-        # OSB Auth
+
+class LoginRequiredAuthenticate(SessionAuthenticate):
+    """
+    Login Required Authenticate
+    """
+
+    def authenticate(self, request) -> (USER_MODEL, None):
+        user = super().authenticate(request)
+        if user is None or not user[0].is_active:
+            raise LoginRequired()
+        return user
+
+
+class OAuthBackend(BaseBackend):
+    """
+    OAuth
+    """
+
+    def authenticate(self, request, code: str = None, **kwargs):
+        if not code:
+            return
+        # Union API Auth
         try:
             # Request
             result = requests.post(
                 settings.OVINC_API_DOMAIN.rstrip("/") + OVINC_AUTH_URL,
-                json={OVINC_TOKEN: token},
+                json={OVINC_TOKEN: code},
                 headers={
                     OVINC_APP_HEADER: json.dumps({"app_code": settings.APP_CODE, "app_secret": settings.APP_SECRET})
                 },
@@ -53,26 +63,10 @@ class SessionAuthenticate(SessionAuthentication):
                 for key, val in result["data"].items():
                     setattr(user, key, val)
                 user.save(update_fields=result["data"].keys())
-                cache.set(token, user)
-                auth.login(request=request, user=user)
-                return self.check_token(token, request)
+                return user
             else:
-                logger.info("[OSBAuthFailed] Result => %s", result)
+                logger.info("[UnionAuthFailed] Result => %s", result)
                 return None
         except Exception as err:
             logger.exception(err)
             return None
-
-    @classmethod
-    def get_user(cls, pk: str) -> USER_MODEL:
-        return USER_MODEL.objects.get(pk=pk)
-
-
-class AuthTokenAuthenticate(BaseAuthentication):
-    """
-    Auth Token Authenticate
-    """
-
-    def authenticate(self, request) -> (USER_MODEL, None):
-        # User Auth Token
-        raise LoginRequired()
