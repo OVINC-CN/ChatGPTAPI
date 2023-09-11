@@ -8,6 +8,7 @@ from core import exceptions
 urlpatterns = [
     path("favicon.ico", RedirectView.as_view(url=f"{settings.FRONTEND_URL}/favicon.ico")),
     path("admin/", admin.site.urls),
+    path("account/", include("apps.account.urls")),
     path("", include("apps.home.urls")),
     path("", include("apps.chat.urls")),
     path("", include("apps.trace.urls")),

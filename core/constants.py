@@ -21,8 +21,8 @@ DEFAULT_USER_CACHE_TIMEOUT = 60 * 10
 
 # OVINC
 OVINC_APP_HEADER = "ovinc-app"
-OVINC_TOKEN = "token"
-OVINC_AUTH_URL = "/account/verify_token/"
+OVINC_TOKEN = "code"
+OVINC_AUTH_URL = "/account/verify_code/"
 
 
 # Request

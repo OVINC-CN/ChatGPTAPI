@@ -102,28 +102,6 @@ class ManyToManyField(_ManyToManyField):
         )
 
 
-class BaseModelManager(models.Manager):
-    """
-    Base Model Manager
-    """
-
-    def get_cache_instance(self, pk: str) -> "models.Model":
-        """
-        get cached instance or create cached instance
-        """
-
-        # get cache first
-        cache_key = self.model.cache_key(pk)
-        instance = cache.get(cache_key)
-        if instance:
-            return instance
-
-        # create cache if not exist
-        instance = self.get(pk=pk)
-        cache.set(cache_key, instance, self.model.cache_timeout)
-        return self.get_cache_instance(instance)
-
-
 class BaseModel(models.Model):
     """
     Base Model
@@ -131,8 +109,7 @@ class BaseModel(models.Model):
 
     from core.constants import DEFAULT_USER_CACHE_TIMEOUT
 
-    objects = BaseModelManager()
-    _objects = models.Manager()
+    objects = models.Manager()
     cache_timeout = DEFAULT_USER_CACHE_TIMEOUT
 
     class Meta:
@@ -164,7 +141,7 @@ class BaseModel(models.Model):
         cache.delete(self.cache_key(self.pk))
 
 
-class SoftDeletedManager(BaseModelManager):
+class SoftDeletedManager(models.Manager):
     """
     Soft Delete Model Manager
     """

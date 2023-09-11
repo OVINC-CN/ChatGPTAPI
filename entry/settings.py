@@ -149,7 +149,6 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7
 SESSION_COOKIE_DOMAIN = os.getenv("SESSION_COOKIE_DOMAIN")
-AUTH_TOKEN_NAME = os.getenv("AUTH_TOKEN_NAME", "union-api-auth-token")
 
 # Log
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
@@ -164,14 +163,11 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {},
     "EXCEPTION_HANDLER": "core.exceptions.exception_handler",
     "UNAUTHENTICATED_USER": "apps.account.models.CustomAnonymousUser",
-    "DEFAULT_AUTHENTICATION_CLASSES": ["core.auth.SessionAuthenticate", "core.auth.AuthTokenAuthenticate"],
+    "DEFAULT_AUTHENTICATION_CLASSES": ["core.auth.LoginRequiredAuthenticate"],
 }
 
 # User
 AUTH_USER_MODEL = "account.User"
-AUTHENTICATION_BACKENDS = [
-    "core.auth.SessionAuthenticate",
-]
 
 # Celery
 CELERY_TIMEZONE = TIME_ZONE
