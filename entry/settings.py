@@ -2,9 +2,8 @@ import os
 from pathlib import Path
 
 from environ import environ
-
-from core.logger import get_logging_config_dict
-from core.utils import getenv_or_raise, strtobool
+from ovinc_client.core.logger import get_logging_config_dict
+from ovinc_client.core.utils import getenv_or_raise, strtobool
 
 # Base Dir
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,17 +38,17 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "sslserver",
-    "apps.account",
+    "ovinc_client.account",
+    "ovinc_client.trace",
     "apps.cel",
     "apps.chat",
     "apps.home",
-    "apps.trace",
 ]
 
 # MIDDLEWARE
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
-    "core.middlewares.CSRFExemptMiddleware",
+    "ovinc_client.core.middlewares.CSRFExemptMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -57,13 +56,13 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "core.middlewares.SQLDebugMiddleware",
+    "ovinc_client.core.middlewares.SQLDebugMiddleware",
 ]
 if DEBUG:
     MIDDLEWARE += ["pyinstrument.middleware.ProfilerMiddleware"]
     PYINSTRUMENT_PROFILE_DIR = ".report"
 if not DEBUG:
-    MIDDLEWARE += ["core.middlewares.UnHandleExceptionMiddleware"]
+    MIDDLEWARE += ["ovinc_client.core.middlewares.UnHandleExceptionMiddleware"]
 
 # Urls
 ROOT_URLCONF = "entry.urls"
@@ -157,13 +156,13 @@ LOGGING = get_logging_config_dict(LOG_LEVEL, LOG_DIR)
 
 # rest_framework
 REST_FRAMEWORK = {
-    "DEFAULT_RENDERER_CLASSES": ["core.renderers.APIRenderer"],
-    "DEFAULT_PAGINATION_CLASS": "core.paginations.NumPagination",
+    "DEFAULT_RENDERER_CLASSES": ["ovinc_client.core.renderers.APIRenderer"],
+    "DEFAULT_PAGINATION_CLASS": "ovinc_client.core.paginations.NumPagination",
     "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",
     "DEFAULT_THROTTLE_RATES": {},
-    "EXCEPTION_HANDLER": "core.exceptions.exception_handler",
-    "UNAUTHENTICATED_USER": "apps.account.models.CustomAnonymousUser",
-    "DEFAULT_AUTHENTICATION_CLASSES": ["core.auth.LoginRequiredAuthenticate"],
+    "EXCEPTION_HANDLER": "ovinc_client.core.exceptions.exception_handler",
+    "UNAUTHENTICATED_USER": "ovinc_client.account.models.CustomAnonymousUser",
+    "DEFAULT_AUTHENTICATION_CLASSES": ["ovinc_client.core.auth.LoginRequiredAuthenticate"],
 }
 
 # User

@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 
 from django.utils.translation import gettext_lazy
-
-from core.models import TextChoices
+from ovinc_client.core.models import TextChoices
 
 MESSAGE_MIN_LENGTH = 1
 TEMPERATURE_DEFAULT = 1

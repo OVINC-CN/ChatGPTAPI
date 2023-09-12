@@ -1,6 +1,7 @@
 from corsheaders.middleware import ACCESS_CONTROL_ALLOW_ORIGIN
 from django.conf import settings
 from django.http import StreamingHttpResponse
+from ovinc_client.core.viewsets import CreateMixin, ListMixin, MainViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -12,7 +13,6 @@ from apps.chat.serializers import (
     CheckModelPermissionSerializer,
     OpenAIRequestSerializer,
 )
-from core.viewsets import CreateMixin, ListMixin, MainViewSet
 
 
 class ChatViewSet(CreateMixin, MainViewSet):
