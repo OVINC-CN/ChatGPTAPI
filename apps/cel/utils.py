@@ -2,9 +2,9 @@ import time
 from functools import wraps
 
 from django.core.cache import cache
+from ovinc_client.core.logger import logger
 
 from apps.cel.constants import CELERY_RETRY_SLEEP
-from core.logger import logger
 
 
 class LockKey:

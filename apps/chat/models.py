@@ -5,6 +5,8 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Q, QuerySet
 from django.utils.translation import gettext_lazy
+from ovinc_client.core.constants import MAX_CHAR_LENGTH, MEDIUM_CHAR_LENGTH
+from ovinc_client.core.models import BaseModel, ForeignKey, UniqIDField
 
 from apps.chat.constants import (
     PRICE_DECIMAL_NUMS,
@@ -12,8 +14,6 @@ from apps.chat.constants import (
     OpenAIModel,
     OpenAIRole,
 )
-from core.constants import MAX_CHAR_LENGTH, MEDIUM_CHAR_LENGTH
-from core.models import BaseModel, ForeignKey, UniqIDField
 
 USER_MODEL = get_user_model()
 

@@ -1,12 +1,12 @@
 from django.conf import settings
 from django.conf.global_settings import LANGUAGE_COOKIE_NAME
 from django.contrib.auth import get_user_model
+from ovinc_client.account.models import User
+from ovinc_client.core.auth import SessionAuthenticate
+from ovinc_client.core.viewsets import MainViewSet
 from rest_framework.response import Response
 
-from apps.account.models import User
 from apps.home.serializers import I18nRequestSerializer
-from core.auth import SessionAuthenticate
-from core.viewsets import MainViewSet
 
 USER_MODEL: User = get_user_model()
 
