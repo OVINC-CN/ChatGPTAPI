@@ -171,8 +171,8 @@ class HunYuanClient(BaseClient):
         # check log exist
         if self.log:
             self.log.content += response.choices[0].delta.content
-            self.log.prompt_tokens += response.usage.prompt_tokens
-            self.log.completion_tokens += response.usage.completion_tokens
+            self.log.prompt_tokens = response.usage.prompt_tokens
+            self.log.completion_tokens = response.usage.completion_tokens
             price = OpenAIUnitPrice.get_price(self.model)
             self.log.prompt_token_unit_price = price.prompt_token_unit_price
             self.log.completion_token_unit_price = price.completion_token_unit_price

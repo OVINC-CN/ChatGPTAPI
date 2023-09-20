@@ -76,7 +76,7 @@ class OpenAIUnitPrice:
         OpenAIModel.GPT35_TURBO_0613.value: OpenAIUnitPriceItem(0.0015, 0.002),
         OpenAIModel.GPT35_TURBO_16K.value: OpenAIUnitPriceItem(0.003, 0.004),
         OpenAIModel.GPT35_TURBO_16K_0613.value: OpenAIUnitPriceItem(0.003, 0.004),
-        OpenAIModel.HUNYUAN.value: OpenAIUnitPriceItem(0.10 / 7, 0.10 / 7),
+        OpenAIModel.HUNYUAN.value: OpenAIUnitPriceItem(round(0.10 / 7, 4), round(0.10 / 7, 4)),
     }
 
     @classmethod
