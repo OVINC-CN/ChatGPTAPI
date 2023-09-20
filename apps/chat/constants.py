@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 
 from django.utils.translation import gettext_lazy
@@ -12,6 +13,8 @@ TOP_P_MIN = 0
 
 PRICE_DIGIT_NUMS = 20
 PRICE_DECIMAL_NUMS = 10
+
+HUNYUAN_DATA_PATTERN = re.compile(rb"data:\s\{.*\}\n\n")
 
 
 class OpenAIRole(TextChoices):
@@ -37,12 +40,13 @@ class OpenAIModel(TextChoices):
     GPT4_0613 = "gpt-4-0613", "GPT4 (0613)"
     GPT4_32K = "gpt-4-32k", "GPT4 (32K)"
     GPT4_32K_0613 = "gpt-4-32k-0613", "GPT4 (32K, 0613)"
+    HUNYUAN = "hunyuan-plus", gettext_lazy("HunYuan Plus")
 
     @classmethod
     def get_name(cls, model: str) -> str:
         for value, label in cls.choices:
             if value == model:
-                return label
+                return str(label)
         return model
 
 
@@ -58,7 +62,7 @@ class OpenAIUnitPriceItem:
 
 class OpenAIUnitPrice:
     """
-    OpenAI Unit Price Per Thousand Tokens
+    OpenAI Unit Price Per Thousand Tokens ($)
     """
 
     price_map = {
@@ -70,6 +74,7 @@ class OpenAIUnitPrice:
         OpenAIModel.GPT35_Turbo_0613.value: OpenAIUnitPriceItem(0.0015, 0.002),
         OpenAIModel.GPT35_Turbo_16K.value: OpenAIUnitPriceItem(0.003, 0.004),
         OpenAIModel.GPT35_Turbo_16K_0613.value: OpenAIUnitPriceItem(0.003, 0.004),
+        OpenAIModel.HUNYUAN.value: OpenAIUnitPriceItem(0.10 / 7, 0.10 / 7),
     }
 
     @classmethod

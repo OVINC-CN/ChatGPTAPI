@@ -1,17 +1,24 @@
 import abc
+import base64
 import datetime
+import hashlib
+import hmac
+import json
 from typing import List
 
 import openai
+import requests
 import tiktoken
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from openai.openai_object import OpenAIObject
+from requests import Response
 from rest_framework.request import Request
 
-from apps.chat.constants import OpenAIModel, OpenAIUnitPrice
-from apps.chat.models import ChatLog, Message
+from apps.chat.constants import HUNYUAN_DATA_PATTERN, OpenAIModel, OpenAIUnitPrice
+from apps.chat.exceptions import UnexpectedError
+from apps.chat.models import ChatLog, HunYuanChuck, Message
 
 USER_MODEL = get_user_model()
 
@@ -109,9 +116,93 @@ class OpenAIClient(BaseClient):
             api_base=settings.OPENAI_API_BASE, api_key=settings.OPENAI_API_KEY
         ).to_dict_recursive()["data"]
         supported_models = [
-            {"id": model["id"], "name": OpenAIModel.get_name(model["id"])}
+            {"id": model["id"], "name": str(OpenAIModel.get_name(model["id"]))}
             for model in all_models
             if model["id"] in OpenAIModel.values
         ]
+        supported_models.append({"id": OpenAIModel.HUNYUAN.value, "name": str(OpenAIModel.HUNYUAN.label)})
         supported_models.sort(key=lambda model: model["id"])
         return supported_models
+
+
+class HunYuanClient(BaseClient):
+    """
+    Hun Yuan
+    """
+
+    @transaction.atomic()
+    def chat(self, *args, **kwargs) -> any:
+        # log
+        self.created_at = int(datetime.datetime.now().timestamp() * 1000)
+        # call hunyuan api
+        response = self.call_api()
+        # explain completion
+        completion_text = bytes()
+        for chunk in response:
+            completion_text += chunk
+            # match hunyuan data content
+            match = HUNYUAN_DATA_PATTERN.search(completion_text)
+            if match is None:
+                continue
+            # load content
+            resp_text = completion_text[match.regs[0][0] : match.regs[0][1]]
+            completion_text = completion_text[match.regs[0][1] :]
+            resp_text = json.loads(resp_text.decode()[6:])
+            chunk = HunYuanChuck.create(resp_text)
+            if chunk.error.code:
+                raise UnexpectedError(detail=chunk.error.message)
+            self.record(response=chunk)
+            yield chunk.choices[0].delta.content
+        if not self.log:
+            return
+        self.log.finished_at = int(datetime.datetime.now().timestamp() * 1000)
+        self.log.save()
+
+    def record(self, response: HunYuanChuck) -> None:
+        # check log exist
+        if self.log:
+            self.log.content += response.choices[0].delta.content
+            self.log.prompt_tokens += response.usage.prompt_tokens
+            self.log.completion_tokens += response.usage.completion_tokens
+            price = OpenAIUnitPrice.get_price(self.model)
+            self.log.prompt_token_unit_price = price.prompt_token_unit_price
+            self.log.completion_token_unit_price = price.completion_token_unit_price
+            return
+        # create log
+        self.log = ChatLog.objects.create(
+            chat_id=response.id,
+            user=self.user,
+            model=self.model,
+            messages=self.messages,
+            content="",
+            created_at=self.created_at,
+        )
+        return self.record(response=response)
+
+    def call_api(self) -> Response:
+        data = {
+            "app_id": settings.QCLOUD_APP_ID,
+            "secret_id": settings.QCLOUD_SECRET_ID,
+            "timestamp": int(datetime.datetime.now().timestamp()),
+            "expired": int((datetime.datetime.now() + datetime.timedelta(minutes=5)).timestamp()),
+            "messages": self.messages,
+            "temperature": self.temperature,
+            "top_p": self.top_p,
+            "stream": 1,
+        }
+        message_string = ",".join(
+            [f"{{\"role\":\"{message['role']}\",\"content\":\"{message['content']}\"}}" for message in self.messages]
+        )
+        message_string = "[{}]".format(message_string)
+        params = {**data, "messages": message_string}
+        params = dict(sorted(params.items(), key=lambda x: x[0]))
+        url = (
+            settings.QCLOUD_HUNYUAN_API_URL.split("://", 1)[1]
+            + "?"
+            + "&".join([f"{key}={val}" for key, val in params.items()])
+        )
+        signature = hmac.new(settings.QCLOUD_SECRET_KEY.encode(), url.encode(), hashlib.sha1).digest()
+        encoded_signature = base64.b64encode(signature).decode()
+        headers = {"Authorization": encoded_signature}
+        resp = requests.post(settings.QCLOUD_HUNYUAN_API_URL, json=data, headers=headers, stream=True)
+        return resp

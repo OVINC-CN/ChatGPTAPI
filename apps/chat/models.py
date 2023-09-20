@@ -1,5 +1,6 @@
 import datetime
 from dataclasses import dataclass
+from typing import List
 
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -102,3 +103,49 @@ class ModelPermission(BaseModel):
             q &= Q(model=str(model))
         q &= Q(Q(expired_at__gt=datetime.datetime.now()) | Q(expired_at__isnull=True))
         return cls.objects.filter(q)
+
+
+@dataclass
+class HunYuanDelta:
+    content: str = ""
+
+
+@dataclass
+class HunYuanChoice:
+    finish_reason: str = ""
+    delta: HunYuanDelta = None
+
+
+@dataclass
+class HunYuanUsage:
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
+
+
+@dataclass
+class HunYuanError:
+    code: int = 0
+    message: str = ""
+
+
+@dataclass
+class HunYuanChuck:
+    req_id: str = ""
+    note: str = ""
+    choices: List[HunYuanChoice] = None
+    created: str = ""
+    id: str = ""
+    usage: HunYuanUsage = None
+    error: HunYuanError = None
+
+    @classmethod
+    def create(cls, data: dict) -> "HunYuanChuck":
+        chuck = cls(**data)
+        chuck.usage = HunYuanUsage(**data.get("usage", {}))
+        chuck.error = HunYuanError(**data.get("error", {}))
+        chuck.choices = [
+            HunYuanChoice(finish_reason=choice.get("finish_reason", ""), delta=HunYuanDelta(**choice.get("delta", {})))
+            for choice in data.get("choices", [])
+        ]
+        return chuck
