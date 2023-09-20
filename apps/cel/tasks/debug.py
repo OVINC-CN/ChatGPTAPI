@@ -1,7 +1,7 @@
+from ovinc_client.core.lock import task_lock
 from ovinc_client.core.logger import celery_logger
 
 from apps.cel import app
-from apps.cel.utils import task_lock
 
 
 @app.task(bind=True)
