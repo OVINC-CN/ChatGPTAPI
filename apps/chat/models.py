@@ -98,10 +98,10 @@ class ModelPermission(BaseModel):
 
     @classmethod
     def authed_models(cls, user: USER_MODEL, model: str = None) -> QuerySet:
-        q = Q(user=user)
+        q = Q(user=user)  # pylint: disable=C0103
         if model:
-            q &= Q(model=str(model))
-        q &= Q(Q(expired_at__gt=datetime.datetime.now()) | Q(expired_at__isnull=True))
+            q &= Q(model=str(model))  # pylint: disable=C0103
+        q &= Q(Q(expired_at__gt=datetime.datetime.now()) | Q(expired_at__isnull=True))  # pylint: disable=C0103
         return cls.objects.filter(q)
 
 
@@ -135,7 +135,7 @@ class HunYuanChuck:
     note: str = ""
     choices: List[HunYuanChoice] = None
     created: str = ""
-    id: str = ""
+    id: str = ""  # pylint: disable=C0103
     usage: HunYuanUsage = None
     error: HunYuanError = None
 

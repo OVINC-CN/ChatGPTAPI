@@ -21,7 +21,7 @@ SECRET_KEY = getenv_or_raise("APP_SECRET")
 
 # Hosts
 ALLOWED_HOSTS = [getenv_or_raise("BACKEND_HOST")]
-CORS_ALLOW_CREDENTIALS = os.getenv("CORS_ALLOW_CREDENTIALS", True)
+CORS_ALLOW_CREDENTIALS = strtobool(os.getenv("CORS_ALLOW_CREDENTIALS", "True"))
 CORS_ORIGIN_WHITELIST = [getenv_or_raise("FRONTEND_URL")]
 CSRF_TRUSTED_ORIGINS = [getenv_or_raise("FRONTEND_URL")]
 FRONTEND_URL = getenv_or_raise("FRONTEND_URL")
@@ -97,7 +97,7 @@ DATABASES = {
         "HOST": getenv_or_raise("DB_HOST"),
         "PORT": int(getenv_or_raise("DB_PORT")),
         "OPTIONS": {"charset": "utf8mb4"},
-        "CONN_MAX_AGE": 0 if DEBUG else int(os.getenv("DB_CONN_MAX_AGE", 3600)),
+        "CONN_MAX_AGE": 0 if DEBUG else int(os.getenv("DB_CONN_MAX_AGE", "3600")),
     }
 }
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

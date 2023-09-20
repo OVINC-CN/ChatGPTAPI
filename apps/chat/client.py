@@ -16,18 +16,25 @@ from openai.openai_object import OpenAIObject
 from requests import Response
 from rest_framework.request import Request
 
-from apps.chat.constants import HUNYUAN_DATA_PATTERN, OpenAIModel, OpenAIUnitPrice
+from apps.chat.constants import (
+    AI_API_REQUEST_TIMEOUT,
+    HUNYUAN_DATA_PATTERN,
+    OpenAIModel,
+    OpenAIUnitPrice,
+)
 from apps.chat.exceptions import UnexpectedError
 from apps.chat.models import ChatLog, HunYuanChuck, Message
 
 USER_MODEL = get_user_model()
 
 
+# pylint: disable=R0902
 class BaseClient:
     """
     Base Client for Chat
     """
 
+    # pylint: disable=R0913
     def __init__(self, request: Request, model: str, messages: List[Message], temperature: float, top_p: float):
         self.log: ChatLog = None
         self.request: Request = request
@@ -62,7 +69,7 @@ class OpenAIClient(BaseClient):
     """
 
     @transaction.atomic()
-    def chat(self) -> any:
+    def chat(self, *args, **kwargs) -> any:
         self.created_at = int(datetime.datetime.now().timestamp() * 1000)
         response = openai.ChatCompletion.create(
             api_base=settings.OPENAI_API_BASE,
@@ -79,7 +86,8 @@ class OpenAIClient(BaseClient):
         self.finished_at = int(datetime.datetime.now().timestamp() * 1000)
         self.post_chat()
 
-    def record(self, *, response: OpenAIObject) -> None:
+    # pylint: disable=W0221,R1710
+    def record(self, response: OpenAIObject, **kwargs) -> None:
         # check log exist
         if self.log:
             self.log.content += response.choices[0].delta.get("content", "")
@@ -158,6 +166,7 @@ class HunYuanClient(BaseClient):
         self.log.finished_at = int(datetime.datetime.now().timestamp() * 1000)
         self.log.save()
 
+    # pylint: disable=W0221,R1710
     def record(self, response: HunYuanChuck) -> None:
         # check log exist
         if self.log:
@@ -193,7 +202,7 @@ class HunYuanClient(BaseClient):
         message_string = ",".join(
             [f"{{\"role\":\"{message['role']}\",\"content\":\"{message['content']}\"}}" for message in self.messages]
         )
-        message_string = "[{}]".format(message_string)
+        message_string = f"[{message_string}]"
         params = {**data, "messages": message_string}
         params = dict(sorted(params.items(), key=lambda x: x[0]))
         url = (
@@ -204,5 +213,7 @@ class HunYuanClient(BaseClient):
         signature = hmac.new(settings.QCLOUD_SECRET_KEY.encode(), url.encode(), hashlib.sha1).digest()
         encoded_signature = base64.b64encode(signature).decode()
         headers = {"Authorization": encoded_signature}
-        resp = requests.post(settings.QCLOUD_HUNYUAN_API_URL, json=data, headers=headers, stream=True)
+        resp = requests.post(
+            settings.QCLOUD_HUNYUAN_API_URL, json=data, headers=headers, stream=True, timeout=AI_API_REQUEST_TIMEOUT
+        )
         return resp

@@ -15,6 +15,7 @@ from apps.chat.serializers import (
 )
 
 
+# pylint: disable=R0901
 class ChatViewSet(CreateMixin, MainViewSet):
     """
     Chat
@@ -49,19 +50,20 @@ class ChatViewSet(CreateMixin, MainViewSet):
         )
 
 
+# pylint: disable=R0901
 class AIModelViewSet(ListMixin, MainViewSet):
     """
     Model
     """
 
-    def list(self, reqeust, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         """
         List Models
         """
 
         data = [
             {"id": model.model, "name": OpenAIModel.get_name(model.model)}
-            for model in ModelPermission.authed_models(user=reqeust.user)
+            for model in ModelPermission.authed_models(user=request.user)
         ]
         data.sort(key=lambda model: model["id"])
         return Response(data=data)
