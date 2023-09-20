@@ -24,10 +24,11 @@ class ChatLogAdmin(admin.ModelAdmin):
 
     @admin.display(description=gettext_lazy("Total Price"))
     def total_price(self, log: ChatLog) -> str:
-        return "%.6f" % (
+        price = (
             log.prompt_tokens * log.prompt_token_unit_price / 1000
             + log.completion_tokens * log.completion_token_unit_price / 1000
         )
+        return f"{price:.2f}"
 
     @admin.display(description=gettext_lazy("Duration(ms)"))
     def duration(self, log: ChatLog) -> int:

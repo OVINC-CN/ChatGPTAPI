@@ -5,7 +5,7 @@ from ovinc_client.core.viewsets import CreateMixin, ListMixin, MainViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.chat.client import OpenAIClient
+from apps.chat.client import HunYuanClient, OpenAIClient
 from apps.chat.constants import OpenAIModel
 from apps.chat.models import ChatLog, ModelPermission
 from apps.chat.permissions import AIModelPermission
@@ -15,6 +15,7 @@ from apps.chat.serializers import (
 )
 
 
+# pylint: disable=R0901
 class ChatViewSet(CreateMixin, MainViewSet):
     """
     Chat
@@ -34,7 +35,10 @@ class ChatViewSet(CreateMixin, MainViewSet):
         request_data = request_serializer.validated_data
 
         # call api
-        streaming_content = OpenAIClient(request=request, **request_data).chat()
+        if request_data["model"] == OpenAIModel.HUNYUAN:
+            streaming_content = HunYuanClient(request=request, **request_data).chat()
+        else:
+            streaming_content = OpenAIClient(request=request, **request_data).chat()
 
         # response
         return StreamingHttpResponse(
@@ -46,19 +50,20 @@ class ChatViewSet(CreateMixin, MainViewSet):
         )
 
 
+# pylint: disable=R0901
 class AIModelViewSet(ListMixin, MainViewSet):
     """
     Model
     """
 
-    def list(self, reqeust, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         """
         List Models
         """
 
         data = [
             {"id": model.model, "name": OpenAIModel.get_name(model.model)}
-            for model in ModelPermission.authed_models(user=reqeust.user)
+            for model in ModelPermission.authed_models(user=request.user)
         ]
         data.sort(key=lambda model: model["id"])
         return Response(data=data)

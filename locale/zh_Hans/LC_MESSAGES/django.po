@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-08 20:55+0800\n"
+"POT-Creation-Date: 2023-09-20 16:35+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,48 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-
-msgid "User Account"
-msgstr "用户账户"
-
-msgid "Personal"
-msgstr "个人"
-
-msgid "Platform"
-msgstr "平台"
-
-msgid "Avatar"
-msgstr "头像"
-
-msgid "Phone Number"
-msgstr "联系电话"
-
-msgid "Mail Address"
-msgstr "邮件地址"
-
-msgid "Username Cannot be Empty"
-msgstr "用户名不能为空"
-
-msgid "username"
-msgstr "用户名"
-
-msgid "already in use"
-msgstr "已被占用"
-
-msgid "Nick Name"
-msgstr "用户昵称"
-
-msgid "User Type"
-msgstr "用户类型"
-
-msgid "Date Joined"
-msgstr "注册时间"
-
-msgid "Is Staff"
-msgstr "是否管理员"
-
-msgid "User"
-msgstr "用户"
 
 msgid "Total Price"
 msgstr "总价"
@@ -69,14 +27,23 @@ msgstr "耗时(毫秒)"
 msgid "Create Time"
 msgstr "创建时间"
 
+msgid "User"
+msgstr "用户"
+
 msgid "System"
 msgstr "系统"
 
 msgid "Assistant"
 msgstr "助理"
 
+msgid "HunYuan Plus"
+msgstr "腾讯混元大模型(高级版)"
+
 msgid "Unauthorized Model"
 msgstr "未授权的模型"
+
+msgid "Unknown Error"
+msgstr "未知异常"
 
 msgid "ID"
 msgstr "ID"
@@ -140,51 +107,3 @@ msgstr "语言ID非法"
 
 msgid "Language Code"
 msgstr "语言ID"
-
-msgid "App Performance"
-msgstr "应用性能"
-
-msgid "LIST"
-msgstr "LIST"
-
-msgid "CREATE"
-msgstr "CREATE"
-
-msgid "UPDATE"
-msgstr "UPDATE"
-
-msgid "PARTIAL_UPDATE"
-msgstr "PARTIAL_UPDATE"
-
-msgid "DESTROY"
-msgstr "DESTROY"
-
-msgid "Request Failed"
-msgstr "请求失败"
-
-msgid "Server Error"
-msgstr "服务错误"
-
-msgid "Login Required"
-msgstr "未登录"
-
-msgid "Login Failed"
-msgstr "登录失败"
-
-msgid "Permission Denied"
-msgstr "未经授权访问"
-
-msgid "Operate Error"
-msgstr "异常操作"
-
-msgid "Resource Not Found"
-msgstr "资源未找到"
-
-msgid "Service Closed"
-msgstr "服务维护中"
-
-msgid "Soft Delete"
-msgstr "软删除"
-
-msgid "Invalid Page Number"
-msgstr "页码有误"

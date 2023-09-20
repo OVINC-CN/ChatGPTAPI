@@ -21,7 +21,7 @@ SECRET_KEY = getenv_or_raise("APP_SECRET")
 
 # Hosts
 ALLOWED_HOSTS = [getenv_or_raise("BACKEND_HOST")]
-CORS_ALLOW_CREDENTIALS = os.getenv("CORS_ALLOW_CREDENTIALS", True)
+CORS_ALLOW_CREDENTIALS = strtobool(os.getenv("CORS_ALLOW_CREDENTIALS", "True"))
 CORS_ORIGIN_WHITELIST = [getenv_or_raise("FRONTEND_URL")]
 CSRF_TRUSTED_ORIGINS = [getenv_or_raise("FRONTEND_URL")]
 FRONTEND_URL = getenv_or_raise("FRONTEND_URL")
@@ -97,7 +97,7 @@ DATABASES = {
         "HOST": getenv_or_raise("DB_HOST"),
         "PORT": int(getenv_or_raise("DB_PORT")),
         "OPTIONS": {"charset": "utf8mb4"},
-        "CONN_MAX_AGE": 0 if DEBUG else int(os.getenv("DB_CONN_MAX_AGE", 3600)),
+        "CONN_MAX_AGE": 0 if DEBUG else int(os.getenv("DB_CONN_MAX_AGE", "3600")),
     }
 }
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -196,3 +196,11 @@ OPENAI_HTTP_PROXY_URL = os.getenv("OPENAI_HTTP_PROXY_URL")
 OPENAI_HTTPS_PROXY_URL = os.getenv("OPENAI_HTTPS_PROXY_URL", OPENAI_HTTP_PROXY_URL)
 OPENAI_API_KEY = os.getenv("DEFAULT_OPENAI_API_KEY")
 OPENAI_API_BASE = os.getenv("DEFAULT_OPENAI_API_BASE")
+
+# QCLOUD
+QCLOUD_APP_ID = int(os.getenv("QCLOUD_APP_ID", "0"))
+QCLOUD_SECRET_ID = os.getenv("QCLOUD_SECRET_ID")
+QCLOUD_SECRET_KEY = os.getenv("QCLOUD_SECRET_KEY")
+QCLOUD_HUNYUAN_API_URL = os.getenv(
+    "QCLOUD_HUNYUAN_API_DOMAIN", "https://hunyuan.cloud.tencent.com/hyllm/v1/chat/completions"
+)
