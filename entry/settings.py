@@ -133,7 +133,7 @@ LANGUAGE_CODE = os.getenv("DEFAULT_LANGUAGE", "zh-hans")
 TIME_ZONE = os.getenv("DEFAULT_TIME_ZONE", "Asia/Shanghai")
 USE_I18N = True
 USE_L10N = True
-USE_TZ = False
+USE_TZ = True
 LANGUAGES = (("zh-hans", "中文简体"), ("en", "English"))
 LOCALE_PATHS = (os.path.join(BASE_DIR, "locale"),)
 
@@ -158,7 +158,7 @@ LOGGING = get_logging_config_dict(LOG_LEVEL, LOG_DIR)
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ["ovinc_client.core.renderers.APIRenderer"],
     "DEFAULT_PAGINATION_CLASS": "ovinc_client.core.paginations.NumPagination",
-    "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",
+    "DATETIME_FORMAT": "%Y-%m-%dT%H:%M%z",
     "DEFAULT_THROTTLE_RATES": {},
     "EXCEPTION_HANDLER": "ovinc_client.core.exceptions.exception_handler",
     "UNAUTHENTICATED_USER": "ovinc_client.account.models.CustomAnonymousUser",

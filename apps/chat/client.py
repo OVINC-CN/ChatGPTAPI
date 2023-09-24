@@ -12,6 +12,7 @@ import tiktoken
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.utils import timezone
 from openai.openai_object import OpenAIObject
 from requests import Response
 from rest_framework.request import Request
@@ -70,7 +71,7 @@ class OpenAIClient(BaseClient):
 
     @transaction.atomic()
     def chat(self, *args, **kwargs) -> any:
-        self.created_at = int(datetime.datetime.now().timestamp() * 1000)
+        self.created_at = int(timezone.now().timestamp() * 1000)
         response = openai.ChatCompletion.create(
             api_base=settings.OPENAI_API_BASE,
             api_key=settings.OPENAI_API_KEY,
@@ -83,7 +84,7 @@ class OpenAIClient(BaseClient):
         for chunk in response:
             self.record(response=chunk)
             yield chunk.choices[0].delta.get("content", "")
-        self.finished_at = int(datetime.datetime.now().timestamp() * 1000)
+        self.finished_at = int(timezone.now().timestamp() * 1000)
         self.post_chat()
 
     # pylint: disable=W0221,R1710
@@ -141,7 +142,7 @@ class HunYuanClient(BaseClient):
     @transaction.atomic()
     def chat(self, *args, **kwargs) -> any:
         # log
-        self.created_at = int(datetime.datetime.now().timestamp() * 1000)
+        self.created_at = int(timezone.now().timestamp() * 1000)
         # call hunyuan api
         response = self.call_api()
         # explain completion
@@ -163,7 +164,7 @@ class HunYuanClient(BaseClient):
             yield chunk.choices[0].delta.content
         if not self.log:
             return
-        self.log.finished_at = int(datetime.datetime.now().timestamp() * 1000)
+        self.log.finished_at = int(timezone.now().timestamp() * 1000)
         self.log.save()
 
     # pylint: disable=W0221,R1710
@@ -192,8 +193,8 @@ class HunYuanClient(BaseClient):
         data = {
             "app_id": settings.QCLOUD_APP_ID,
             "secret_id": settings.QCLOUD_SECRET_ID,
-            "timestamp": int(datetime.datetime.now().timestamp()),
-            "expired": int((datetime.datetime.now() + datetime.timedelta(minutes=5)).timestamp()),
+            "timestamp": int(timezone.now().timestamp()),
+            "expired": int((timezone.now() + datetime.timedelta(minutes=5)).timestamp()),
             "messages": self.messages,
             "temperature": self.temperature,
             "top_p": self.top_p,

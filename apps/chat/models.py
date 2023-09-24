@@ -1,10 +1,10 @@
-import datetime
 from dataclasses import dataclass
 from typing import List
 
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Q, QuerySet
+from django.utils import timezone
 from django.utils.translation import gettext_lazy
 from ovinc_client.core.constants import MAX_CHAR_LENGTH, MEDIUM_CHAR_LENGTH
 from ovinc_client.core.models import BaseModel, ForeignKey, UniqIDField
@@ -101,7 +101,7 @@ class ModelPermission(BaseModel):
         q = Q(user=user)  # pylint: disable=C0103
         if model:
             q &= Q(model=str(model))  # pylint: disable=C0103
-        q &= Q(Q(expired_at__gt=datetime.datetime.now()) | Q(expired_at__isnull=True))  # pylint: disable=C0103
+        q &= Q(Q(expired_at__gt=timezone.now()) | Q(expired_at__isnull=True))  # pylint: disable=C0103
         return cls.objects.filter(q)
 
 
