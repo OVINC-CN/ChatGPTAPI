@@ -1,6 +1,7 @@
 import datetime
 
 from django.contrib import admin
+from django.utils import timezone
 from django.utils.translation import gettext_lazy
 from rest_framework.settings import api_settings
 
@@ -38,7 +39,11 @@ class ChatLogAdmin(admin.ModelAdmin):
 
     @admin.display(description=gettext_lazy("Create Time"))
     def created_at_formatted(self, log: ChatLog) -> str:
-        return datetime.datetime.fromtimestamp(log.created_at / 1000).strftime(api_settings.DATETIME_FORMAT)
+        return (
+            datetime.datetime.fromtimestamp(log.created_at / 1000)
+            .astimezone(timezone.get_current_timezone())
+            .strftime(api_settings.DATETIME_FORMAT)
+        )
 
 
 @admin.register(ModelPermission)
