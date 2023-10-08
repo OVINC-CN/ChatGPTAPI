@@ -206,3 +206,6 @@ QCLOUD_SECRET_KEY = os.getenv("QCLOUD_SECRET_KEY")
 QCLOUD_HUNYUAN_API_URL = os.getenv(
     "QCLOUD_HUNYUAN_API_DOMAIN", "https://hunyuan.cloud.tencent.com/hyllm/v1/chat/completions"
 )
+
+# Log
+RECORD_CHAT_CONTENT = strtobool(os.getenv("RECORD_CHAT_CONTENT", "False"))

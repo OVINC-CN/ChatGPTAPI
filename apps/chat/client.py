@@ -118,6 +118,7 @@ class OpenAIClient(BaseClient):
         # save
         self.log.finished_at = self.finished_at
         self.log.save()
+        self.log.remove_content()
 
     @classmethod
     def list_models(cls) -> List[dict]:
@@ -166,6 +167,7 @@ class HunYuanClient(BaseClient):
             return
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
         self.log.save()
+        self.log.remove_content()
 
     # pylint: disable=W0221,R1710
     def record(self, response: HunYuanChuck) -> None:

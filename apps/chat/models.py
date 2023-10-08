@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Q, QuerySet
@@ -60,6 +61,13 @@ class ChatLog(BaseModel):
         verbose_name = gettext_lazy("Chat Log")
         verbose_name_plural = verbose_name
         ordering = ["-created_at"]
+
+    def remove_content(self) -> None:
+        if settings.RECORD_CHAT_CONTENT:
+            return
+        self.messages = []
+        self.content = ""
+        self.save(update_fields=["messages", "content"])
 
 
 @dataclass
