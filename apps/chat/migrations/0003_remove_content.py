@@ -1,3 +1,5 @@
+# pylint: disable=R0801,C0103
+
 from django.conf import settings
 from django.db import migrations
 
