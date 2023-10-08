@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-20 16:35+0800\n"
+"POT-Creation-Date: 2023-10-08 13:22+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -44,6 +44,9 @@ msgstr "未授权的模型"
 
 msgid "Unknown Error"
 msgstr "未知异常"
+
+msgid "Pre Check Verify Failed"
+msgstr "预检查失败"
 
 msgid "ID"
 msgstr "ID"
@@ -98,6 +101,9 @@ msgstr "温度"
 
 msgid "Top Probability"
 msgstr "优选值"
+
+msgid "Messages too long, please clear all input"
+msgstr "消息过长，请清空重试"
 
 msgid "Home Module"
 msgstr "首页"

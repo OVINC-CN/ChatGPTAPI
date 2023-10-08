@@ -100,9 +100,9 @@ class ModelPermission(BaseModel):
     def authed_models(cls, user: USER_MODEL, model: str = None) -> QuerySet:
         q = Q(user=user)  # pylint: disable=C0103
         if model:
-            q &= Q(
+            q &= Q(  # pylint: disable=C0103
                 Q(model=str(model), expired_at__gt=timezone.now()) | Q(model=str(model), expired_at__isnull=True)
-            )  # pylint: disable=C0103
+            )
         else:
             q &= Q(Q(expired_at__gt=timezone.now()) | Q(expired_at__isnull=True))  # pylint: disable=C0103
         return cls.objects.filter(q)
