@@ -34,14 +34,10 @@ class OpenAIModel(TextChoices):
     OpenAI Model
     """
 
-    GPT35_TURBO = "gpt-3.5-turbo", "GPT3.5 Turbo"
-    GPT35_TURBO_0613 = "gpt-3.5-turbo-0613", "GPT3.5 Turbo (0613)"
-    GPT35_TURBO_16K = "gpt-3.5-turbo-16k", "GPT3.5 Turbo (16K)"
-    GPT35_TURBO_16K_0613 = "gpt-3.5-turbo-16k-0613", "GPT3.5 Turbo (16K, 0613)"
     GPT4 = "gpt-4", "GPT4"
-    GPT4_0613 = "gpt-4-0613", "GPT4 (0613)"
     GPT4_32K = "gpt-4-32k", "GPT4 (32K)"
-    GPT4_32K_0613 = "gpt-4-32k-0613", "GPT4 (32K, 0613)"
+    GPT4_TURBO = "gpt-4-1106-preview", "GPT4 Turbo"
+    GPT35_TURBO = "gpt-3.5-turbo", "GPT3.5 Turbo"
     HUNYUAN = "hunyuan-plus", gettext_lazy("HunYuan Plus")
 
     @classmethod
@@ -69,13 +65,9 @@ class OpenAIUnitPrice:
 
     price_map = {
         OpenAIModel.GPT4.value: OpenAIUnitPriceItem(0.03, 0.06),
-        OpenAIModel.GPT4_0613.value: OpenAIUnitPriceItem(0.03, 0.06),
         OpenAIModel.GPT4_32K.value: OpenAIUnitPriceItem(0.06, 0.12),
-        OpenAIModel.GPT4_32K_0613.value: OpenAIUnitPriceItem(0.06, 0.12),
-        OpenAIModel.GPT35_TURBO.value: OpenAIUnitPriceItem(0.0015, 0.002),
-        OpenAIModel.GPT35_TURBO_0613.value: OpenAIUnitPriceItem(0.0015, 0.002),
-        OpenAIModel.GPT35_TURBO_16K.value: OpenAIUnitPriceItem(0.003, 0.004),
-        OpenAIModel.GPT35_TURBO_16K_0613.value: OpenAIUnitPriceItem(0.003, 0.004),
+        OpenAIModel.GPT4_TURBO.value: OpenAIUnitPriceItem(0.01, 0.03),
+        OpenAIModel.GPT35_TURBO.value: OpenAIUnitPriceItem(0.001, 0.002),
         OpenAIModel.HUNYUAN.value: OpenAIUnitPriceItem(round(0.10 / 7, 4), round(0.10 / 7, 4)),
     }
 
