@@ -80,6 +80,7 @@ class OpenAIClient(BaseClient):
             temperature=self.temperature,
             top_p=self.top_p,
             stream=True,
+            deployment_id=self.model.replace(".", ""),
         )
         for chunk in response:
             self.record(response=chunk)
