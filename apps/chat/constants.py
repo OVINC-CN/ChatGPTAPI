@@ -29,6 +29,15 @@ class OpenAIRole(TextChoices):
     ASSISTANT = "assistant", gettext_lazy("Assistant")
 
 
+class GeminiRole(TextChoices):
+    """
+    Gemini Chat Role
+    """
+
+    USER = "user", gettext_lazy("User")
+    MODEL = "model", gettext_lazy("Model")
+
+
 class OpenAIModel(TextChoices):
     """
     OpenAI Model
@@ -39,6 +48,7 @@ class OpenAIModel(TextChoices):
     GPT4_TURBO = "gpt-4-1106-preview", "GPT4 Turbo"
     GPT35_TURBO = "gpt-3.5-turbo", "GPT3.5 Turbo"
     HUNYUAN = "hunyuan-plus", gettext_lazy("HunYuan Plus")
+    GEMINI = "gemini-pro", "Gemini Pro"
 
     @classmethod
     def get_name(cls, model: str) -> str:
@@ -69,6 +79,7 @@ class OpenAIUnitPrice:
         OpenAIModel.GPT4_TURBO.value: OpenAIUnitPriceItem(0.01, 0.03),
         OpenAIModel.GPT35_TURBO.value: OpenAIUnitPriceItem(0.001, 0.002),
         OpenAIModel.HUNYUAN.value: OpenAIUnitPriceItem(round(0.10 / 7, 4), round(0.10 / 7, 4)),
+        OpenAIModel.GEMINI.value: OpenAIUnitPriceItem(0, 0),
     }
 
     @classmethod

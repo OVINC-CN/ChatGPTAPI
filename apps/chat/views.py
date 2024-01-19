@@ -7,7 +7,7 @@ from ovinc_client.core.viewsets import CreateMixin, ListMixin, MainViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.chat.client import HunYuanClient, OpenAIClient
+from apps.chat.client import GeminiClient, HunYuanClient, OpenAIClient
 from apps.chat.constants import OpenAIModel
 from apps.chat.exceptions import VerifyFailed
 from apps.chat.models import ChatLog, ModelPermission
@@ -46,6 +46,8 @@ class ChatViewSet(CreateMixin, MainViewSet):
         # call api
         if request_data["model"] == OpenAIModel.HUNYUAN:
             streaming_content = HunYuanClient(request=request, **request_data).chat()
+        elif request_data["model"] == OpenAIModel.GEMINI:
+            streaming_content = GeminiClient(request=request, **request_data).chat()
         else:
             streaming_content = OpenAIClient(request=request, **request_data).chat()
 
