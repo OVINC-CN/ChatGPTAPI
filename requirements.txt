@@ -11,7 +11,7 @@ uwsgi==2.0.22
 arrow==1.2.3
 
 # RSA
-pycryptodome==3.15.0
+pycryptodome==3.19.1
 
 # Profile
 pyinstrument==4.4.0
@@ -19,3 +19,8 @@ pyinstrument==4.4.0
 # OpenAI
 openai==0.28.1
 tiktoken==0.4.0
+
+# Gemini
+google-generativeai==0.3.2
+google_api_core==2.15.0
+google-ai-generativelanguage==0.4.0
