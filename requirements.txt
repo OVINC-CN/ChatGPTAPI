@@ -24,3 +24,6 @@ tiktoken==0.4.0
 google-generativeai==0.3.2
 google_api_core==2.15.0
 google-ai-generativelanguage==0.4.0
+
+# Baidu
+qianfan==0.3.0

@@ -4,10 +4,11 @@ import datetime
 import hashlib
 import hmac
 import json
-from typing import List
+from typing import List, Union
 
 import google.generativeai as genai
 import openai
+import qianfan
 import requests
 import tiktoken
 from django.conf import settings
@@ -16,6 +17,7 @@ from django.db import transaction
 from django.utils import timezone
 from google.generativeai.types import GenerateContentResponse
 from openai.openai_object import OpenAIObject
+from qianfan import QfMessages, QfResponse
 from requests import Response
 from rest_framework.request import Request
 
@@ -40,12 +42,14 @@ class BaseClient:
     """
 
     # pylint: disable=R0913
-    def __init__(self, request: Request, model: str, messages: List[Message], temperature: float, top_p: float):
+    def __init__(
+        self, request: Request, model: str, messages: Union[List[Message], QfMessages], temperature: float, top_p: float
+    ):
         self.log: ChatLog = None
         self.request: Request = request
         self.user: USER_MODEL = request.user
         self.model: str = model
-        self.messages: List[Message] = messages
+        self.messages: Union[List[Message], QfMessages] = messages
         self.temperature: float = temperature
         self.top_p: float = top_p
         self.created_at: int = int()
@@ -285,6 +289,61 @@ class GeminiClient(BaseClient):
         # calculate characters
         self.log.prompt_tokens = len("".join([message["content"] for message in self.log.messages]))
         self.log.completion_tokens = len(self.log.content)
+        # calculate price
+        price = OpenAIUnitPrice.get_price(self.model)
+        self.log.prompt_token_unit_price = price.prompt_token_unit_price
+        self.log.completion_token_unit_price = price.completion_token_unit_price
+        # save
+        self.log.finished_at = self.finished_at
+        self.log.save()
+        self.log.remove_content()
+
+
+class QianfanClient(BaseClient):
+    """
+    Baidu Qianfan
+    """
+
+    @transaction.atomic()
+    def chat(self, *args, **kwargs) -> any:
+        self.created_at = int(timezone.now().timestamp() * 1000)
+        client = qianfan.ChatCompletion(ak=settings.QIANFAN_ACCESS_KEY, sk=settings.QIANFAN_SECRET_KEY)
+        response = client.do(
+            model=self.model,
+            messages=self.messages,
+            temperature=self.temperature,
+            top_p=self.top_p,
+            stream=True,
+        )
+        for chunk in response:
+            self.record(response=chunk)
+            yield chunk.body.get("result", "")
+        self.finished_at = int(timezone.now().timestamp() * 1000)
+        self.post_chat()
+
+    # pylint: disable=W0221,R1710
+    def record(self, response: QfResponse, **kwargs) -> None:
+        # check log exist
+        if self.log:
+            self.log.content += response.body.get("result", "")
+            usage = response.body.get("usage", {})
+            self.log.prompt_tokens = usage.get("prompt_tokens", 0)
+            self.log.completion_tokens = usage.get("completion_tokens", 0)
+            return
+        # create log
+        self.log = ChatLog.objects.create(
+            chat_id=response.body.get("id", ""),
+            user=self.user,
+            model=self.model,
+            messages=self.messages,
+            content="",
+            created_at=self.created_at,
+        )
+        return self.record(response=response)
+
+    def post_chat(self) -> None:
+        if not self.log:
+            return
         # calculate price
         price = OpenAIUnitPrice.get_price(self.model)
         self.log.prompt_token_unit_price = price.prompt_token_unit_price
