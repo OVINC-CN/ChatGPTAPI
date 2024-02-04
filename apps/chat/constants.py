@@ -49,6 +49,10 @@ class OpenAIModel(TextChoices):
     GPT35_TURBO = "gpt-3.5-turbo", "GPT3.5 Turbo"
     HUNYUAN = "hunyuan-plus", gettext_lazy("HunYuan Plus")
     GEMINI = "gemini-pro", "Gemini Pro"
+    ERNIE_BOT_4_0 = "ERNIE-Bot-4", "ERNIE-Bot 4.0"
+    ERNIE_BOT_8K = "ERNIE-Bot-8k", "ERNIE-Bot 8K"
+    ERNIE_BOT = "ERNIE-Bot", "ERNIE-Bot"
+    ERNIE_BOT_TURBO = "ERNIE-Bot-turbo-AI", "ERNIE-Bot Turbo"
 
     @classmethod
     def get_name(cls, model: str) -> str:
@@ -80,6 +84,10 @@ class OpenAIUnitPrice:
         OpenAIModel.GPT35_TURBO.value: OpenAIUnitPriceItem(0.001, 0.002),
         OpenAIModel.HUNYUAN.value: OpenAIUnitPriceItem(round(0.10 / 7, 4), round(0.10 / 7, 4)),
         OpenAIModel.GEMINI.value: OpenAIUnitPriceItem(0, 0),
+        OpenAIModel.ERNIE_BOT_4_0.value: OpenAIUnitPriceItem(round(0.12 / 7, 4), round(0.12 / 7, 4)),
+        OpenAIModel.ERNIE_BOT_8K.value: OpenAIUnitPriceItem(round(0.024 / 7, 4), round(0.048 / 7, 4)),
+        OpenAIModel.ERNIE_BOT.value: OpenAIUnitPriceItem(round(0.012 / 7, 4), round(0.012 / 7, 4)),
+        OpenAIModel.ERNIE_BOT_TURBO.value: OpenAIUnitPriceItem(round(0.008 / 7, 4), round(0.008 / 7, 4)),
     }
 
     @classmethod
