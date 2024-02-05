@@ -2,15 +2,16 @@ from corsheaders.middleware import ACCESS_CONTROL_ALLOW_ORIGIN
 from django.conf import settings
 from django.core.cache import cache
 from django.http import StreamingHttpResponse
+from django.shortcuts import get_object_or_404
 from ovinc_client.core.utils import uniq_id
 from ovinc_client.core.viewsets import CreateMixin, ListMixin, MainViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.chat.client import GeminiClient, HunYuanClient, OpenAIClient, QianfanClient
-from apps.chat.constants import OpenAIModel
-from apps.chat.exceptions import VerifyFailed
-from apps.chat.models import ChatLog, ModelPermission
+from apps.chat.constants import AIModelProvider
+from apps.chat.exceptions import UnexpectedProvider, VerifyFailed
+from apps.chat.models import AIModel, ChatLog, ModelPermission
 from apps.chat.permissions import AIModelPermission
 from apps.chat.serializers import (
     CheckModelPermissionSerializer,
@@ -43,15 +44,21 @@ class ChatViewSet(CreateMixin, MainViewSet):
         if not request_data:
             raise VerifyFailed()
 
+        # model
+        model: AIModel = get_object_or_404(AIModel, model=request_data["model"])
+
         # call api
-        if request_data["model"] == OpenAIModel.HUNYUAN:
-            streaming_content = HunYuanClient(request=request, **request_data).chat()
-        elif request_data["model"] == OpenAIModel.GEMINI:
-            streaming_content = GeminiClient(request=request, **request_data).chat()
-        elif request_data["model"].startswith(OpenAIModel.ERNIE_BOT):
-            streaming_content = QianfanClient(request=request, **request_data).chat()
-        else:
-            streaming_content = OpenAIClient(request=request, **request_data).chat()
+        match model.provider:
+            case AIModelProvider.TENCENT:
+                streaming_content = HunYuanClient(request=request, **request_data).chat()
+            case AIModelProvider.GOOGLE:
+                streaming_content = GeminiClient(request=request, **request_data).chat()
+            case AIModelProvider.BAIDU:
+                streaming_content = QianfanClient(request=request, **request_data).chat()
+            case AIModelProvider.OPENAI:
+                streaming_content = OpenAIClient(request=request, **request_data).chat()
+            case _:
+                raise UnexpectedProvider()
 
         # response
         return StreamingHttpResponse(
@@ -92,10 +99,7 @@ class AIModelViewSet(ListMixin, MainViewSet):
         List Models
         """
 
-        data = [
-            {"id": model.model, "name": OpenAIModel.get_name(model.model)}
-            for model in ModelPermission.authed_models(user=request.user)
-        ]
+        data = [{"id": model.model, "name": model.name} for model in ModelPermission.authed_models(user=request.user)]
         data.sort(key=lambda model: model["id"])
         return Response(data=data)
 

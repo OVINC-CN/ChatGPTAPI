@@ -1,6 +1,5 @@
 from typing import List
 
-import tiktoken
 from django.conf import settings
 from django.utils.translation import gettext, gettext_lazy
 from rest_framework import serializers
@@ -10,13 +9,12 @@ from apps.chat.constants import (
     TEMPERATURE_DEFAULT,
     TEMPERATURE_MAX,
     TEMPERATURE_MIN,
+    TOKEN_ENCODING,
     TOP_P_DEFAULT,
     TOP_P_MIN,
-    OpenAIModel,
     OpenAIRole,
 )
-
-TOKEN_ENCODING = tiktoken.encoding_for_model(OpenAIModel.GPT35_TURBO)
+from apps.chat.models import AIModel
 
 
 class OpenAIMessageSerializer(serializers.Serializer):
@@ -28,12 +26,20 @@ class OpenAIMessageSerializer(serializers.Serializer):
     content = serializers.CharField(label=gettext_lazy("Content"))
 
 
-class OpenAIRequestSerializer(serializers.Serializer):
+class ModelSerializerMixin:
+    def validate_model(self, model: str) -> str:
+        if AIModel.objects.filter(model=model, is_enabled=True).exists():
+            return model
+        # pylint: disable=E1101
+        raise AIModel.DoesNotExist()
+
+
+class OpenAIRequestSerializer(ModelSerializerMixin, serializers.Serializer):
     """
     OpenAI Request
     """
 
-    model = serializers.ChoiceField(label=gettext_lazy("Model"), choices=OpenAIModel.choices)
+    model = serializers.CharField(label=gettext_lazy("Model"))
     messages = serializers.ListField(
         label=gettext_lazy("Messages"), child=OpenAIMessageSerializer(), min_length=MESSAGE_MIN_LENGTH
     )
@@ -56,12 +62,12 @@ class OpenAIRequestSerializer(serializers.Serializer):
         return messages
 
 
-class CheckModelPermissionSerializer(serializers.Serializer):
+class CheckModelPermissionSerializer(ModelSerializerMixin, serializers.Serializer):
     """
     Model Permission
     """
 
-    model = serializers.ChoiceField(label=gettext_lazy("Model"), choices=OpenAIModel.choices)
+    model = serializers.CharField(label=gettext_lazy("Model"))
 
 
 class OpenAIChatRequestSerializer(serializers.Serializer):

@@ -1,6 +1,6 @@
 import re
-from dataclasses import dataclass
 
+import tiktoken
 from django.utils.translation import gettext_lazy
 from ovinc_client.core.models import TextChoices
 
@@ -17,6 +17,9 @@ PRICE_DIGIT_NUMS = 20
 PRICE_DECIMAL_NUMS = 10
 
 HUNYUAN_DATA_PATTERN = re.compile(rb"data:\s\{.*\}\n\n")
+
+
+TOKEN_ENCODING = tiktoken.encoding_for_model("gpt-3.5-turbo")
 
 
 class OpenAIRole(TextChoices):
@@ -38,58 +41,12 @@ class GeminiRole(TextChoices):
     MODEL = "model", gettext_lazy("Model")
 
 
-class OpenAIModel(TextChoices):
+class AIModelProvider(TextChoices):
     """
-    OpenAI Model
-    """
-
-    GPT4 = "gpt-4", "GPT4"
-    GPT4_32K = "gpt-4-32k", "GPT4 (32K)"
-    GPT4_TURBO = "gpt-4-1106-preview", "GPT4 Turbo"
-    GPT35_TURBO = "gpt-3.5-turbo", "GPT3.5 Turbo"
-    HUNYUAN = "hunyuan-plus", gettext_lazy("HunYuan Plus")
-    GEMINI = "gemini-pro", "Gemini Pro"
-    ERNIE_BOT_4_0 = "ERNIE-Bot-4", "ERNIE-Bot 4.0"
-    ERNIE_BOT_8K = "ERNIE-Bot-8k", "ERNIE-Bot 8K"
-    ERNIE_BOT = "ERNIE-Bot", "ERNIE-Bot"
-    ERNIE_BOT_TURBO = "ERNIE-Bot-turbo-AI", "ERNIE-Bot Turbo"
-
-    @classmethod
-    def get_name(cls, model: str) -> str:
-        for value, label in cls.choices:
-            if value == model:
-                return str(label)
-        return model
-
-
-@dataclass
-class OpenAIUnitPriceItem:
-    """
-    OpenAI Unit Price Item
+    AI Model Provider
     """
 
-    prompt_token_unit_price: float
-    completion_token_unit_price: float
-
-
-class OpenAIUnitPrice:
-    """
-    OpenAI Unit Price Per Thousand Tokens ($)
-    """
-
-    price_map = {
-        OpenAIModel.GPT4.value: OpenAIUnitPriceItem(0.03, 0.06),
-        OpenAIModel.GPT4_32K.value: OpenAIUnitPriceItem(0.06, 0.12),
-        OpenAIModel.GPT4_TURBO.value: OpenAIUnitPriceItem(0.01, 0.03),
-        OpenAIModel.GPT35_TURBO.value: OpenAIUnitPriceItem(0.001, 0.002),
-        OpenAIModel.HUNYUAN.value: OpenAIUnitPriceItem(round(0.10 / 7, 4), round(0.10 / 7, 4)),
-        OpenAIModel.GEMINI.value: OpenAIUnitPriceItem(0, 0),
-        OpenAIModel.ERNIE_BOT_4_0.value: OpenAIUnitPriceItem(round(0.12 / 7, 4), round(0.12 / 7, 4)),
-        OpenAIModel.ERNIE_BOT_8K.value: OpenAIUnitPriceItem(round(0.024 / 7, 4), round(0.048 / 7, 4)),
-        OpenAIModel.ERNIE_BOT.value: OpenAIUnitPriceItem(round(0.012 / 7, 4), round(0.012 / 7, 4)),
-        OpenAIModel.ERNIE_BOT_TURBO.value: OpenAIUnitPriceItem(round(0.008 / 7, 4), round(0.008 / 7, 4)),
-    }
-
-    @classmethod
-    def get_price(cls, model: str) -> OpenAIUnitPriceItem:
-        return cls.price_map.get(model)
+    OPENAI = "openai", gettext_lazy("Open AI")
+    GOOGLE = "google", gettext_lazy("Google")
+    BAIDU = "baidu", gettext_lazy("Baidu")
+    TENCENT = "tencent", gettext_lazy("Tencent")

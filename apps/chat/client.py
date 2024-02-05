@@ -25,12 +25,10 @@ from apps.chat.constants import (
     AI_API_REQUEST_TIMEOUT,
     HUNYUAN_DATA_PATTERN,
     GeminiRole,
-    OpenAIModel,
     OpenAIRole,
-    OpenAIUnitPrice,
 )
 from apps.chat.exceptions import UnexpectedError
-from apps.chat.models import ChatLog, HunYuanChuck, Message
+from apps.chat.models import AIModel, ChatLog, HunYuanChuck, Message
 
 USER_MODEL = get_user_model()
 
@@ -49,6 +47,7 @@ class BaseClient:
         self.request: Request = request
         self.user: USER_MODEL = request.user
         self.model: str = model
+        self.model_inst: AIModel = AIModel.objects.get(model=model, is_enabled=True)
         self.messages: Union[List[Message], QfMessages] = messages
         self.temperature: float = temperature
         self.top_p: float = top_p
@@ -121,27 +120,12 @@ class OpenAIClient(BaseClient):
         self.log.prompt_tokens = len(encoding.encode("".join([message["content"] for message in self.log.messages])))
         self.log.completion_tokens = len(encoding.encode(self.log.content))
         # calculate price
-        price = OpenAIUnitPrice.get_price(self.model)
-        self.log.prompt_token_unit_price = price.prompt_token_unit_price
-        self.log.completion_token_unit_price = price.completion_token_unit_price
+        self.log.prompt_token_unit_price = self.model_inst.prompt_price
+        self.log.completion_token_unit_price = self.model_inst.completion_price
         # save
         self.log.finished_at = self.finished_at
         self.log.save()
         self.log.remove_content()
-
-    @classmethod
-    def list_models(cls) -> List[dict]:
-        all_models = openai.Model.list(
-            api_base=settings.OPENAI_API_BASE, api_key=settings.OPENAI_API_KEY
-        ).to_dict_recursive()["data"]
-        supported_models = [
-            {"id": model["id"], "name": str(OpenAIModel.get_name(model["id"]))}
-            for model in all_models
-            if model["id"] in OpenAIModel.values
-        ]
-        supported_models.append({"id": OpenAIModel.HUNYUAN.value, "name": str(OpenAIModel.HUNYUAN.label)})
-        supported_models.sort(key=lambda model: model["id"])
-        return supported_models
 
 
 class HunYuanClient(BaseClient):
@@ -185,9 +169,8 @@ class HunYuanClient(BaseClient):
             self.log.content += response.choices[0].delta.content
             self.log.prompt_tokens = response.usage.prompt_tokens
             self.log.completion_tokens = response.usage.completion_tokens
-            price = OpenAIUnitPrice.get_price(self.model)
-            self.log.prompt_token_unit_price = price.prompt_token_unit_price
-            self.log.completion_token_unit_price = price.completion_token_unit_price
+            self.log.prompt_token_unit_price = self.model_inst.prompt_price
+            self.log.completion_token_unit_price = self.model_inst.completion_price
             return
         # create log
         self.log = ChatLog.objects.create(
@@ -290,9 +273,8 @@ class GeminiClient(BaseClient):
         self.log.prompt_tokens = len("".join([message["content"] for message in self.log.messages]))
         self.log.completion_tokens = len(self.log.content)
         # calculate price
-        price = OpenAIUnitPrice.get_price(self.model)
-        self.log.prompt_token_unit_price = price.prompt_token_unit_price
-        self.log.completion_token_unit_price = price.completion_token_unit_price
+        self.log.prompt_token_unit_price = self.model_inst.prompt_price
+        self.log.completion_token_unit_price = self.model_inst.completion_price
         # save
         self.log.finished_at = self.finished_at
         self.log.save()
@@ -345,9 +327,8 @@ class QianfanClient(BaseClient):
         if not self.log:
             return
         # calculate price
-        price = OpenAIUnitPrice.get_price(self.model)
-        self.log.prompt_token_unit_price = price.prompt_token_unit_price
-        self.log.completion_token_unit_price = price.completion_token_unit_price
+        self.log.prompt_token_unit_price = self.model_inst.prompt_price
+        self.log.completion_token_unit_price = self.model_inst.completion_price
         # save
         self.log.finished_at = self.finished_at
         self.log.save()
