@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-08 13:22+0800\n"
+"POT-Creation-Date: 2024-02-05 11:29+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,9 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Model Name"
+msgstr "模型名称"
 
 msgid "Total Price"
 msgstr "总价"
@@ -36,8 +39,20 @@ msgstr "系统"
 msgid "Assistant"
 msgstr "助理"
 
-msgid "HunYuan Plus"
-msgstr "腾讯混元大模型(高级版)"
+msgid "Model"
+msgstr "模型"
+
+msgid "Open AI"
+msgstr "Open AI"
+
+msgid "Google"
+msgstr "Google"
+
+msgid "Baidu"
+msgstr "Baidu"
+
+msgid "Tencent"
+msgstr "Tencent"
 
 msgid "Unauthorized Model"
 msgstr "未授权的模型"
@@ -48,14 +63,14 @@ msgstr "未知异常"
 msgid "Pre Check Verify Failed"
 msgstr "预检查失败"
 
+msgid "Unexpected Provider"
+msgstr "未知的提供商"
+
 msgid "ID"
 msgstr "ID"
 
 msgid "Chat ID"
 msgstr "对话ID"
-
-msgid "Model"
-msgstr "模型"
 
 msgid "Prompt Content"
 msgstr "提示内容"
@@ -86,6 +101,21 @@ msgstr "过期时间"
 
 msgid "Model Permission"
 msgstr "模型权限"
+
+msgid "Provider"
+msgstr "提供商"
+
+msgid "Enabled"
+msgstr "启用"
+
+msgid "Prompt Price"
+msgstr "提示令牌价格"
+
+msgid "Completion Price"
+msgstr "响应令牌价格"
+
+msgid "AI Model"
+msgstr "AI 模型"
 
 msgid "Role"
 msgstr "角色"

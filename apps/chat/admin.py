@@ -14,8 +14,8 @@ class ModelNameMixin:
     def model_name(self, inst: Union[ModelPermission, ChatLog]) -> str:
         model_inst: AIModel = AIModel.objects.filter(model=inst.model, is_enabled=True).first()
         if model_inst is None:
-            return ""
-        return model_inst.name
+            return f"--({inst.model})"
+        return f"{model_inst.name}({model_inst.model})"
 
 
 @admin.register(ChatLog)
