@@ -16,3 +16,8 @@ class UnexpectedError(APIException):
 class VerifyFailed(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = gettext_lazy("Pre Check Verify Failed")
+
+
+class UnexpectedProvider(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = gettext_lazy("Unexpected Provider")

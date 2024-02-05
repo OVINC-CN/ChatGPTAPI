@@ -13,7 +13,7 @@ from ovinc_client.core.models import BaseModel, ForeignKey, UniqIDField
 from apps.chat.constants import (
     PRICE_DECIMAL_NUMS,
     PRICE_DIGIT_NUMS,
-    OpenAIModel,
+    AIModelProvider,
     OpenAIRole,
 )
 
@@ -32,7 +32,6 @@ class ChatLog(BaseModel):
     user = ForeignKey(gettext_lazy("User"), to="account.User", on_delete=models.PROTECT)
     model = models.CharField(
         gettext_lazy("Model"),
-        choices=OpenAIModel.choices,
         max_length=MEDIUM_CHAR_LENGTH,
         null=True,
         blank=True,
@@ -89,7 +88,6 @@ class ModelPermission(BaseModel):
     user = ForeignKey(gettext_lazy("User"), to="account.User", on_delete=models.PROTECT)
     model = models.CharField(
         gettext_lazy("Model"),
-        choices=OpenAIModel.choices,
         max_length=MEDIUM_CHAR_LENGTH,
         null=True,
         blank=True,
@@ -106,6 +104,9 @@ class ModelPermission(BaseModel):
 
     @classmethod
     def authed_models(cls, user: USER_MODEL, model: str = None) -> QuerySet:
+        # load enabled models
+        queryset = AIModel.objects.filter(is_enabled=True)
+        # build filter
         q = Q(user=user)  # pylint: disable=C0103
         if model:
             q &= Q(  # pylint: disable=C0103
@@ -113,7 +114,10 @@ class ModelPermission(BaseModel):
             )
         else:
             q &= Q(Q(expired_at__gt=timezone.now()) | Q(expired_at__isnull=True))  # pylint: disable=C0103
-        return cls.objects.filter(q)
+        # load permission
+        authed_models = cls.objects.filter(q).values("model")
+        # load authed models
+        return queryset.filter(model__in=authed_models)
 
 
 @dataclass
@@ -160,3 +164,29 @@ class HunYuanChuck:
             for choice in data.get("choices", [])
         ]
         return chuck
+
+
+class AIModel(BaseModel):
+    """
+    AI Model
+    """
+
+    id = UniqIDField(gettext_lazy("ID"), primary_key=True)
+    provider = models.CharField(
+        gettext_lazy("Provider"), max_length=MEDIUM_CHAR_LENGTH, choices=AIModelProvider.choices, db_index=True
+    )
+    model = models.CharField(gettext_lazy("Model"), max_length=MEDIUM_CHAR_LENGTH, db_index=True)
+    name = models.CharField(gettext_lazy("Model Name"), max_length=MEDIUM_CHAR_LENGTH)
+    is_enabled = models.BooleanField(gettext_lazy("Enabled"), default=True, db_index=True)
+    prompt_price = models.DecimalField(
+        gettext_lazy("Prompt Price"), max_digits=PRICE_DIGIT_NUMS, decimal_places=PRICE_DECIMAL_NUMS
+    )
+    completion_price = models.DecimalField(
+        gettext_lazy("Completion Price"), max_digits=PRICE_DIGIT_NUMS, decimal_places=PRICE_DECIMAL_NUMS
+    )
+
+    class Meta:
+        verbose_name = gettext_lazy("AI Model")
+        verbose_name_plural = verbose_name
+        ordering = ["provider", "name"]
+        unique_together = [["provider", "model"]]
