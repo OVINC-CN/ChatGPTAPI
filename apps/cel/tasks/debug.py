@@ -7,5 +7,5 @@ from apps.cel import app
 @app.task(bind=True)
 @task_lock()
 def celery_debug(self):
-    celery_logger.info(f"[CeleryDebug] Start {self.request.id}")
-    celery_logger.info(f"[CeleryDebug] End {self.request.id}")
+    celery_logger.info("[CeleryDebug] Start %s", self.request.id)
+    celery_logger.info("[CeleryDebug] End %s", self.request.id)
