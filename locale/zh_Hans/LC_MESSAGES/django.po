@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-05 11:29+0800\n"
+"POT-Creation-Date: 2024-02-27 12:47+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -53,6 +53,21 @@ msgstr "Baidu"
 
 msgid "Tencent"
 msgstr "Tencent"
+
+msgid "1024x1024"
+msgstr "1024x1024"
+
+msgid "Standard"
+msgstr "标准"
+
+msgid "HD"
+msgstr "高清"
+
+msgid "Vivid"
+msgstr "生动"
+
+msgid "Natural"
+msgstr "自然"
 
 msgid "Unauthorized Model"
 msgstr "未授权的模型"
@@ -113,6 +128,18 @@ msgstr "提示令牌价格"
 
 msgid "Completion Price"
 msgstr "响应令牌价格"
+
+msgid "Is Vision"
+msgstr "是否为图像模型"
+
+msgid "Vision Size"
+msgstr "图像尺寸"
+
+msgid "Vision Quality"
+msgstr "图像质量"
+
+msgid "Vision Style"
+msgstr "图像风格"
 
 msgid "AI Model"
 msgstr "AI 模型"
