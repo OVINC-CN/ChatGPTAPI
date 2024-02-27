@@ -7,7 +7,6 @@ import json
 from typing import List, Union
 
 import google.generativeai as genai
-import openai
 import qianfan
 import requests
 import tiktoken
@@ -16,7 +15,9 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils import timezone
 from google.generativeai.types import GenerateContentResponse
-from openai.openai_object import OpenAIObject
+from openai import AzureOpenAI
+from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
+from openai.types.images_response import ImagesResponse
 from qianfan import QfMessages, QfResponse
 from requests import Response
 from rest_framework.request import Request
@@ -79,27 +80,30 @@ class OpenAIClient(BaseClient):
     @transaction.atomic()
     def chat(self, *args, **kwargs) -> any:
         self.created_at = int(timezone.now().timestamp() * 1000)
-        response = openai.ChatCompletion.create(
-            api_base=settings.OPENAI_API_BASE,
+        client = AzureOpenAI(
             api_key=settings.OPENAI_API_KEY,
-            model=self.model,
+            api_version="2023-05-15",
+            azure_endpoint=settings.OPENAI_API_BASE,
+        )
+        response = client.chat.completions.create(
+            model=self.model.replace(".", ""),
             messages=self.messages,
             temperature=self.temperature,
             top_p=self.top_p,
             stream=True,
-            deployment_id=self.model.replace(".", ""),
         )
+        # pylint: disable=E1133
         for chunk in response:
             self.record(response=chunk)
-            yield chunk.choices[0].delta.get("content", "")
+            yield chunk.choices[0].delta.content or ""
         self.finished_at = int(timezone.now().timestamp() * 1000)
         self.post_chat()
 
     # pylint: disable=W0221,R1710
-    def record(self, response: OpenAIObject, **kwargs) -> None:
+    def record(self, response: ChatCompletionChunk, **kwargs) -> None:
         # check log exist
         if self.log:
-            self.log.content += response.choices[0].delta.get("content", "")
+            self.log.content += response.choices[0].delta.content or ""
             return
         # create log
         self.log = ChatLog.objects.create(
@@ -125,6 +129,45 @@ class OpenAIClient(BaseClient):
         # save
         self.log.finished_at = self.finished_at
         self.log.save()
+        self.log.remove_content()
+
+
+class OpenAIVisionClient(BaseClient):
+    """
+    OpenAI Vision Client
+    """
+
+    @transaction.atomic()
+    def chat(self, *args, **kwargs) -> any:
+        self.created_at = int(timezone.now().timestamp() * 1000)
+        client = AzureOpenAI(
+            api_key=settings.OPENAI_API_KEY,
+            api_version="2023-12-01-preview",
+            azure_endpoint=settings.OPENAI_API_BASE,
+        )
+        response = client.images.generate(
+            model=self.model.replace(".", ""),
+            prompt=self.messages[-1]["content"],
+            n=1,
+            size=self.model_inst.vision_size,
+            quality=self.model_inst.vision_quality,
+            style=self.model_inst.vision_style,
+        )
+        self.record(response=response)
+        return f"![{self.messages[-1]['content']}]({response.data[0].url})"
+
+    # pylint: disable=W0221,R1710
+    def record(self, response: ImagesResponse, **kwargs) -> None:
+        self.log = ChatLog.objects.create(
+            user=self.user,
+            model=self.model,
+            messages=self.messages,
+            content=response.data[0].url,
+            completion_tokens=1,
+            completion_token_unit_price=self.model_inst.completion_price,
+            created_at=self.created_at,
+            finished_at=int(timezone.now().timestamp() * 1000),
+        )
         self.log.remove_content()
 
 

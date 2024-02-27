@@ -1,14 +1,20 @@
 from corsheaders.middleware import ACCESS_CONTROL_ALLOW_ORIGIN
 from django.conf import settings
 from django.core.cache import cache
-from django.http import StreamingHttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from ovinc_client.core.utils import uniq_id
 from ovinc_client.core.viewsets import CreateMixin, ListMixin, MainViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.chat.client import GeminiClient, HunYuanClient, OpenAIClient, QianfanClient
+from apps.chat.client import (
+    GeminiClient,
+    HunYuanClient,
+    OpenAIClient,
+    OpenAIVisionClient,
+    QianfanClient,
+)
 from apps.chat.constants import AIModelProvider
 from apps.chat.exceptions import UnexpectedProvider, VerifyFailed
 from apps.chat.models import AIModel, ChatLog, ModelPermission
@@ -56,11 +62,21 @@ class ChatViewSet(CreateMixin, MainViewSet):
             case AIModelProvider.BAIDU:
                 streaming_content = QianfanClient(request=request, **request_data).chat()
             case AIModelProvider.OPENAI:
-                streaming_content = OpenAIClient(request=request, **request_data).chat()
+                if model.is_vision:
+                    content = OpenAIVisionClient(request=request, **request_data).chat()
+                else:
+                    streaming_content = OpenAIClient(request=request, **request_data).chat()
             case _:
                 raise UnexpectedProvider()
 
         # response
+        if model.is_vision:
+            return HttpResponse(
+                content=content.encode("utf-8"),
+                headers={
+                    "Trace-ID": getattr(request, "otel_trace_id", ""),
+                },
+            )
         return StreamingHttpResponse(
             streaming_content=streaming_content,
             headers={

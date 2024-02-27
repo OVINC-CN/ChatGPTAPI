@@ -15,6 +15,9 @@ from apps.chat.constants import (
     PRICE_DIGIT_NUMS,
     AIModelProvider,
     OpenAIRole,
+    VisionQuality,
+    VisionSize,
+    VisionStyle,
 )
 
 USER_MODEL = get_user_model()
@@ -183,6 +186,28 @@ class AIModel(BaseModel):
     )
     completion_price = models.DecimalField(
         gettext_lazy("Completion Price"), max_digits=PRICE_DIGIT_NUMS, decimal_places=PRICE_DECIMAL_NUMS
+    )
+    is_vision = models.BooleanField(gettext_lazy("Is Vision"), default=False)
+    vision_size = models.CharField(
+        gettext_lazy("Vision Size"),
+        max_length=MEDIUM_CHAR_LENGTH,
+        choices=VisionSize.choices,
+        null=True,
+        blank=True,
+    )
+    vision_quality = models.CharField(
+        gettext_lazy("Vision Quality"),
+        max_length=MEDIUM_CHAR_LENGTH,
+        choices=VisionQuality.choices,
+        null=True,
+        blank=True,
+    )
+    vision_style = models.CharField(
+        gettext_lazy("Vision Style"),
+        max_length=MEDIUM_CHAR_LENGTH,
+        choices=VisionStyle.choices,
+        null=True,
+        blank=True,
     )
 
     class Meta:
