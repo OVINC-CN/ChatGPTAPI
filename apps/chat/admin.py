@@ -29,6 +29,7 @@ class ChatLogAdmin(ModelNameMixin, admin.ModelAdmin):
         "total_price",
         "created_at_formatted",
         "duration",
+        "is_charged",
     ]
     list_filter = ["model"]
     search_fields = ["user"]
@@ -58,7 +59,7 @@ class ChatLogAdmin(ModelNameMixin, admin.ModelAdmin):
 
 @admin.register(ModelPermission)
 class ModelPermissionAdmin(ModelNameMixin, admin.ModelAdmin):
-    list_display = ["id", "user", "model_name", "expired_at", "created_at"]
+    list_display = ["id", "user", "model_name", "available_usage", "expired_at", "created_at"]
     list_filter = ["model"]
     search_fields = ["user"]
 

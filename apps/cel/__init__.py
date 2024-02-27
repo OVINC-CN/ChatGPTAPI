@@ -18,4 +18,9 @@ app.conf.beat_schedule = {
         "schedule": crontab(minute="*"),
         "args": (),
     },
+    "check_usage_limit": {
+        "task": "apps.cel.tasks.chat.check_usage_limit",
+        "schedule": crontab(minute="*"),
+        "args": (),
+    },
 }
