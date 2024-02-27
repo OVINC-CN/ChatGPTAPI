@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-27 12:47+0800\n"
+"POT-Creation-Date: 2024-02-27 14:10+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -108,8 +108,14 @@ msgstr "响应Token单价"
 msgid "Finish Time"
 msgstr "完成时间"
 
+msgid "Is Charged"
+msgstr "是否计费"
+
 msgid "Chat Log"
 msgstr "对话日志"
+
+msgid "Available Usage"
+msgstr "可用额度"
 
 msgid "Expire Time"
 msgstr "过期时间"

@@ -58,6 +58,7 @@ class ChatLog(BaseModel):
     )
     created_at = models.BigIntegerField(gettext_lazy("Create Time"), db_index=True)
     finished_at = models.BigIntegerField(gettext_lazy("Finish Time"), db_index=True, null=True, blank=True)
+    is_charged = models.BooleanField(gettext_lazy("Is Charged"), default=False, db_index=True)
 
     class Meta:
         verbose_name = gettext_lazy("Chat Log")
@@ -96,6 +97,7 @@ class ModelPermission(BaseModel):
         blank=True,
         db_index=True,
     )
+    available_usage = models.BigIntegerField(gettext_lazy("Available Usage"), default=int, db_index=True)
     expired_at = models.DateTimeField(gettext_lazy("Expire Time"), null=True, blank=True)
     created_at = models.DateTimeField(gettext_lazy("Create Time"), auto_now_add=True)
 
@@ -103,14 +105,15 @@ class ModelPermission(BaseModel):
         verbose_name = gettext_lazy("Model Permission")
         verbose_name_plural = verbose_name
         ordering = ["-created_at"]
-        index_together = [["user", "model", "expired_at"]]
+        index_together = [["user", "model", "expired_at"], ["user", "available_usage", "model", "expired_at"]]
+        unique_together = [["user", "model"]]
 
     @classmethod
     def authed_models(cls, user: USER_MODEL, model: str = None) -> QuerySet:
         # load enabled models
         queryset = AIModel.objects.filter(is_enabled=True)
         # build filter
-        q = Q(user=user)  # pylint: disable=C0103
+        q = Q(user=user, available_usage__gt=0)  # pylint: disable=C0103
         if model:
             q &= Q(  # pylint: disable=C0103
                 Q(model=str(model), expired_at__gt=timezone.now()) | Q(model=str(model), expired_at__isnull=True)
