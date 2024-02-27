@@ -56,33 +56,32 @@ class ChatViewSet(CreateMixin, MainViewSet):
         # call api
         match model.provider:
             case AIModelProvider.TENCENT:
-                streaming_content = HunYuanClient(request=request, **request_data).chat()
+                client = HunYuanClient
             case AIModelProvider.GOOGLE:
-                streaming_content = GeminiClient(request=request, **request_data).chat()
+                client = GeminiClient
             case AIModelProvider.BAIDU:
-                streaming_content = QianfanClient(request=request, **request_data).chat()
+                client = QianfanClient
             case AIModelProvider.OPENAI:
                 if model.is_vision:
-                    content = OpenAIVisionClient(request=request, **request_data).chat()
+                    client = OpenAIVisionClient
                 else:
-                    streaming_content = OpenAIClient(request=request, **request_data).chat()
+                    client = OpenAIClient
             case _:
                 raise UnexpectedProvider()
 
+        # init client
+        client = client(request=request, **request_data)
+
         # response
-        if model.is_vision:
-            return HttpResponse(
-                content=content.encode("utf-8"),
-                headers={
-                    "Trace-ID": getattr(request, "otel_trace_id", ""),
-                },
-            )
-        return StreamingHttpResponse(
-            streaming_content=streaming_content,
-            headers={
-                ACCESS_CONTROL_ALLOW_ORIGIN: settings.FRONTEND_URL,
-                "Trace-ID": getattr(request, "otel_trace_id", ""),
-            },
+        headers = {
+            ACCESS_CONTROL_ALLOW_ORIGIN: settings.FRONTEND_URL,
+            "Trace-ID": getattr(request, "otel_trace_id", ""),
+        }
+        # pylint: disable=E1120
+        return (
+            HttpResponse(content=client.chat().encode("utf-8"), headers=headers)
+            if model.is_vision
+            else StreamingHttpResponse(streaming_content=client.chat(), headers=headers)
         )
 
     @action(methods=["POST"], detail=False, permission_classes=[AIModelPermission])
