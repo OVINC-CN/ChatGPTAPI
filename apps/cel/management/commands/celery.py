@@ -19,3 +19,4 @@ class Command(BaseCommand):
         parser.add_argument("beat", nargs="*")
         parser.add_argument("-l")
         parser.add_argument("-f")
+        parser.add_argument("-c")
