@@ -1,6 +1,6 @@
 import re
+import sys
 
-import tiktoken
 from django.utils.translation import gettext_lazy
 from ovinc_client.core.models import TextChoices
 
@@ -18,7 +18,12 @@ PRICE_DECIMAL_NUMS = 10
 
 HUNYUAN_DATA_PATTERN = re.compile(rb"data:\s\{.*\}\n\n")
 
-TOKEN_ENCODING = tiktoken.encoding_for_model("gpt-3.5-turbo")
+if "celery" in sys.argv:
+    TOKEN_ENCODING = ""
+else:
+    import tiktoken
+
+    TOKEN_ENCODING = tiktoken.encoding_for_model("gpt-3.5-turbo")
 
 
 class OpenAIRole(TextChoices):
