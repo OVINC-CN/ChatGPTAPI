@@ -19,7 +19,7 @@ pyinstrument==4.4.0
 # OpenAI
 openai==1.12.0
 tiktoken==0.4.0
-pillow==10.2.0
+pillow==10.3.0
 
 # Gemini
 google-generativeai==0.3.2
