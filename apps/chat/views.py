@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from ovinc_client.core.utils import uniq_id
 from ovinc_client.core.viewsets import CreateMixin, ListMixin, MainViewSet
 from rest_framework.decorators import action
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.chat.client import (
@@ -33,6 +34,11 @@ class ChatViewSet(CreateMixin, MainViewSet):
     """
 
     queryset = ChatLog.objects.all()
+
+    def check_record_log(self, request: Request, *args, **kwargs) -> bool:
+        if self.action == "pre_check":
+            return False
+        return super().check_record_log(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         """
