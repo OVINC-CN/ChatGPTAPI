@@ -204,12 +204,8 @@ OPENAI_PRE_CHECK_TIMEOUT = int(os.getenv("OPENAI_PRE_CHECK_TIMEOUT", "600"))
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 # QCLOUD
-QCLOUD_APP_ID = int(os.getenv("QCLOUD_APP_ID", "0"))
 QCLOUD_SECRET_ID = os.getenv("QCLOUD_SECRET_ID")
 QCLOUD_SECRET_KEY = os.getenv("QCLOUD_SECRET_KEY")
-QCLOUD_HUNYUAN_API_URL = os.getenv(
-    "QCLOUD_HUNYUAN_API_DOMAIN", "https://hunyuan.cloud.tencent.com/hyllm/v1/chat/completions"
-)
 
 # Baidu Qianfan
 QIANFAN_ACCESS_KEY = os.getenv("QIANFAN_ACCESS_KEY", "")

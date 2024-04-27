@@ -1,3 +1,5 @@
+# pylint: disable=C0103
+
 from dataclasses import dataclass
 from typing import List
 
@@ -140,46 +142,38 @@ class ModelPermission(BaseModel):
 
 @dataclass
 class HunYuanDelta:
-    content: str = ""
+    Role: str = ""
+    Content: str = ""
 
 
 @dataclass
 class HunYuanChoice:
-    finish_reason: str = ""
-    delta: HunYuanDelta = None
+    FinishReason: str = ""
+    Delta: HunYuanDelta = None
 
 
 @dataclass
 class HunYuanUsage:
-    prompt_tokens: int = 0
-    completion_tokens: int = 0
-    total_tokens: int = 0
-
-
-@dataclass
-class HunYuanError:
-    code: int = 0
-    message: str = ""
+    PromptTokens: int = 0
+    CompletionTokens: int = 0
+    TotalTokens: int = 0
 
 
 @dataclass
 class HunYuanChuck:
-    req_id: str = ""
-    note: str = ""
-    choices: List[HunYuanChoice] = None
-    created: str = ""
-    id: str = ""  # pylint: disable=C0103
-    usage: HunYuanUsage = None
-    error: HunYuanError = None
+    Note: str = ""
+    Choices: List[HunYuanChoice] = None
+    Created: str = ""
+    Id: str = ""
+    Usage: HunYuanUsage = None
 
     @classmethod
     def create(cls, data: dict) -> "HunYuanChuck":
         chuck = cls(**data)
-        chuck.usage = HunYuanUsage(**data.get("usage", {}))
-        chuck.error = HunYuanError(**data.get("error", {}))
-        chuck.choices = [
-            HunYuanChoice(finish_reason=choice.get("finish_reason", ""), delta=HunYuanDelta(**choice.get("delta", {})))
-            for choice in data.get("choices", [])
+        chuck.Usage = HunYuanUsage(**data.get("Usage", {}))
+        chuck.Choices = [
+            HunYuanChoice(FinishReason=choice.get("FinishReason", ""), Delta=HunYuanDelta(**choice.get("Delta", {})))
+            for choice in data.get("Choices", [])
         ]
         return chuck
 
