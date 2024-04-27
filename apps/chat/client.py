@@ -126,6 +126,7 @@ class OpenAIClient(BaseClient):
         # calculate price
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
         self.log.completion_token_unit_price = self.model_inst.completion_price
+        self.log.currency_unit = self.model_inst.currency_unit
         # save
         self.log.finished_at = self.finished_at
         self.log.save()
@@ -165,6 +166,7 @@ class OpenAIVisionClient(BaseClient):
             content=response.data[0].url,
             completion_tokens=1,
             completion_token_unit_price=self.model_inst.completion_price,
+            currency_unit=self.model_inst.currency_unit,
             created_at=self.created_at,
             finished_at=int(timezone.now().timestamp() * 1000),
         )
@@ -214,6 +216,7 @@ class HunYuanClient(BaseClient):
             self.log.completion_tokens = response.usage.completion_tokens
             self.log.prompt_token_unit_price = self.model_inst.prompt_price
             self.log.completion_token_unit_price = self.model_inst.completion_price
+            self.log.currency_unit = self.model_inst.currency_unit
             return
         # create log
         self.log = ChatLog.objects.create(
@@ -318,6 +321,7 @@ class GeminiClient(BaseClient):
         # calculate price
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
         self.log.completion_token_unit_price = self.model_inst.completion_price
+        self.log.currency_unit = self.model_inst.currency_unit
         # save
         self.log.finished_at = self.finished_at
         self.log.save()
@@ -372,6 +376,7 @@ class QianfanClient(BaseClient):
         # calculate price
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
         self.log.completion_token_unit_price = self.model_inst.completion_price
+        self.log.currency_unit = self.model_inst.currency_unit
         # save
         self.log.finished_at = self.finished_at
         self.log.save()
