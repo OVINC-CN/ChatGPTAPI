@@ -80,3 +80,12 @@ class VisionStyle(TextChoices):
 
     VIVID = "vivid", gettext_lazy("Vivid")
     NATURAL = "natural", gettext_lazy("Natural")
+
+
+class CurrencyUnit(TextChoices):
+    """
+    Currency Unit
+    """
+
+    USD = "$", gettext_lazy("USD($)")
+    RMB = "¥", gettext_lazy("RMB(¥)")

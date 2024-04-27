@@ -7,13 +7,18 @@ from django.db import models
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy
-from ovinc_client.core.constants import MAX_CHAR_LENGTH, MEDIUM_CHAR_LENGTH
+from ovinc_client.core.constants import (
+    MAX_CHAR_LENGTH,
+    MEDIUM_CHAR_LENGTH,
+    SHORT_CHAR_LENGTH,
+)
 from ovinc_client.core.models import BaseModel, ForeignKey, UniqIDField
 
 from apps.chat.constants import (
     PRICE_DECIMAL_NUMS,
     PRICE_DIGIT_NUMS,
     AIModelProvider,
+    CurrencyUnit,
     OpenAIRole,
     VisionQuality,
     VisionSize,
@@ -55,6 +60,12 @@ class ChatLog(BaseModel):
         max_digits=PRICE_DIGIT_NUMS,
         decimal_places=PRICE_DECIMAL_NUMS,
         default=float,
+    )
+    currency_unit = models.CharField(
+        gettext_lazy("Currency Unit"),
+        max_length=SHORT_CHAR_LENGTH,
+        choices=CurrencyUnit.choices,
+        default=CurrencyUnit.USD,
     )
     created_at = models.BigIntegerField(gettext_lazy("Create Time"), db_index=True)
     finished_at = models.BigIntegerField(gettext_lazy("Finish Time"), db_index=True, null=True, blank=True)
@@ -190,6 +201,12 @@ class AIModel(BaseModel):
     )
     completion_price = models.DecimalField(
         gettext_lazy("Completion Price"), max_digits=PRICE_DIGIT_NUMS, decimal_places=PRICE_DECIMAL_NUMS
+    )
+    currency_unit = models.CharField(
+        gettext_lazy("Currency Unit"),
+        max_length=SHORT_CHAR_LENGTH,
+        choices=CurrencyUnit.choices,
+        default=CurrencyUnit.USD,
     )
     is_vision = models.BooleanField(gettext_lazy("Is Vision"), default=False)
     vision_size = models.CharField(
