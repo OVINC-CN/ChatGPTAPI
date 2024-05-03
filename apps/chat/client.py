@@ -76,7 +76,7 @@ class OpenAIClient(BaseClient):
             api_key=settings.OPENAI_API_KEY,
             api_version="2023-05-15",
             azure_endpoint=settings.OPENAI_API_BASE,
-            http_client=Client(proxy=settings.OPENAI_HTTP_PROXY_URL) if settings.OPENAI_HTTP_PROXY_URL else None
+            http_client=Client(proxy=settings.OPENAI_HTTP_PROXY_URL) if settings.OPENAI_HTTP_PROXY_URL else None,
         )
         response = client.chat.completions.create(
             model=self.model.replace(".", ""),
