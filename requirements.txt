@@ -31,3 +31,6 @@ qianfan==0.3.0
 
 # Hunyuan
 tencentcloud-sdk-python==3.0.1137
+
+# OT
+opentelemetry-instrumentation-httpx==0.45b0
