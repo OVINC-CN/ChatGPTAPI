@@ -1,6 +1,7 @@
 import abc
 import json
 from typing import List, Union
+from urllib.parse import urlparse, urlunparse
 
 import google.generativeai as genai
 import qianfan
@@ -148,7 +149,19 @@ class OpenAIVisionClient(BaseClient):
             style=self.model_inst.vision_style,
         )
         self.record(response=response)
-        return f"![{self.messages[-1]['content']}]({response.data[0].url})"
+        raw_url = urlparse(url=response.data[0].url)
+        cos_url = urlparse(url=settings.QCLOUD_COS_URL)
+        new_url = urlunparse(
+            (
+                cos_url.scheme,
+                cos_url.netloc,
+                raw_url.path,
+                raw_url.params,
+                raw_url.query,
+                raw_url.fragment,
+            )
+        )
+        return f"![{self.messages[-1]['content']}]({new_url})"
 
     # pylint: disable=W0221,R1710
     def record(self, response: ImagesResponse, **kwargs) -> None:
