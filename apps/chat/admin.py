@@ -40,7 +40,7 @@ class ChatLogAdmin(ModelNameMixin, admin.ModelAdmin):
             log.prompt_tokens * log.prompt_token_unit_price / 1000
             + log.completion_tokens * log.completion_token_unit_price / 1000
         )
-        return f"{price:.4f}"
+        return f"{log.currency_unit}{price:.4f}"
 
     @admin.display(description=gettext_lazy("Duration(ms)"))
     def duration(self, log: ChatLog) -> int:
@@ -66,5 +66,14 @@ class ModelPermissionAdmin(ModelNameMixin, admin.ModelAdmin):
 
 @admin.register(AIModel)
 class AIModelAdmin(admin.ModelAdmin):
-    list_display = ["id", "provider", "model", "name", "is_enabled", "prompt_price", "completion_price"]
+    list_display = [
+        "id",
+        "provider",
+        "model",
+        "name",
+        "is_enabled",
+        "prompt_price",
+        "completion_price",
+        "currency_unit",
+    ]
     list_filter = ["provider", "is_enabled"]

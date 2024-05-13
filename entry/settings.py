@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "sslserver",
     "ovinc_client.account",
     "ovinc_client.trace",
+    "apps.trace_extend",
     "apps.cel",
     "apps.chat",
     "apps.home",
@@ -190,10 +191,10 @@ RUM_HOST = os.getenv("RUM_HOST", "https://rumt-zh.com")
 
 # OVINC
 OVINC_API_DOMAIN = getenv_or_raise("OVINC_API_DOMAIN")
+OVINC_API_RECORD_LOG = strtobool(os.getenv("OVINC_API_RECORD_LOG", "True"))
 
 # OpenAI
 OPENAI_HTTP_PROXY_URL = os.getenv("OPENAI_HTTP_PROXY_URL")
-OPENAI_HTTPS_PROXY_URL = os.getenv("OPENAI_HTTPS_PROXY_URL", OPENAI_HTTP_PROXY_URL)
 OPENAI_API_KEY = os.getenv("DEFAULT_OPENAI_API_KEY")
 OPENAI_API_BASE = os.getenv("DEFAULT_OPENAI_API_BASE")
 OPENAI_MAX_ALLOWED_TOKENS = int(os.getenv("OPENAI_MAX_ALLOWED_TOKENS", "4000"))
@@ -203,12 +204,9 @@ OPENAI_PRE_CHECK_TIMEOUT = int(os.getenv("OPENAI_PRE_CHECK_TIMEOUT", "600"))
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 # QCLOUD
-QCLOUD_APP_ID = int(os.getenv("QCLOUD_APP_ID", "0"))
 QCLOUD_SECRET_ID = os.getenv("QCLOUD_SECRET_ID")
 QCLOUD_SECRET_KEY = os.getenv("QCLOUD_SECRET_KEY")
-QCLOUD_HUNYUAN_API_URL = os.getenv(
-    "QCLOUD_HUNYUAN_API_DOMAIN", "https://hunyuan.cloud.tencent.com/hyllm/v1/chat/completions"
-)
+QCLOUD_COS_URL = os.getenv("QCLOUD_COS_URL", FRONTEND_URL)
 
 # Baidu Qianfan
 QIANFAN_ACCESS_KEY = os.getenv("QIANFAN_ACCESS_KEY", "")

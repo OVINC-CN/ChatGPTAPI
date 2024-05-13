@@ -1,4 +1,3 @@
-import re
 import sys
 
 from django.utils.translation import gettext_lazy
@@ -15,8 +14,6 @@ AI_API_REQUEST_TIMEOUT = 10 * 60
 
 PRICE_DIGIT_NUMS = 20
 PRICE_DECIMAL_NUMS = 10
-
-HUNYUAN_DATA_PATTERN = re.compile(rb"data:\s\{.*\}\n\n")
 
 if "celery" in sys.argv:
     TOKEN_ENCODING = ""
@@ -80,3 +77,12 @@ class VisionStyle(TextChoices):
 
     VIVID = "vivid", gettext_lazy("Vivid")
     NATURAL = "natural", gettext_lazy("Natural")
+
+
+class CurrencyUnit(TextChoices):
+    """
+    Currency Unit
+    """
+
+    USD = "$", gettext_lazy("USD($)")
+    RMB = "¥", gettext_lazy("RMB(¥)")

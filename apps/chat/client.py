@@ -1,34 +1,27 @@
 import abc
-import base64
-import datetime
-import hashlib
-import hmac
 import json
 from typing import List, Union
+from urllib.parse import urlparse, urlunparse
 
 import google.generativeai as genai
 import qianfan
-import requests
 import tiktoken
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils import timezone
 from google.generativeai.types import GenerateContentResponse
+from httpx import Client
 from openai import AzureOpenAI
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from openai.types.images_response import ImagesResponse
 from qianfan import QfMessages, QfResponse
-from requests import Response
 from rest_framework.request import Request
+from tencentcloud.common import credential as tencent_cloud_credential
+from tencentcloud.hunyuan.v20230901 import hunyuan_client
+from tencentcloud.hunyuan.v20230901 import models as hunyuan_models
 
-from apps.chat.constants import (
-    AI_API_REQUEST_TIMEOUT,
-    HUNYUAN_DATA_PATTERN,
-    GeminiRole,
-    OpenAIRole,
-)
-from apps.chat.exceptions import UnexpectedError
+from apps.chat.constants import GeminiRole, OpenAIRole
 from apps.chat.models import AIModel, ChatLog, HunYuanChuck, Message
 
 USER_MODEL = get_user_model()
@@ -84,6 +77,7 @@ class OpenAIClient(BaseClient):
             api_key=settings.OPENAI_API_KEY,
             api_version="2023-05-15",
             azure_endpoint=settings.OPENAI_API_BASE,
+            http_client=Client(proxy=settings.OPENAI_HTTP_PROXY_URL) if settings.OPENAI_HTTP_PROXY_URL else None,
         )
         response = client.chat.completions.create(
             model=self.model.replace(".", ""),
@@ -126,6 +120,7 @@ class OpenAIClient(BaseClient):
         # calculate price
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
         self.log.completion_token_unit_price = self.model_inst.completion_price
+        self.log.currency_unit = self.model_inst.currency_unit
         # save
         self.log.finished_at = self.finished_at
         self.log.save()
@@ -154,7 +149,19 @@ class OpenAIVisionClient(BaseClient):
             style=self.model_inst.vision_style,
         )
         self.record(response=response)
-        return f"![{self.messages[-1]['content']}]({response.data[0].url})"
+        raw_url = urlparse(url=response.data[0].url)
+        cos_url = urlparse(url=settings.QCLOUD_COS_URL)
+        new_url = urlunparse(
+            (
+                cos_url.scheme,
+                cos_url.netloc,
+                raw_url.path,
+                raw_url.params,
+                raw_url.query,
+                raw_url.fragment,
+            )
+        )
+        return f"![{self.messages[-1]['content']}]({new_url})"
 
     # pylint: disable=W0221,R1710
     def record(self, response: ImagesResponse, **kwargs) -> None:
@@ -165,6 +172,7 @@ class OpenAIVisionClient(BaseClient):
             content=response.data[0].url,
             completion_tokens=1,
             completion_token_unit_price=self.model_inst.completion_price,
+            currency_unit=self.model_inst.currency_unit,
             created_at=self.created_at,
             finished_at=int(timezone.now().timestamp() * 1000),
         )
@@ -183,22 +191,11 @@ class HunYuanClient(BaseClient):
         # call hunyuan api
         response = self.call_api()
         # explain completion
-        completion_text = bytes()
         for chunk in response:
-            completion_text += chunk
-            # match hunyuan data content
-            match = HUNYUAN_DATA_PATTERN.search(completion_text)
-            if match is None:
-                continue
-            # load content
-            resp_text = completion_text[match.regs[0][0] : match.regs[0][1]]
-            completion_text = completion_text[match.regs[0][1] :]
-            resp_text = json.loads(resp_text.decode()[6:])
-            chunk = HunYuanChuck.create(resp_text)
-            if chunk.error.code:
-                raise UnexpectedError(detail=chunk.error.message)
+            chunk = json.loads(chunk["data"])
+            chunk = HunYuanChuck.create(chunk)
             self.record(response=chunk)
-            yield chunk.choices[0].delta.content
+            yield chunk.Choices[0].Delta.Content
         if not self.log:
             return
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
@@ -209,15 +206,16 @@ class HunYuanClient(BaseClient):
     def record(self, response: HunYuanChuck) -> None:
         # check log exist
         if self.log:
-            self.log.content += response.choices[0].delta.content
-            self.log.prompt_tokens = response.usage.prompt_tokens
-            self.log.completion_tokens = response.usage.completion_tokens
+            self.log.content += response.Choices[0].Delta.Content
+            self.log.prompt_tokens = response.Usage.PromptTokens
+            self.log.completion_tokens = response.Usage.CompletionTokens
             self.log.prompt_token_unit_price = self.model_inst.prompt_price
             self.log.completion_token_unit_price = self.model_inst.completion_price
+            self.log.currency_unit = self.model_inst.currency_unit
             return
         # create log
         self.log = ChatLog.objects.create(
-            chat_id=response.id,
+            chat_id=response.Id,
             user=self.user,
             model=self.model,
             messages=self.messages,
@@ -226,35 +224,20 @@ class HunYuanClient(BaseClient):
         )
         return self.record(response=response)
 
-    def call_api(self) -> Response:
-        data = {
-            "app_id": settings.QCLOUD_APP_ID,
-            "secret_id": settings.QCLOUD_SECRET_ID,
-            "timestamp": int(timezone.now().timestamp()),
-            "expired": int((timezone.now() + datetime.timedelta(minutes=5)).timestamp()),
-            "messages": self.messages,
-            "temperature": self.temperature,
-            "top_p": self.top_p,
-            "stream": 1,
+    def call_api(self) -> hunyuan_models.ChatCompletionsResponse:
+        client = hunyuan_client.HunyuanClient(
+            tencent_cloud_credential.Credential(settings.QCLOUD_SECRET_ID, settings.QCLOUD_SECRET_KEY), ""
+        )
+        req = hunyuan_models.ChatCompletionsRequest()
+        params = {
+            "Model": self.model,
+            "Messages": [{"Role": message["role"], "Content": message["content"]} for message in self.messages],
+            "TopP": self.top_p,
+            "Temperature": self.temperature,
+            "Stream": True,
         }
-        message_string = ",".join(
-            [f"{{\"role\":\"{message['role']}\",\"content\":\"{message['content']}\"}}" for message in self.messages]
-        )
-        message_string = f"[{message_string}]"
-        params = {**data, "messages": message_string}
-        params = dict(sorted(params.items(), key=lambda x: x[0]))
-        url = (
-            settings.QCLOUD_HUNYUAN_API_URL.split("://", 1)[1]
-            + "?"
-            + "&".join([f"{key}={val}" for key, val in params.items()])
-        )
-        signature = hmac.new(settings.QCLOUD_SECRET_KEY.encode(), url.encode(), hashlib.sha1).digest()
-        encoded_signature = base64.b64encode(signature).decode()
-        headers = {"Authorization": encoded_signature}
-        resp = requests.post(
-            settings.QCLOUD_HUNYUAN_API_URL, json=data, headers=headers, stream=True, timeout=AI_API_REQUEST_TIMEOUT
-        )
-        return resp
+        req.from_json_string(json.dumps(params))
+        return client.ChatCompletions(req)
 
 
 class GeminiClient(BaseClient):
@@ -318,6 +301,7 @@ class GeminiClient(BaseClient):
         # calculate price
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
         self.log.completion_token_unit_price = self.model_inst.completion_price
+        self.log.currency_unit = self.model_inst.currency_unit
         # save
         self.log.finished_at = self.finished_at
         self.log.save()
@@ -372,6 +356,7 @@ class QianfanClient(BaseClient):
         # calculate price
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
         self.log.completion_token_unit_price = self.model_inst.completion_price
+        self.log.currency_unit = self.model_inst.currency_unit
         # save
         self.log.finished_at = self.finished_at
         self.log.save()
