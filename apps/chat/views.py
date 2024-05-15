@@ -121,7 +121,7 @@ class AIModelViewSet(ListMixin, MainViewSet):
         """
 
         data = [{"id": model.model, "name": model.name} for model in ModelPermission.authed_models(user=request.user)]
-        data.sort(key=lambda model: model["id"])
+        data.sort(key=lambda model: model["name"])
         return Response(data=data)
 
     @action(methods=["GET"], detail=False)
