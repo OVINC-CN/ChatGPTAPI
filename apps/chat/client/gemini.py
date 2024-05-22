@@ -1,3 +1,5 @@
+# pylint: disable=R0801
+
 from typing import List
 
 import google.generativeai as genai

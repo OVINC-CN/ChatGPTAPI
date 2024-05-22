@@ -1,3 +1,5 @@
+# pylint: disable=R0801
+
 import json
 
 from django.conf import settings

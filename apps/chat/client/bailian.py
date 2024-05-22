@@ -1,3 +1,5 @@
+# pylint: disable=R0801
+
 from http import HTTPStatus
 from typing import Dict, Generator, List
 
@@ -40,6 +42,7 @@ class BaiLianClient(BaseClient):
         self.log.save()
         self.log.remove_content()
 
+    # pylint: disable=W0221,R1710
     def record(self, response: ApplicationResponse) -> None:
         # check log exist
         if self.log:

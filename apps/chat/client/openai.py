@@ -1,3 +1,5 @@
+# pylint: disable=R0801
+
 from urllib.parse import urlparse, urlunparse
 
 import tiktoken
