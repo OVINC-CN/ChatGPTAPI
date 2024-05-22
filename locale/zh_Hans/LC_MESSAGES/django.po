@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-27 14:10+0800\n"
+"POT-Creation-Date: 2024-05-22 11:10+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,6 +42,9 @@ msgstr "助理"
 msgid "Model"
 msgstr "模型"
 
+msgid "Bot"
+msgstr "机器人"
+
 msgid "Open AI"
 msgstr "Open AI"
 
@@ -53,6 +56,9 @@ msgstr "Baidu"
 
 msgid "Tencent"
 msgstr "Tencent"
+
+msgid "Aliyun"
+msgstr "Aliyun"
 
 msgid "1024x1024"
 msgstr "1024x1024"
@@ -68,6 +74,12 @@ msgstr "生动"
 
 msgid "Natural"
 msgstr "自然"
+
+msgid "USD($)"
+msgstr "USD($)"
+
+msgid "RMB(¥)"
+msgstr "RMB(¥)"
 
 msgid "Unauthorized Model"
 msgstr "未授权的模型"
@@ -104,6 +116,9 @@ msgstr "提示Token单价"
 
 msgid "Completion Token Unit Price"
 msgstr "响应Token单价"
+
+msgid "Currency Unit"
+msgstr "计费单位"
 
 msgid "Finish Time"
 msgstr "完成时间"
