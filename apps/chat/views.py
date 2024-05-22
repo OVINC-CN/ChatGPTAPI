@@ -10,6 +10,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.chat.client import (
+    BaiLianClient,
     GeminiClient,
     HunYuanClient,
     OpenAIClient,
@@ -72,6 +73,8 @@ class ChatViewSet(CreateMixin, MainViewSet):
                     client = OpenAIVisionClient
                 else:
                     client = OpenAIClient
+            case AIModelProvider.ALIYUN:
+                client = BaiLianClient
             case _:
                 raise UnexpectedProvider()
 
