@@ -1,5 +1,5 @@
 # ovinc
-ovinc-client==0.2.4
+ovinc-client==0.2.5
 
 # Celery
 celery==5.2.2
@@ -31,3 +31,6 @@ qianfan==0.3.0
 
 # Hunyuan
 tencentcloud-sdk-python==3.0.1137
+
+# Aliyun
+dashscope==1.19.1

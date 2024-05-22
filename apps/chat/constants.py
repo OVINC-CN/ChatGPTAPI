@@ -42,6 +42,15 @@ class GeminiRole(TextChoices):
     MODEL = "model", gettext_lazy("Model")
 
 
+class BaiLianRole(TextChoices):
+    """
+    Bai Lian Chat Role
+    """
+
+    USER = "user", gettext_lazy("User")
+    BOT = "bot", gettext_lazy("Bot")
+
+
 class AIModelProvider(TextChoices):
     """
     AI Model Provider
@@ -51,6 +60,7 @@ class AIModelProvider(TextChoices):
     GOOGLE = "google", gettext_lazy("Google")
     BAIDU = "baidu", gettext_lazy("Baidu")
     TENCENT = "tencent", gettext_lazy("Tencent")
+    ALIYUN = "aliyun", gettext_lazy("Aliyun")
 
 
 class VisionSize(TextChoices):
