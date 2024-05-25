@@ -7,10 +7,12 @@ from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 from google.generativeai.types import GenerateContentResponse
+from ovinc_client.core.logger import logger
 from rest_framework.request import Request
 
 from apps.chat.client.base import BaseClient
 from apps.chat.constants import GeminiRole, OpenAIRole
+from apps.chat.exceptions import GenerateFailed
 from apps.chat.models import ChatLog, Message
 
 
@@ -28,16 +30,21 @@ class GeminiClient(BaseClient):
     @transaction.atomic()
     def chat(self, *args, **kwargs) -> any:
         self.created_at = int(timezone.now().timestamp() * 1000)
-        response = self.genai_model.generate_content(
-            contents=[
-                {"role": self.get_role(message["role"]), "parts": [message["content"]]} for message in self.messages
-            ],
-            generation_config=genai.types.GenerationConfig(
-                temperature=self.temperature,
-                top_p=self.top_p,
-            ),
-            stream=True,
-        )
+        try:
+            response = self.genai_model.generate_content(
+                contents=[
+                    {"role": self.get_role(message["role"]), "parts": [message["content"]]} for message in self.messages
+                ],
+                generation_config=genai.types.GenerationConfig(
+                    temperature=self.temperature,
+                    top_p=self.top_p,
+                ),
+                stream=True,
+            )
+        except Exception as err:  # pylint: disable=W0718
+            logger.exception("[GenerateContentFailed] %s", err)
+            yield str(GenerateFailed())
+            response = []
         for chunk in response:
             self.record(response=chunk)
             yield chunk.text

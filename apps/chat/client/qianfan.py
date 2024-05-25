@@ -5,9 +5,11 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils import timezone
+from ovinc_client.core.logger import logger
 from qianfan import QfResponse
 
 from apps.chat.client.base import BaseClient
+from apps.chat.exceptions import GenerateFailed
 from apps.chat.models import ChatLog
 
 USER_MODEL = get_user_model()
@@ -22,13 +24,18 @@ class QianfanClient(BaseClient):
     def chat(self, *args, **kwargs) -> any:
         self.created_at = int(timezone.now().timestamp() * 1000)
         client = qianfan.ChatCompletion(ak=settings.QIANFAN_ACCESS_KEY, sk=settings.QIANFAN_SECRET_KEY)
-        response = client.do(
-            model=self.model,
-            messages=self.messages,
-            temperature=self.temperature,
-            top_p=self.top_p,
-            stream=True,
-        )
+        try:
+            response = client.do(
+                model=self.model,
+                messages=self.messages,
+                temperature=self.temperature,
+                top_p=self.top_p,
+                stream=True,
+            )
+        except Exception as err:  # pylint: disable=W0718
+            logger.exception("[GenerateContentFailed] %s", err)
+            yield str(GenerateFailed())
+            response = []
         for chunk in response:
             self.record(response=chunk)
             yield chunk.body.get("result", "")
