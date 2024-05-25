@@ -1,7 +1,9 @@
 # pylint: disable=R0801
 
-from urllib.parse import urlparse, urlunparse
+import uuid
+from urllib.parse import urlparse
 
+import httpx
 import tiktoken
 from django.conf import settings
 from django.db import transaction
@@ -10,9 +12,12 @@ from httpx import Client
 from openai import AzureOpenAI
 from openai.types import ImagesResponse
 from openai.types.chat import ChatCompletionChunk
+from rest_framework import status
 
 from apps.chat.client.base import BaseClient
+from apps.chat.exceptions import LoadImageFailed
 from apps.chat.models import ChatLog
+from utils.cos import cos_client
 
 
 class OpenAIClient(BaseClient):
@@ -99,19 +104,17 @@ class OpenAIVisionClient(BaseClient):
             style=self.model_inst.vision_style,
         )
         self.record(response=response)
-        raw_url = urlparse(url=response.data[0].url)
-        cos_url = urlparse(url=settings.QCLOUD_COS_URL)
-        new_url = urlunparse(
-            (
-                cos_url.scheme,
-                cos_url.netloc,
-                raw_url.path,
-                raw_url.params,
-                raw_url.query,
-                raw_url.fragment,
-            )
+        if not settings.ENABLE_IMAGE_PROXY:
+            return f"![{self.messages[-1]['content']}]({response.data[0].url})"
+        httpx_client = httpx.Client(http2=True, proxy=settings.OPENAI_HTTP_PROXY_URL)
+        image_resp = httpx_client.get(response.data[0].url)
+        if image_resp.status_code != status.HTTP_200_OK:
+            raise LoadImageFailed()
+        url = cos_client.put_object(
+            file=image_resp.content,
+            file_name=f"{uuid.uuid4().hex}.{urlparse(response.data[0].url).path.split('.')[-1]}",
         )
-        return f"![{self.messages[-1]['content']}]({new_url})"
+        return f"![{self.messages[-1]['content']}]({url})"
 
     # pylint: disable=W0221,R1710
     def record(self, response: ImagesResponse, **kwargs) -> None:

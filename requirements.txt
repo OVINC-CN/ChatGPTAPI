@@ -34,3 +34,6 @@ tencentcloud-sdk-python==3.0.1137
 
 # Aliyun
 dashscope==1.19.1
+
+# COS
+cos-python-sdk-v5==1.9.29

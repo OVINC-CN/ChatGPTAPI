@@ -21,3 +21,8 @@ class VerifyFailed(APIException):
 class UnexpectedProvider(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = gettext_lazy("Unexpected Provider")
+
+
+class LoadImageFailed(APIException):
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    default_detail = gettext_lazy("Load Image Failed")
