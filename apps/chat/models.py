@@ -224,6 +224,7 @@ class AIModel(BaseModel):
         null=True,
         blank=True,
     )
+    settings = models.JSONField(gettext_lazy("Settings"), blank=True, null=True)
 
     class Meta:
         verbose_name = gettext_lazy("AI Model")

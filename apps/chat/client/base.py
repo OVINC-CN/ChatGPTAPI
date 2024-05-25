@@ -22,6 +22,7 @@ class BaseClient:
         self.user: USER_MODEL = request.user
         self.model: str = model
         self.model_inst: AIModel = AIModel.objects.get(model=model, is_enabled=True)
+        self.model_settings: dict = self.model_inst.settings or {}
         self.messages: List[Message] = messages
         self.temperature: float = temperature
         self.top_p: float = top_p

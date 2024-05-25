@@ -29,9 +29,9 @@ class OpenAIClient(BaseClient):
     def chat(self, *args, **kwargs) -> any:
         self.created_at = int(timezone.now().timestamp() * 1000)
         client = AzureOpenAI(
-            api_key=settings.OPENAI_API_KEY,
+            api_key=self.model_settings.get("api_key", settings.OPENAI_API_KEY),
             api_version="2023-05-15",
-            azure_endpoint=settings.OPENAI_API_BASE,
+            azure_endpoint=self.model_settings.get("endpoint", settings.OPENAI_API_BASE),
             http_client=Client(proxy=settings.OPENAI_HTTP_PROXY_URL) if settings.OPENAI_HTTP_PROXY_URL else None,
         )
         response = client.chat.completions.create(
@@ -91,9 +91,9 @@ class OpenAIVisionClient(BaseClient):
     def chat(self, *args, **kwargs) -> any:
         self.created_at = int(timezone.now().timestamp() * 1000)
         client = AzureOpenAI(
-            api_key=settings.OPENAI_API_KEY,
+            api_key=self.model_settings.get("api_key", settings.OPENAI_API_KEY),
             api_version="2023-12-01-preview",
-            azure_endpoint=settings.OPENAI_API_BASE,
+            azure_endpoint=self.model_settings.get("endpoint", settings.OPENAI_API_BASE),
         )
         response = client.images.generate(
             model=self.model.replace(".", ""),
@@ -105,7 +105,7 @@ class OpenAIVisionClient(BaseClient):
         )
         self.record(response=response)
         if not settings.ENABLE_IMAGE_PROXY:
-            return f"![{self.messages[-1]['content']}]({response.data[0].url})"
+            yield f"![{self.messages[-1]['content']}]({response.data[0].url})"
         httpx_client = httpx.Client(http2=True, proxy=settings.OPENAI_HTTP_PROXY_URL)
         image_resp = httpx_client.get(response.data[0].url)
         if image_resp.status_code != status.HTTP_200_OK:
@@ -114,7 +114,7 @@ class OpenAIVisionClient(BaseClient):
             file=image_resp.content,
             file_name=f"{uuid.uuid4().hex}.{urlparse(response.data[0].url).path.split('.')[-1]}",
         )
-        return f"![{self.messages[-1]['content']}]({url})"
+        yield f"![{self.messages[-1]['content']}]({url})"
 
     # pylint: disable=W0221,R1710
     def record(self, response: ImagesResponse, **kwargs) -> None:
