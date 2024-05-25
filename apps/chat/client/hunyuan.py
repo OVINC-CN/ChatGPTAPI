@@ -5,10 +5,12 @@ import json
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
+from ovinc_client.core.logger import logger
 from tencentcloud.common import credential
 from tencentcloud.hunyuan.v20230901 import hunyuan_client, models
 
 from apps.chat.client.base import BaseClient
+from apps.chat.exceptions import GenerateFailed
 from apps.chat.models import ChatLog, HunYuanChuck
 
 
@@ -22,7 +24,12 @@ class HunYuanClient(BaseClient):
         # log
         self.created_at = int(timezone.now().timestamp() * 1000)
         # call hunyuan api
-        response = self.call_api()
+        try:
+            response = self.call_api()
+        except Exception as err:  # pylint: disable=W0718
+            logger.exception("[GenerateContentFailed] %s", err)
+            yield str(GenerateFailed())
+            response = []
         # explain completion
         for chunk in response:
             chunk = json.loads(chunk["data"])

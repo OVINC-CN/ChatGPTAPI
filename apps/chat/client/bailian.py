@@ -6,10 +6,11 @@ from typing import Dict, Generator, List
 from dashscope import Application
 from dashscope.app.application_response import ApplicationResponse
 from django.utils import timezone
+from ovinc_client.core.logger import logger
 
 from apps.chat.client.base import BaseClient
 from apps.chat.constants import BaiLianRole, OpenAIRole
-from apps.chat.exceptions import UnexpectedError
+from apps.chat.exceptions import GenerateFailed, UnexpectedError
 from apps.chat.models import ChatLog
 
 
@@ -20,14 +21,19 @@ class BaiLianClient(BaseClient):
 
     def chat(self, *args, **kwargs) -> any:
         self.created_at = int(timezone.now().timestamp() * 1000)
-        response: Generator[ApplicationResponse, None, None] = Application.call(
-            app_id=self.model,
-            prompt=self.get_prompt(),
-            history=self.get_history(),
-            tempature=self.temperature,
-            top_p=self.top_p,
-            stream=True,
-        )
+        try:
+            response: Generator[ApplicationResponse, None, None] = Application.call(
+                app_id=self.model,
+                prompt=self.get_prompt(),
+                history=self.get_history(),
+                tempature=self.temperature,
+                top_p=self.top_p,
+                stream=True,
+            )
+        except Exception as err:  # pylint: disable=W0718
+            logger.exception("[GenerateContentFailed] %s", err)
+            yield str(GenerateFailed())
+            response = []
         last_text = ""
         for chunk in response:
             if chunk.status_code != HTTPStatus.OK:

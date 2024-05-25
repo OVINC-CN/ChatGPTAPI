@@ -13,10 +13,11 @@ from httpx import Client
 from openai import AzureOpenAI
 from openai.types import ImagesResponse
 from openai.types.chat import ChatCompletionChunk
+from ovinc_client.core.logger import logger
 from rest_framework import status
 
 from apps.chat.client.base import BaseClient
-from apps.chat.exceptions import LoadImageFailed
+from apps.chat.exceptions import GenerateFailed, LoadImageFailed
 from apps.chat.models import ChatLog
 from utils.cos import cos_client
 
@@ -46,13 +47,18 @@ class OpenAIClient(OpenAIMixin, BaseClient):
     def chat(self, *args, **kwargs) -> any:
         self.created_at = int(timezone.now().timestamp() * 1000)
         client = self.build_client(api_version="2023-05-15")
-        response = client.chat.completions.create(
-            model=self.model.replace(".", ""),
-            messages=self.messages,
-            temperature=self.temperature,
-            top_p=self.top_p,
-            stream=True,
-        )
+        try:
+            response = client.chat.completions.create(
+                model=self.model.replace(".", ""),
+                messages=self.messages,
+                temperature=self.temperature,
+                top_p=self.top_p,
+                stream=True,
+            )
+        except Exception as err:  # pylint: disable=W0718
+            logger.exception("[GenerateContentFailed] %s", err)
+            yield str(GenerateFailed())
+            response = []
         # pylint: disable=E1133
         for chunk in response:
             self.record(response=chunk)
@@ -103,14 +109,19 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
     def chat(self, *args, **kwargs) -> any:
         self.created_at = int(timezone.now().timestamp() * 1000)
         client = self.build_client(api_version="2023-12-01-preview")
-        response = client.images.generate(
-            model=self.model.replace(".", ""),
-            prompt=self.messages[-1]["content"],
-            n=1,
-            size=self.model_inst.vision_size,
-            quality=self.model_inst.vision_quality,
-            style=self.model_inst.vision_style,
-        )
+        try:
+            response = client.images.generate(
+                model=self.model.replace(".", ""),
+                prompt=self.messages[-1]["content"],
+                n=1,
+                size=self.model_inst.vision_size,
+                quality=self.model_inst.vision_quality,
+                style=self.model_inst.vision_style,
+            )
+        except Exception as err:  # pylint: disable=W0718
+            logger.exception("[GenerateContentFailed] %s", err)
+            yield str(GenerateFailed())
+            return
         self.record(response=response)
         if not settings.ENABLE_IMAGE_PROXY:
             yield f"![{self.messages[-1]['content']}]({response.data[0].url})"

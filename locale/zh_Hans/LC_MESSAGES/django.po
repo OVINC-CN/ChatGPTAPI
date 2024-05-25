@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-22 11:10+0800\n"
+"POT-Creation-Date: 2024-05-25 17:01+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -93,6 +93,12 @@ msgstr "预检查失败"
 msgid "Unexpected Provider"
 msgstr "未知的提供商"
 
+msgid "Load Image Failed"
+msgstr "加载图片失败"
+
+msgid "Generate Failed, Please Try Again"
+msgstr "内容生成失败，请重试"
+
 msgid "ID"
 msgstr "ID"
 
@@ -162,6 +168,9 @@ msgstr "图像质量"
 msgid "Vision Style"
 msgstr "图像风格"
 
+msgid "Settings"
+msgstr "配置"
+
 msgid "AI Model"
 msgstr "AI 模型"
 
@@ -191,3 +200,6 @@ msgstr "语言ID非法"
 
 msgid "Language Code"
 msgstr "语言ID"
+
+msgid "COS Upload Failed"
+msgstr "COS上传失败"

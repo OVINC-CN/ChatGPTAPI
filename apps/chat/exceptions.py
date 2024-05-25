@@ -26,3 +26,8 @@ class UnexpectedProvider(APIException):
 class LoadImageFailed(APIException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     default_detail = gettext_lazy("Load Image Failed")
+
+
+class GenerateFailed(APIException):
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    default_detail = gettext_lazy("Generate Failed, Please Try Again")
