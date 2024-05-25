@@ -1,7 +1,7 @@
 from corsheaders.middleware import ACCESS_CONTROL_ALLOW_ORIGIN
 from django.conf import settings
 from django.core.cache import cache
-from django.http import HttpResponse, StreamingHttpResponse
+from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from ovinc_client.core.utils import uniq_id
 from ovinc_client.core.viewsets import CreateMixin, ListMixin, MainViewSet
@@ -87,11 +87,7 @@ class ChatViewSet(CreateMixin, MainViewSet):
             "Trace-ID": getattr(request, "otel_trace_id", ""),
         }
         # pylint: disable=E1120
-        return (
-            HttpResponse(content=client.chat().encode("utf-8"), headers=headers)
-            if model.is_vision
-            else StreamingHttpResponse(streaming_content=client.chat(), headers=headers)
-        )
+        return StreamingHttpResponse(streaming_content=client.chat(), headers=headers)
 
     @action(methods=["POST"], detail=False, permission_classes=[AIModelPermission])
     def pre_check(self, request, *args, **kwargs):
