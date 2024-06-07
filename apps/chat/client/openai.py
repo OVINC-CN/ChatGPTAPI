@@ -118,7 +118,7 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
         )
         yield f"![{self.messages[-1]['content']}]({url})"
 
-    # pylint: disable=W0221,R1710
+    # pylint: disable=W0221,R1710,W0236
     async def record(self, response: ImagesResponse, **kwargs) -> None:
         self.log.content = response.data[0].url
         self.log.completion_tokens = 1
