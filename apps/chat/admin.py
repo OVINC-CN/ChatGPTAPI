@@ -23,6 +23,7 @@ class ChatLogAdmin(ModelNameMixin, admin.ModelAdmin):
     list_display = [
         "id",
         "user",
+        "user__nick_name",
         "model_name",
         "prompt_tokens",
         "completion_tokens",
@@ -41,6 +42,10 @@ class ChatLogAdmin(ModelNameMixin, admin.ModelAdmin):
             + log.completion_tokens * log.completion_token_unit_price / 1000
         )
         return f"{log.currency_unit}{price:.4f}"
+
+    @admin.display(description=gettext_lazy("Nick Name"))
+    def user__nick_name(self, log: ChatLog) -> str:
+        return log.user.nick_name
 
     @admin.display(description=gettext_lazy("Duration(ms)"))
     def duration(self, log: ChatLog) -> int:

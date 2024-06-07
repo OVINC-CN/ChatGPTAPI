@@ -6,8 +6,8 @@ from urllib.parse import urlparse
 
 import httpx
 import tiktoken
+from channels.db import database_sync_to_async
 from django.conf import settings
-from django.db import transaction
 from django.utils import timezone
 from httpx import Client
 from openai import AzureOpenAI
@@ -18,7 +18,6 @@ from rest_framework import status
 
 from apps.chat.client.base import BaseClient
 from apps.chat.exceptions import GenerateFailed, LoadImageFailed
-from apps.chat.models import ChatLog
 from utils.cos import cos_client
 
 
@@ -43,9 +42,7 @@ class OpenAIClient(OpenAIMixin, BaseClient):
     OpenAI Client
     """
 
-    @transaction.atomic()
-    def chat(self, *args, **kwargs) -> any:
-        self.created_at = int(timezone.now().timestamp() * 1000)
+    async def chat(self, *args, **kwargs) -> any:
         client = self.build_client(api_version="2023-05-15")
         try:
             response = client.chat.completions.create(
@@ -64,26 +61,14 @@ class OpenAIClient(OpenAIMixin, BaseClient):
             self.record(response=chunk)
             yield chunk.choices[0].delta.content or ""
         self.finished_at = int(timezone.now().timestamp() * 1000)
-        self.post_chat()
+        await self.post_chat()
 
     # pylint: disable=W0221,R1710
     def record(self, response: ChatCompletionChunk, **kwargs) -> None:
-        # check log exist
-        if self.log:
-            self.log.content += response.choices[0].delta.content or ""
-            return
-        # create log
-        self.log = ChatLog.objects.create(
-            chat_id=response.id,
-            user=self.user,
-            model=self.model,
-            messages=self.messages,
-            content="",
-            created_at=self.created_at,
-        )
-        return self.record(response=response)
+        self.log.content += response.choices[0].delta.content or ""
+        self.log.chat_id = response.id
 
-    def post_chat(self) -> None:
+    async def post_chat(self) -> None:
         if not self.log:
             return
         # calculate tokens
@@ -96,8 +81,8 @@ class OpenAIClient(OpenAIMixin, BaseClient):
         self.log.currency_unit = self.model_inst.currency_unit
         # save
         self.log.finished_at = self.finished_at
-        self.log.save()
-        self.log.remove_content()
+        await database_sync_to_async(self.log.save)()
+        await database_sync_to_async(self.log.remove_content)()
 
 
 class OpenAIVisionClient(OpenAIMixin, BaseClient):
@@ -105,9 +90,7 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
     OpenAI Vision Client
     """
 
-    @transaction.atomic()
-    def chat(self, *args, **kwargs) -> any:
-        self.created_at = int(timezone.now().timestamp() * 1000)
+    async def chat(self, *args, **kwargs) -> any:
         client = self.build_client(api_version="2023-12-01-preview")
         try:
             response = client.images.generate(
@@ -122,7 +105,7 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
             logger.exception("[GenerateContentFailed] %s", err)
             yield str(GenerateFailed())
             return
-        self.record(response=response)
+        await self.record(response=response)
         if not settings.ENABLE_IMAGE_PROXY:
             yield f"![{self.messages[-1]['content']}]({response.data[0].url})"
         httpx_client = httpx.Client(http2=True, proxy=settings.OPENAI_HTTP_PROXY_URL)
@@ -135,17 +118,12 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
         )
         yield f"![{self.messages[-1]['content']}]({url})"
 
-    # pylint: disable=W0221,R1710
-    def record(self, response: ImagesResponse, **kwargs) -> None:
-        self.log = ChatLog.objects.create(
-            user=self.user,
-            model=self.model,
-            messages=self.messages,
-            content=response.data[0].url,
-            completion_tokens=1,
-            completion_token_unit_price=self.model_inst.completion_price,
-            currency_unit=self.model_inst.currency_unit,
-            created_at=self.created_at,
-            finished_at=int(timezone.now().timestamp() * 1000),
-        )
-        self.log.remove_content()
+    # pylint: disable=W0221,R1710,W0236
+    async def record(self, response: ImagesResponse, **kwargs) -> None:
+        self.log.content = response.data[0].url
+        self.log.completion_tokens = 1
+        self.log.completion_token_unit_price = self.model_inst.completion_price
+        self.log.currency_unit = self.model_inst.currency_unit
+        self.log.finished_at = int(timezone.now().timestamp() * 1000)
+        await database_sync_to_async(self.log.save)()
+        await database_sync_to_async(self.log.remove_content)()

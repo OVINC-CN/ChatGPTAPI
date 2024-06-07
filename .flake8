@@ -4,6 +4,7 @@ exclude =
     __pycache__,
     *migrations*,
     *.pyc,
+    entry/asgi.py
 
 max-line-length = 120
 max-complexity = 25

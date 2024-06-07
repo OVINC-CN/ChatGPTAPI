@@ -18,7 +18,7 @@ pyinstrument==4.4.0
 
 # OpenAI
 openai==1.12.0
-tiktoken==0.4.0
+tiktoken==0.7.0
 pillow==10.3.0
 
 # Gemini
@@ -37,3 +37,8 @@ dashscope==1.19.1
 
 # COS
 cos-python-sdk-v5==1.9.29
+
+# Channel
+channels[daphne]==4.1.0
+channels_redis==4.2.0
+Twisted[tls,http2]==24.3.0
