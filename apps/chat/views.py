@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.cache import cache
 from ovinc_client.core.utils import uniq_id
-from ovinc_client.core.viewsets import CreateMixin, ListMixin, MainViewSet
+from ovinc_client.core.viewsets import ListMixin, MainViewSet
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -15,7 +15,7 @@ from apps.chat.serializers import (
 
 
 # pylint: disable=R0901
-class ChatViewSet(CreateMixin, MainViewSet):
+class ChatViewSet(MainViewSet):
     """
     Chat
     """
