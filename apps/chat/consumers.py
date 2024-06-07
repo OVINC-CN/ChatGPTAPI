@@ -9,6 +9,7 @@ from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from django_redis.client import DefaultClient
 from ovinc_client.account.models import User
+from ovinc_client.core.logger import logger
 
 from apps.chat.client import (
     BaiLianClient,
@@ -34,6 +35,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.chat(text_data=text_data)
             await self.send(text_data=json.dumps({"is_finished": True}, ensure_ascii=False))
         except Exception as err:  # pylint: disable=W0718
+            logger.exception("[ChatError] %s", err)
             await self.send(text_data=json.dumps({"data": str(err), "is_finished": True}, ensure_ascii=False))
 
     async def chat(self, text_data) -> None:
