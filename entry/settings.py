@@ -28,6 +28,7 @@ FRONTEND_URL = getenv_or_raise("FRONTEND_URL")
 
 # APPs
 INSTALLED_APPS = [
+    "daphne",
     "simpleui",
     "corsheaders",
     "django.contrib.auth",
@@ -84,9 +85,6 @@ TEMPLATES = [
     },
 ]
 
-# WSGI
-WSGI_APPLICATION = "entry.wsgi.application"
-
 # DB and Cache
 DATABASES = {
     "default": {
@@ -110,6 +108,22 @@ CACHES = {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
     }
+}
+
+# WSGI
+WSGI_APPLICATION = "entry.wsgi.application"
+
+# ASGI
+ASGI_APPLICATION = "entry.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [
+                f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
+            ],
+        },
+    },
 }
 
 # Auth

@@ -2,8 +2,8 @@
 
 import json
 
+from channels.db import database_sync_to_async
 from django.conf import settings
-from django.db import transaction
 from django.utils import timezone
 from ovinc_client.core.logger import logger
 from tencentcloud.common import credential
@@ -11,7 +11,7 @@ from tencentcloud.hunyuan.v20230901 import hunyuan_client, models
 
 from apps.chat.client.base import BaseClient
 from apps.chat.exceptions import GenerateFailed
-from apps.chat.models import ChatLog, HunYuanChuck
+from apps.chat.models import HunYuanChuck
 
 
 class HunYuanClient(BaseClient):
@@ -19,10 +19,7 @@ class HunYuanClient(BaseClient):
     Hun Yuan
     """
 
-    @transaction.atomic()
-    def chat(self, *args, **kwargs) -> any:
-        # log
-        self.created_at = int(timezone.now().timestamp() * 1000)
+    async def chat(self, *args, **kwargs) -> any:
         # call hunyuan api
         try:
             response = self.call_api()
@@ -39,30 +36,18 @@ class HunYuanClient(BaseClient):
         if not self.log:
             return
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
-        self.log.save()
-        self.log.remove_content()
+        await database_sync_to_async(self.log.save)()
+        await database_sync_to_async(self.log.remove_content)()
 
     # pylint: disable=W0221,R1710
     def record(self, response: HunYuanChuck) -> None:
-        # check log exist
-        if self.log:
-            self.log.content += response.Choices[0].Delta.Content
-            self.log.prompt_tokens = response.Usage.PromptTokens
-            self.log.completion_tokens = response.Usage.CompletionTokens
-            self.log.prompt_token_unit_price = self.model_inst.prompt_price
-            self.log.completion_token_unit_price = self.model_inst.completion_price
-            self.log.currency_unit = self.model_inst.currency_unit
-            return
-        # create log
-        self.log = ChatLog.objects.create(
-            chat_id=response.Id,
-            user=self.user,
-            model=self.model,
-            messages=self.messages,
-            content="",
-            created_at=self.created_at,
-        )
-        return self.record(response=response)
+        self.log.chat_id = response.Id
+        self.log.content += response.Choices[0].Delta.Content
+        self.log.prompt_tokens = response.Usage.PromptTokens
+        self.log.completion_tokens = response.Usage.CompletionTokens
+        self.log.prompt_token_unit_price = self.model_inst.prompt_price
+        self.log.completion_token_unit_price = self.model_inst.completion_price
+        self.log.currency_unit = self.model_inst.currency_unit
 
     def call_api(self) -> models.ChatCompletionsResponse:
         client = hunyuan_client.HunyuanClient(

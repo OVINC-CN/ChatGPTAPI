@@ -1,29 +1,15 @@
-from corsheaders.middleware import ACCESS_CONTROL_ALLOW_ORIGIN
 from django.conf import settings
 from django.core.cache import cache
-from django.http import StreamingHttpResponse
-from django.shortcuts import get_object_or_404
 from ovinc_client.core.utils import uniq_id
 from ovinc_client.core.viewsets import CreateMixin, ListMixin, MainViewSet
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.chat.client import (
-    BaiLianClient,
-    GeminiClient,
-    HunYuanClient,
-    OpenAIClient,
-    OpenAIVisionClient,
-    QianfanClient,
-)
-from apps.chat.constants import AIModelProvider
-from apps.chat.exceptions import UnexpectedProvider, VerifyFailed
-from apps.chat.models import AIModel, ChatLog, ModelPermission
+from apps.chat.models import ChatLog, ModelPermission
 from apps.chat.permissions import AIModelPermission
 from apps.chat.serializers import (
     CheckModelPermissionSerializer,
-    OpenAIChatRequestSerializer,
     OpenAIRequestSerializer,
 )
 
@@ -41,54 +27,6 @@ class ChatViewSet(CreateMixin, MainViewSet):
             return False
         return super().check_record_log(request, *args, **kwargs)
 
-    def create(self, request, *args, **kwargs):
-        """
-        Create Chat
-        """
-
-        # validate request
-        request_serializer = OpenAIChatRequestSerializer(data=request.data)
-        request_serializer.is_valid(raise_exception=True)
-        key = request_serializer.validated_data["key"]
-
-        # cache
-        request_data = cache.get(key=key)
-        cache.delete(key=key)
-        if not request_data:
-            raise VerifyFailed()
-
-        # model
-        model: AIModel = get_object_or_404(AIModel, model=request_data["model"])
-
-        # call api
-        match model.provider:
-            case AIModelProvider.TENCENT:
-                client = HunYuanClient
-            case AIModelProvider.GOOGLE:
-                client = GeminiClient
-            case AIModelProvider.BAIDU:
-                client = QianfanClient
-            case AIModelProvider.OPENAI:
-                if model.is_vision:
-                    client = OpenAIVisionClient
-                else:
-                    client = OpenAIClient
-            case AIModelProvider.ALIYUN:
-                client = BaiLianClient
-            case _:
-                raise UnexpectedProvider()
-
-        # init client
-        client = client(request=request, **request_data)
-
-        # response
-        headers = {
-            ACCESS_CONTROL_ALLOW_ORIGIN: settings.FRONTEND_URL,
-            "Trace-ID": getattr(request, "otel_trace_id", ""),
-        }
-        # pylint: disable=E1120
-        return StreamingHttpResponse(streaming_content=client.chat(), headers=headers)
-
     @action(methods=["POST"], detail=False, permission_classes=[AIModelPermission])
     def pre_check(self, request, *args, **kwargs):
         """
@@ -102,7 +40,11 @@ class ChatViewSet(CreateMixin, MainViewSet):
 
         # cache
         cache_key = uniq_id()
-        cache.set(key=cache_key, value=request_data, timeout=settings.OPENAI_PRE_CHECK_TIMEOUT)
+        cache.set(
+            key=cache_key,
+            value={**request_data, "user": request.user.username},
+            timeout=settings.OPENAI_PRE_CHECK_TIMEOUT,
+        )
 
         # response
         return Response(data={"key": cache_key})

@@ -1,8 +1,9 @@
 import abc
+import datetime
 from typing import List
 
 from django.contrib.auth import get_user_model
-from rest_framework.request import Request
+from django.shortcuts import get_object_or_404
 
 from apps.chat.models import AIModel, ChatLog, Message
 
@@ -16,21 +17,25 @@ class BaseClient:
     """
 
     # pylint: disable=R0913
-    def __init__(self, request: Request, model: str, messages: List[Message], temperature: float, top_p: float):
-        self.log: ChatLog = None
-        self.request: Request = request
-        self.user: USER_MODEL = request.user
+    def __init__(self, user: str, model: str, messages: List[Message], temperature: float, top_p: float):
+        self.user: USER_MODEL = get_object_or_404(USER_MODEL, username=user)
         self.model: str = model
         self.model_inst: AIModel = AIModel.objects.get(model=model, is_enabled=True)
         self.model_settings: dict = self.model_inst.settings or {}
         self.messages: List[Message] = messages
         self.temperature: float = temperature
         self.top_p: float = top_p
-        self.created_at: int = int()
         self.finished_at: int = int()
+        self.log = ChatLog.objects.create(
+            user=self.user,
+            model=self.model,
+            messages=self.messages,
+            content="",
+            created_at=int(datetime.datetime.now().timestamp() * 1000),
+        )
 
     @abc.abstractmethod
-    def chat(self, *args, **kwargs) -> any:
+    async def chat(self, *args, **kwargs) -> any:
         """
         Chat
         """

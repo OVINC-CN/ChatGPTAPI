@@ -3,6 +3,7 @@
 from http import HTTPStatus
 from typing import Dict, Generator, List
 
+from channels.db import database_sync_to_async
 from dashscope import Application
 from dashscope.app.application_response import ApplicationResponse
 from django.utils import timezone
@@ -11,7 +12,6 @@ from ovinc_client.core.logger import logger
 from apps.chat.client.base import BaseClient
 from apps.chat.constants import BaiLianRole, OpenAIRole
 from apps.chat.exceptions import GenerateFailed, UnexpectedError
-from apps.chat.models import ChatLog
 
 
 class BaiLianClient(BaseClient):
@@ -19,8 +19,7 @@ class BaiLianClient(BaseClient):
     Aliyun Bai Lian
     """
 
-    def chat(self, *args, **kwargs) -> any:
-        self.created_at = int(timezone.now().timestamp() * 1000)
+    async def chat(self, *args, **kwargs) -> any:
         try:
             response: Generator[ApplicationResponse, None, None] = Application.call(
                 app_id=self.model,
@@ -45,30 +44,18 @@ class BaiLianClient(BaseClient):
         if not self.log:
             return
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
-        self.log.save()
-        self.log.remove_content()
+        await database_sync_to_async(self.log.save)()
+        await database_sync_to_async(self.log.remove_content)()
 
     # pylint: disable=W0221,R1710
     def record(self, response: ApplicationResponse) -> None:
-        # check log exist
-        if self.log:
-            self.log.content += response.output.text
-            self.log.prompt_tokens = response.usage.models[0].input_tokens
-            self.log.completion_tokens = response.usage.models[0].output_tokens
-            self.log.prompt_token_unit_price = self.model_inst.prompt_price
-            self.log.completion_token_unit_price = self.model_inst.completion_price
-            self.log.currency_unit = self.model_inst.currency_unit
-            return
-        # create log
-        self.log = ChatLog.objects.create(
-            chat_id=response.request_id,
-            user=self.user,
-            model=self.model,
-            messages=self.messages,
-            content="",
-            created_at=self.created_at,
-        )
-        return self.record(response=response)
+        self.log.chat_id = response.request_id
+        self.log.content += response.output.text
+        self.log.prompt_tokens = response.usage.models[0].input_tokens
+        self.log.completion_tokens = response.usage.models[0].output_tokens
+        self.log.prompt_token_unit_price = self.model_inst.prompt_price
+        self.log.completion_token_unit_price = self.model_inst.completion_price
+        self.log.currency_unit = self.model_inst.currency_unit
 
     def get_prompt(self) -> str:
         return self.messages[-1]["content"]
