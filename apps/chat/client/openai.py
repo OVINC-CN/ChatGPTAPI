@@ -105,7 +105,7 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
             logger.exception("[GenerateContentFailed] %s", err)
             yield str(GenerateFailed())
             return
-        self.record(response=response)
+        await self.record(response=response)
         if not settings.ENABLE_IMAGE_PROXY:
             yield f"![{self.messages[-1]['content']}]({response.data[0].url})"
         httpx_client = httpx.Client(http2=True, proxy=settings.OPENAI_HTTP_PROXY_URL)
@@ -119,9 +119,11 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
         yield f"![{self.messages[-1]['content']}]({url})"
 
     # pylint: disable=W0221,R1710
-    def record(self, response: ImagesResponse, **kwargs) -> None:
+    async def record(self, response: ImagesResponse, **kwargs) -> None:
         self.log.content = response.data[0].url
         self.log.completion_tokens = 1
         self.log.completion_token_unit_price = self.model_inst.completion_price
         self.log.currency_unit = self.model_inst.currency_unit
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
+        await database_sync_to_async(self.log.save)()
+        await database_sync_to_async(self.log.remove_content)()
