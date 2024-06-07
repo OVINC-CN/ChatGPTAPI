@@ -3,7 +3,6 @@ import json
 from typing import Type
 
 from channels.db import database_sync_to_async
-from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
@@ -24,6 +23,7 @@ from apps.chat.constants import AIModelProvider
 from apps.chat.exceptions import UnexpectedProvider, VerifyFailed
 from apps.chat.models import AIModel
 from apps.chat.serializers import OpenAIChatRequestSerializer
+from utils.consumers import AsyncWebsocketConsumer
 
 cache: DefaultClient
 USER_MODEL: User = get_user_model()
