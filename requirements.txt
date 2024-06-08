@@ -1,5 +1,5 @@
 # ovinc
-ovinc-client==0.3.0b0
+ovinc-client==0.3.0b1
 
 # channel
 channels_redis==4.2.0

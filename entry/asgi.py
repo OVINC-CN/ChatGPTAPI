@@ -5,6 +5,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
 from django.urls import path
 from django.utils.module_loading import import_string
+from opentelemetry.instrumentation.asgi import OpenTelemetryMiddleware
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "entry.settings")
 
@@ -16,11 +17,13 @@ def to_asgi(consumer_path: str) -> AsyncConsumer:
 
 application = ProtocolTypeRouter(
     {
-        "http": get_asgi_application(),
-        "websocket": URLRouter(
-            [
-                path("chat/", to_asgi("apps.chat.consumers.ChatConsumer")),
-            ]
+        "http": OpenTelemetryMiddleware(get_asgi_application()),
+        "websocket": OpenTelemetryMiddleware(
+            URLRouter(
+                [
+                    path("chat/", to_asgi("apps.chat.consumers.ChatConsumer")),
+                ]
+            )
         ),
     }
 )
