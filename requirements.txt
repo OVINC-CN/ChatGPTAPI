@@ -10,7 +10,8 @@ celery==5.2.2
 # Server
 gunicorn==22.0.0
 uvicorn-worker==0.2.0
-uvicorn[standard]==0.30.1
+uvicorn==0.30.1
+websockets==12.0
 
 # Datetime
 arrow==1.2.3
