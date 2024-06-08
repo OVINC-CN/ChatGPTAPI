@@ -110,9 +110,6 @@ CACHES = {
     }
 }
 
-# WSGI
-WSGI_APPLICATION = "entry.wsgi.application"
-
 # ASGI
 ASGI_APPLICATION = "entry.asgi.application"
 CHANNEL_LAYERS = {

@@ -1,11 +1,11 @@
 # ovinc
-ovinc-client==0.2.5
+ovinc-client==0.3.0b0
+
+# channel
+channels_redis==4.2.0
 
 # Celery
 celery==5.2.2
-
-# Server
-uwsgi==2.0.22
 
 # Datetime
 arrow==1.2.3
@@ -37,8 +37,3 @@ dashscope==1.19.1
 
 # COS
 cos-python-sdk-v5==1.9.29
-
-# Channel
-channels[daphne]==4.1.0
-channels_redis==4.2.0
-Twisted[tls,http2]==24.3.0

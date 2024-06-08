@@ -1,12 +1,15 @@
+from typing import List
+
+from channels.db import database_sync_to_async
 from django.conf import settings
 from django.core.cache import cache
+from django.shortcuts import get_object_or_404
 from ovinc_client.core.utils import uniq_id
 from ovinc_client.core.viewsets import ListMixin, MainViewSet
 from rest_framework.decorators import action
-from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.chat.models import ChatLog, ModelPermission
+from apps.chat.models import AIModel, ChatLog, ModelPermission
 from apps.chat.permissions import AIModelPermission
 from apps.chat.serializers import (
     CheckModelPermissionSerializer,
@@ -22,13 +25,8 @@ class ChatViewSet(MainViewSet):
 
     queryset = ChatLog.objects.all()
 
-    def check_record_log(self, request: Request, *args, **kwargs) -> bool:
-        if self.action == "pre_check":
-            return False
-        return super().check_record_log(request, *args, **kwargs)
-
     @action(methods=["POST"], detail=False, permission_classes=[AIModelPermission])
-    def pre_check(self, request, *args, **kwargs):
+    async def pre_check(self, request, *args, **kwargs):
         """
         pre-check before chat
         """
@@ -37,6 +35,9 @@ class ChatViewSet(MainViewSet):
         request_serializer = OpenAIRequestSerializer(data=request.data)
         request_serializer.is_valid(raise_exception=True)
         request_data = request_serializer.validated_data
+
+        # check model
+        await database_sync_to_async(get_object_or_404)(AIModel, model=request_data["model"], is_enabled=True)
 
         # cache
         cache_key = uniq_id()
@@ -56,28 +57,35 @@ class AIModelViewSet(ListMixin, MainViewSet):
     Model
     """
 
-    def list(self, request, *args, **kwargs):
+    async def list(self, request, *args, **kwargs):
         """
         List Models
         """
 
-        data = [{"id": model.model, "name": model.name} for model in ModelPermission.authed_models(user=request.user)]
+        data = [{"id": model.model, "name": model.name} for model in await self.list_models(request)]
         data.sort(key=lambda model: model["name"])
         return Response(data=data)
 
+    @database_sync_to_async
+    def list_models(self, request) -> List[AIModel]:
+        return list(ModelPermission.authed_models(user=request.user))
+
     @action(methods=["GET"], detail=False)
-    def check(self, reqeust, *args, **kwargs):
+    async def check(self, request, *args, **kwargs):
         """
         Check Model Permission
         """
 
         # validate
-        request_serializer = CheckModelPermissionSerializer(data=reqeust.query_params)
+        request_serializer = CheckModelPermissionSerializer(data=request.query_params)
         request_serializer.is_valid(raise_exception=True)
         request_data = request_serializer.validated_data
 
-        return Response(
-            data={
-                "has_permission": ModelPermission.authed_models(user=reqeust.user, model=request_data["model"]).exists()
-            }
-        )
+        # check model
+        await database_sync_to_async(get_object_or_404)(AIModel, model=request_data["model"], is_enabled=True)
+
+        return Response(data={"has_permission": await self.check_model_permission(request, request_data)})
+
+    @database_sync_to_async
+    def check_model_permission(self, request, request_data):
+        return ModelPermission.authed_models(user=request.user, model=request_data["model"]).exists()
