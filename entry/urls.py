@@ -6,8 +6,8 @@ from django.views.generic import RedirectView
 from ovinc_client.core import exceptions
 
 
-def serve_static(request, p, insecure=True, **kwargs):
-    return serve(request, p, insecure=True, **kwargs)
+def serve_static(request, path, insecure=True, **kwargs):
+    return serve(request, path, insecure=True, **kwargs)
 
 
 urlpatterns = [

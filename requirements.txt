@@ -7,6 +7,10 @@ channels_redis==4.2.0
 # Celery
 celery==5.2.2
 
+# Server
+gunicorn==22.0.0
+uvicorn-worker==0.2.0
+
 # Datetime
 arrow==1.2.3
 
