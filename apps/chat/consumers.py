@@ -34,9 +34,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             await self.chat(text_data=text_data)
             await self.send(text_data=json.dumps({"is_finished": True}, ensure_ascii=False))
+            await asyncio.sleep(0)
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[ChatError] %s", err)
             await self.send(text_data=json.dumps({"data": str(err), "is_finished": True}, ensure_ascii=False))
+            await asyncio.sleep(0)
 
     async def chat(self, text_data) -> None:
         # validate
