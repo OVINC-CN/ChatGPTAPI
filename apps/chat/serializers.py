@@ -1,5 +1,6 @@
 from typing import List
 
+from adrf.serializers import Serializer
 from django.conf import settings
 from django.utils.translation import gettext, gettext_lazy
 from rest_framework import serializers
@@ -14,10 +15,9 @@ from apps.chat.constants import (
     TOP_P_MIN,
     OpenAIRole,
 )
-from apps.chat.models import AIModel
 
 
-class OpenAIMessageSerializer(serializers.Serializer):
+class OpenAIMessageSerializer(Serializer):
     """
     OpenAI Message
     """
@@ -26,15 +26,7 @@ class OpenAIMessageSerializer(serializers.Serializer):
     content = serializers.CharField(label=gettext_lazy("Content"))
 
 
-class ModelSerializerMixin:
-    def validate_model(self, model: str) -> str:
-        if AIModel.objects.filter(model=model, is_enabled=True).exists():
-            return model
-        # pylint: disable=E1101
-        raise AIModel.DoesNotExist()
-
-
-class OpenAIRequestSerializer(ModelSerializerMixin, serializers.Serializer):
+class OpenAIRequestSerializer(Serializer):
     """
     OpenAI Request
     """
@@ -62,7 +54,7 @@ class OpenAIRequestSerializer(ModelSerializerMixin, serializers.Serializer):
         return messages
 
 
-class CheckModelPermissionSerializer(ModelSerializerMixin, serializers.Serializer):
+class CheckModelPermissionSerializer(Serializer):
     """
     Model Permission
     """
@@ -70,7 +62,7 @@ class CheckModelPermissionSerializer(ModelSerializerMixin, serializers.Serialize
     model = serializers.CharField(label=gettext_lazy("Model"))
 
 
-class OpenAIChatRequestSerializer(serializers.Serializer):
+class OpenAIChatRequestSerializer(Serializer):
     """
     OpenAI Chat
     """
