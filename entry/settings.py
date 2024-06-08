@@ -115,6 +115,16 @@ CACHES = {
 
 # ASGI
 ASGI_APPLICATION = "entry.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [
+                f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
+            ],
+        },
+    },
+}
 
 # Auth
 AUTH_PASSWORD_VALIDATORS = [
