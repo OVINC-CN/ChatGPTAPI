@@ -66,7 +66,7 @@ class AIModelViewSet(ListMixin, MainViewSet):
         data.sort(key=lambda model: model["name"])
         return Response(data=data)
 
-    @database_sync_to_async()
+    @database_sync_to_async
     def list_models(self, request) -> List[AIModel]:
         return list(ModelPermission.authed_models(user=request.user))
 
@@ -86,6 +86,6 @@ class AIModelViewSet(ListMixin, MainViewSet):
 
         return Response(data={"has_permission": await self.check_model_permission(request, request_data)})
 
-    @database_sync_to_async()
+    @database_sync_to_async
     def check_model_permission(self, request, request_data):
         return ModelPermission.authed_models(user=request.user, model=request_data["model"]).exists()
