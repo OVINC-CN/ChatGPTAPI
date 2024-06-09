@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 
 import httpx
 import tiktoken
-from channels.db import database_sync_to_async
+from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.utils import timezone
 from httpx import Client
@@ -81,8 +81,8 @@ class OpenAIClient(OpenAIMixin, BaseClient):
         self.log.currency_unit = self.model_inst.currency_unit
         # save
         self.log.finished_at = self.finished_at
-        await database_sync_to_async(self.log.save)()
-        await database_sync_to_async(self.log.remove_content)()
+        await sync_to_async(self.log.save)()
+        await sync_to_async(self.log.remove_content)()
 
 
 class OpenAIVisionClient(OpenAIMixin, BaseClient):
@@ -125,5 +125,5 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
         self.log.completion_token_unit_price = self.model_inst.completion_price
         self.log.currency_unit = self.model_inst.currency_unit
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
-        await database_sync_to_async(self.log.save)()
-        await database_sync_to_async(self.log.remove_content)()
+        await sync_to_async(self.log.save)()
+        await sync_to_async(self.log.remove_content)()
