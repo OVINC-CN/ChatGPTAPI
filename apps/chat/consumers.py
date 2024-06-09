@@ -2,7 +2,7 @@ import asyncio
 import json
 from typing import Type
 
-from channels.db import database_sync_to_async
+from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
@@ -49,13 +49,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         request_data = self.load_data_from_cache(key)
 
         # model
-        model = await database_sync_to_async(self.get_model_inst)(request_data["model"])
+        model = await sync_to_async(self.get_model_inst)(request_data["model"])
 
         # get client
         client = self.get_model_client(model)
 
         # init client
-        client = await database_sync_to_async(client)(**request_data)
+        client = await sync_to_async(client)(**request_data)
 
         # response
         async for data in client.chat():

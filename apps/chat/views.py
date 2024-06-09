@@ -1,5 +1,6 @@
 from typing import List
 
+from asgiref.sync import sync_to_async
 from channels.db import database_sync_to_async
 from django.conf import settings
 from django.core.cache import cache
@@ -37,7 +38,7 @@ class ChatViewSet(MainViewSet):
         request_data = request_serializer.validated_data
 
         # check model
-        await database_sync_to_async(get_object_or_404)(AIModel, model=request_data["model"], is_enabled=True)
+        await sync_to_async(get_object_or_404)(AIModel, model=request_data["model"], is_enabled=True)
 
         # cache
         cache_key = uniq_id()
@@ -82,7 +83,7 @@ class AIModelViewSet(ListMixin, MainViewSet):
         request_data = request_serializer.validated_data
 
         # check model
-        await database_sync_to_async(get_object_or_404)(AIModel, model=request_data["model"], is_enabled=True)
+        await sync_to_async(get_object_or_404)(AIModel, model=request_data["model"], is_enabled=True)
 
         return Response(data={"has_permission": await self.check_model_permission(request, request_data)})
 
