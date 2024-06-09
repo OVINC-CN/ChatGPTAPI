@@ -2,7 +2,7 @@
 
 import json
 
-from asgiref.sync import sync_to_async
+from channels.db import database_sync_to_async
 from django.conf import settings
 from django.utils import timezone
 from ovinc_client.core.logger import logger
@@ -36,8 +36,8 @@ class HunYuanClient(BaseClient):
         if not self.log:
             return
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
-        await sync_to_async(self.log.save)()
-        await sync_to_async(self.log.remove_content)()
+        await database_sync_to_async(self.log.save)()
+        await database_sync_to_async(self.log.remove_content)()
 
     # pylint: disable=W0221,R1710
     def record(self, response: HunYuanChuck) -> None:

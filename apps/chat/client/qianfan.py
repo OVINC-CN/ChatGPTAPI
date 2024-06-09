@@ -1,7 +1,7 @@
 # pylint: disable=R0801
 
 import qianfan
-from asgiref.sync import sync_to_async
+from channels.db import database_sync_to_async
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -56,5 +56,5 @@ class QianfanClient(BaseClient):
         self.log.currency_unit = self.model_inst.currency_unit
         # save
         self.log.finished_at = self.finished_at
-        await sync_to_async(self.log.save)()
-        await sync_to_async(self.log.remove_content)()
+        await database_sync_to_async(self.log.save)()
+        await database_sync_to_async(self.log.remove_content)()

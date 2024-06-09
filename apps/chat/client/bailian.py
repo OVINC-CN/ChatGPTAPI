@@ -3,7 +3,7 @@
 from http import HTTPStatus
 from typing import Dict, Generator, List
 
-from asgiref.sync import sync_to_async
+from channels.db import database_sync_to_async
 from dashscope import Application
 from dashscope.app.application_response import ApplicationResponse
 from django.utils import timezone
@@ -44,8 +44,8 @@ class BaiLianClient(BaseClient):
         if not self.log:
             return
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
-        await sync_to_async(self.log.save)()
-        await sync_to_async(self.log.remove_content)()
+        await database_sync_to_async(self.log.save)()
+        await database_sync_to_async(self.log.remove_content)()
 
     # pylint: disable=W0221,R1710
     def record(self, response: ApplicationResponse) -> None:
