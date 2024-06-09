@@ -98,7 +98,6 @@ DATABASES = {
         "HOST": getenv_or_raise("DB_HOST"),
         "PORT": int(getenv_or_raise("DB_PORT")),
         "OPTIONS": {"charset": "utf8mb4"},
-        "CONN_MAX_AGE": 0 if DEBUG else int(os.getenv("DB_CONN_MAX_AGE", "3600")),
     }
 }
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
