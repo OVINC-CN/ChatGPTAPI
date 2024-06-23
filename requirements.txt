@@ -1,12 +1,11 @@
 # ovinc
-ovinc-client==0.3.2
+ovinc-client==0.3.3
 
 # Celery
 celery==5.4.0
 
 
 # Async
-nest_asyncio==1.6.0
 asgiref==3.8.1
 channels[daphne]==4.1.0
 channels_redis==4.2.0

@@ -1,12 +1,9 @@
 import os
 from pathlib import Path
 
-import nest_asyncio
 from environ import environ
 from ovinc_client.core.logger import get_logging_config_dict
 from ovinc_client.core.utils import getenv_or_raise, strtobool
-
-nest_asyncio.apply()
 
 # Base Dir
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -183,7 +180,7 @@ AUTH_USER_MODEL = "account.User"
 
 # Celery
 CELERY_TIMEZONE = TIME_ZONE
-CELERY_ENABLE_UTC = False
+CELERY_ENABLE_UTC = True
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_ACCEPT_CONTENT = ["pickle", "json"]
