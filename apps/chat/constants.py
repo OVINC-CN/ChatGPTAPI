@@ -61,6 +61,7 @@ class AIModelProvider(TextChoices):
     BAIDU = "baidu", gettext_lazy("Baidu")
     TENCENT = "tencent", gettext_lazy("Tencent")
     ALIYUN = "aliyun", gettext_lazy("Aliyun")
+    MOONSHOT = "moonshot", gettext_lazy("Moonshot")
 
 
 class VisionSize(TextChoices):

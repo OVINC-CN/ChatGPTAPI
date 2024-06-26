@@ -228,7 +228,12 @@ QIANFAN_ACCESS_KEY = os.getenv("QIANFAN_ACCESS_KEY", "")
 QIANFAN_SECRET_KEY = os.getenv("QIANFAN_SECRET_KEY", "")
 
 # Log
-RECORD_CHAT_CONTENT = strtobool(os.getenv("RECORD_CHAT_CONTENT", "False"))
+# this feature is removed and cannot be opened
+RECORD_CHAT_CONTENT = False
 
 # IMAGE
 ENABLE_IMAGE_PROXY = strtobool(os.getenv("ENABLE_IMAGE_PROXY", "False"))
+
+# Kimi
+KIMI_API_KEY = os.getenv("KIMI_API_KEY")
+KIMI_API_BASE_URL = os.getenv("KIMI_API_BASE_URL")

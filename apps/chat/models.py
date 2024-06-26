@@ -3,7 +3,6 @@
 from dataclasses import dataclass
 from typing import List
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Q, QuerySet
@@ -47,8 +46,6 @@ class ChatLog(BaseModel):
         blank=True,
         db_index=True,
     )
-    messages = models.JSONField(gettext_lazy("Prompt Content"), null=True, blank=True)
-    content = models.TextField(gettext_lazy("Completion Content"), null=True, blank=True)
     prompt_tokens = models.IntegerField(gettext_lazy("Prompt Tokens"), default=int)
     completion_tokens = models.IntegerField(gettext_lazy("Completion Tokens"), default=int)
     prompt_token_unit_price = models.DecimalField(
@@ -78,13 +75,6 @@ class ChatLog(BaseModel):
         verbose_name_plural = verbose_name
         ordering = ["-created_at"]
         index_together = [["finished_at", "is_charged"]]
-
-    def remove_content(self) -> None:
-        if settings.RECORD_CHAT_CONTENT:
-            return
-        self.messages = []
-        self.content = ""
-        self.save(update_fields=["messages", "content"])
 
 
 @dataclass

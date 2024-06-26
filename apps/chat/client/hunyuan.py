@@ -37,12 +37,10 @@ class HunYuanClient(BaseClient):
             return
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
         await database_sync_to_async(self.log.save)()
-        await database_sync_to_async(self.log.remove_content)()
 
     # pylint: disable=W0221,R1710
     def record(self, response: HunYuanChuck) -> None:
         self.log.chat_id = response.Id
-        self.log.content += response.Choices[0].Delta.Content
         self.log.prompt_tokens = response.Usage.PromptTokens
         self.log.completion_tokens = response.Usage.CompletionTokens
         self.log.prompt_token_unit_price = self.model_inst.prompt_price

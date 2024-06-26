@@ -56,25 +56,26 @@ class OpenAIClient(OpenAIMixin, BaseClient):
             logger.exception("[GenerateContentFailed] %s", err)
             yield str(GenerateFailed())
             response = []
+        content = ""
         # pylint: disable=E1133
         for chunk in response:
             self.record(response=chunk)
+            content += chunk.choices[0].delta.content or ""
             yield chunk.choices[0].delta.content or ""
         self.finished_at = int(timezone.now().timestamp() * 1000)
-        await self.post_chat()
+        await self.post_chat(content)
 
     # pylint: disable=W0221,R1710
     def record(self, response: ChatCompletionChunk, **kwargs) -> None:
-        self.log.content += response.choices[0].delta.content or ""
         self.log.chat_id = response.id
 
-    async def post_chat(self) -> None:
+    async def post_chat(self, content: str) -> None:
         if not self.log:
             return
         # calculate tokens
         encoding = tiktoken.encoding_for_model(self.model)
-        self.log.prompt_tokens = len(encoding.encode("".join([message["content"] for message in self.log.messages])))
-        self.log.completion_tokens = len(encoding.encode(self.log.content))
+        self.log.prompt_tokens = len(encoding.encode("".join([message["content"] for message in self.messages])))
+        self.log.completion_tokens = len(encoding.encode(content))
         # calculate price
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
         self.log.completion_token_unit_price = self.model_inst.completion_price
@@ -82,7 +83,6 @@ class OpenAIClient(OpenAIMixin, BaseClient):
         # save
         self.log.finished_at = self.finished_at
         await database_sync_to_async(self.log.save)()
-        await database_sync_to_async(self.log.remove_content)()
 
 
 class OpenAIVisionClient(OpenAIMixin, BaseClient):
@@ -120,10 +120,8 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
 
     # pylint: disable=W0221,R1710,W0236
     async def record(self, response: ImagesResponse, **kwargs) -> None:
-        self.log.content = response.data[0].url
         self.log.completion_tokens = 1
         self.log.completion_token_unit_price = self.model_inst.completion_price
         self.log.currency_unit = self.model_inst.currency_unit
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
         await database_sync_to_async(self.log.save)()
-        await database_sync_to_async(self.log.remove_content)()
