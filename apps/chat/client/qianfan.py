@@ -42,7 +42,6 @@ class QianfanClient(BaseClient):
     # pylint: disable=W0221,R1710
     def record(self, response: QfResponse, **kwargs) -> None:
         self.log.chat_id = response.body.get("id", "")
-        self.log.content += response.body.get("result", "")
         usage = response.body.get("usage", {})
         self.log.prompt_tokens = usage.get("prompt_tokens", 0)
         self.log.completion_tokens = usage.get("completion_tokens", 0)
@@ -57,4 +56,3 @@ class QianfanClient(BaseClient):
         # save
         self.log.finished_at = self.finished_at
         await database_sync_to_async(self.log.save)()
-        await database_sync_to_async(self.log.remove_content)()

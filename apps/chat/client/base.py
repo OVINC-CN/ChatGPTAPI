@@ -29,8 +29,6 @@ class BaseClient:
         self.log = ChatLog.objects.create(
             user=self.user,
             model=self.model,
-            messages=self.messages,
-            content="",
             created_at=int(datetime.datetime.now().timestamp() * 1000),
         )
 

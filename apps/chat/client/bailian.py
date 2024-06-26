@@ -45,12 +45,10 @@ class BaiLianClient(BaseClient):
             return
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
         await database_sync_to_async(self.log.save)()
-        await database_sync_to_async(self.log.remove_content)()
 
     # pylint: disable=W0221,R1710
     def record(self, response: ApplicationResponse) -> None:
         self.log.chat_id = response.request_id
-        self.log.content += response.output.text
         self.log.prompt_tokens = response.usage.models[0].input_tokens
         self.log.completion_tokens = response.usage.models[0].output_tokens
         self.log.prompt_token_unit_price = self.model_inst.prompt_price

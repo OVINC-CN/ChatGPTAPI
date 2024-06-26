@@ -19,6 +19,7 @@ from apps.chat.client import (
     QianfanClient,
 )
 from apps.chat.client.base import BaseClient
+from apps.chat.client.kimi import KimiClient
 from apps.chat.constants import AIModelProvider
 from apps.chat.exceptions import UnexpectedProvider, VerifyFailed
 from apps.chat.models import AIModel
@@ -100,5 +101,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 return OpenAIClient
             case AIModelProvider.ALIYUN:
                 return BaiLianClient
+            case AIModelProvider.MOONSHOT:
+                return KimiClient
             case _:
                 raise UnexpectedProvider()
