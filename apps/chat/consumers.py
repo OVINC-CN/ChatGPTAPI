@@ -87,6 +87,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def get_model_inst(self, model: str) -> AIModel:
         return get_object_or_404(AIModel, model=model)
 
+    # pylint: disable=R0911
     def get_model_client(self, model: AIModel) -> Type[BaseClient]:
         match model.provider:
             case AIModelProvider.TENCENT:

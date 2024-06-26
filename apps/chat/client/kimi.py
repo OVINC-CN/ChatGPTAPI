@@ -17,6 +17,7 @@ class KimiClient(BaseClient):
     Kimi Client
     """
 
+    # pylint: disable=R0913
     def __init__(self, user: str, model: str, messages: List[Message], temperature: float, top_p: float):
         super().__init__(user=user, model=model, messages=messages, temperature=temperature, top_p=top_p)
         self.client = OpenAI(
