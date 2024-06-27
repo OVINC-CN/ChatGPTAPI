@@ -23,6 +23,9 @@ class FileExtractInfo(BaseModel):
         verbose_name_plural = verbose_name
         ordering = ["-id"]
 
+    def __str__(self):
+        return str(self.id)
+
     @classmethod
     def build_key(cls, file_path: str) -> str:
         return hashlib.sha256(file_path.encode()).hexdigest()
