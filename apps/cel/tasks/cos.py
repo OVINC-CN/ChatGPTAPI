@@ -65,7 +65,7 @@ def extract_file(self, file_path: str):
                 )
         # remove local file
         os.remove(local_path)
-    except Exception as err:
+    except Exception as err:  # pylint: disable=W0718
         celery_logger.exception(
             "[ExtractFile] %s Extract Failed; File => %s; Error => %s", self.request.id, file_path, err
         )
