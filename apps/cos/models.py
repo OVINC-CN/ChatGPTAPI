@@ -23,6 +23,7 @@ class FileExtractInfo(BaseModel):
         verbose_name_plural = verbose_name
         ordering = ["-id"]
 
+    # pylint: disable=E1101
     def __str__(self):
         return str(self.id)
 
