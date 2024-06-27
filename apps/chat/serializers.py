@@ -1,10 +1,11 @@
-import hashlib
 from typing import List
 
 from adrf.serializers import Serializer
+from channels.db import database_sync_to_async
 from django.conf import settings
-from django.core.cache import cache
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext, gettext_lazy
+from ovinc_client.core.async_tools import SyncRunner
 from rest_framework import serializers
 
 from apps.chat.constants import (
@@ -17,8 +18,8 @@ from apps.chat.constants import (
     TOP_P_MIN,
     OpenAIRole,
 )
-from apps.chat.exceptions import FileNotReady
-from apps.cos.constants import FILE_CONTENT_CACHE_KEY
+from apps.chat.exceptions import FileExtractFailed, FileNotReady
+from apps.cos.models import FileExtractInfo
 
 
 class OpenAIMessageSerializer(Serializer):
@@ -60,17 +61,24 @@ class OpenAIRequestSerializer(Serializer):
             file = message.get("file")
             if not file:
                 continue
-            key = FILE_CONTENT_CACHE_KEY.format(file_path_sha256=hashlib.sha256(file.encode()).hexdigest())
-            file_content = cache.get(key=key)
-            if not file_content:
-                raise FileNotReady()
-            file_content = gettext('The content of file is: %s') % file_content
+            file_content = gettext("The content of file is: %s") % SyncRunner().run(
+                self.load_file_content(file_path=file)
+            )
             message["content"] = f"{message['content']}\n{file_content}"
         # check tokens
         total_tokens = len(TOKEN_ENCODING.encode("".join([message["content"] for message in messages])))
         if total_tokens >= settings.OPENAI_MAX_ALLOWED_TOKENS:
             raise serializers.ValidationError(gettext("Messages too long, please clear all input"))
         return messages
+
+    @database_sync_to_async
+    def load_file_content(self, file_path: str) -> str:
+        file_extract_info = get_object_or_404(FileExtractInfo, key=FileExtractInfo.build_key(file_path=file_path))
+        if not file_extract_info.is_finished:
+            raise FileNotReady()
+        if not file_extract_info.is_success:
+            raise FileExtractFailed()
+        return file_extract_info.extract_info["content"]
 
 
 class CheckModelPermissionSerializer(Serializer):
