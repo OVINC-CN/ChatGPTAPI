@@ -252,3 +252,8 @@ ENABLE_IMAGE_PROXY = strtobool(os.getenv("ENABLE_IMAGE_PROXY", "False"))
 # Kimi
 KIMI_API_KEY = os.getenv("KIMI_API_KEY")
 KIMI_API_BASE_URL = os.getenv("KIMI_API_BASE_URL")
+
+# File
+ENABLE_FILE_UPLOAD = strtobool(os.getenv("ENABLE_FILE_UPLOAD", "False"))
+LOAD_FILE_TIMEOUT = int(os.getenv("LOAD_FILE_TIMEOUT", "60"))
+FILE_EXTRACT_CACHE_TIMEOUT = int(os.getenv("FILE_EXTRACT_CACHE_TIMEOUT", str(60 * 60 * 24 * 7)))

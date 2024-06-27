@@ -1,6 +1,7 @@
 # IDE
 .idea
 .test
+tmp
 
 # Env
 .env

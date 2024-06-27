@@ -29,3 +29,11 @@ class GenerateTempSecretSerializer(Serializer):
         if filename.find("/") != -1:
             raise serializers.ValidationError(gettext("File Name Invalid"))
         return filename
+
+
+class ExtractFileSerializer(Serializer):
+    """
+    Extract File
+    """
+
+    key = serializers.CharField(label=gettext_lazy("File Key"))

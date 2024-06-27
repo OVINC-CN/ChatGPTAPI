@@ -5,11 +5,13 @@ from dataclasses import dataclass
 from io import BytesIO
 from urllib.parse import quote
 
+import httpx
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy
 from django_redis.client import DefaultClient
+from httpx._types import FileTypes
 from ovinc_client.account.models import User
 from ovinc_client.core.logger import logger
 from ovinc_client.core.utils import simple_uniq_id
@@ -128,3 +130,64 @@ class COSClient:
             raise COSUploadFailed() from err
         logger.info("[UploadFileSuccess] %s %s", key, result)
         return f"{settings.QCLOUD_COS_URL}{key}"
+
+
+class MoonshotClient:
+    """
+    Moonshot Client
+    """
+
+    def __init__(self) -> None:
+        self.client = httpx.Client(
+            http2=True,
+            headers={"Authorization": f"Bearer {settings.KIMI_API_KEY}"},
+            base_url=settings.KIMI_API_BASE_URL,
+        )
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.client.close()
+
+    def upload_file(self, file: FileTypes) -> dict:
+        """
+        Upload File To Moonshot
+
+        .e.g
+         {
+            "id": "1",
+            "object": "file",
+            "bytes": 82246,
+            "created_at": 1719484145,
+            "filename": "1.png",
+            "purpose": "file-extract",
+            "status": "ok",
+            "status_details": ""
+        }
+        """
+
+        return self.client.post(url="/files", data={"purpose": "file-extract"}, files={"file": file}).json()
+
+    def extract_file(self, file_id: str) -> dict:
+        """
+        Extract file into string
+
+        .e.g
+        {
+            "content": "Some Content",
+            "file_type": "image/png",
+            "filename": "1.png",
+            "title": "",
+            "type": "file"
+        }
+        """
+
+        return self.client.get(url=f"/files/{file_id}/content").json()
+
+    def delete_file(self, file_id: str) -> None:
+        """
+        Delete file from Moonshot
+        """
+
+        return self.client.delete(url=f"/files/{file_id}").json()
