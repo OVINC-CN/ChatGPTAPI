@@ -1,8 +1,8 @@
 from dataclasses import asdict
 
+from channels.db import database_sync_to_async
 from django.conf import settings
-from django.core.cache import cache
-from django_redis.client import DefaultClient
+from django.shortcuts import get_object_or_404
 from ovinc_client.core.utils import get_ip
 from ovinc_client.core.viewsets import ListMixin, MainViewSet
 from rest_framework.decorators import action
@@ -11,11 +11,14 @@ from rest_framework.response import Response
 
 from apps.cel.tasks import extract_file as extract_file_async
 from apps.cos.client import COSClient
-from apps.cos.constants import FILE_UPLOAD_CACHE_KEY, FileUploadPurpose
-from apps.cos.exceptions import KeyInvalid, UploadNotEnabled
-from apps.cos.serializers import ExtractFileSerializer, GenerateTempSecretSerializer
-
-cache: DefaultClient
+from apps.cos.constants import FileUploadPurpose
+from apps.cos.exceptions import UploadNotEnabled
+from apps.cos.models import FileExtractInfo
+from apps.cos.serializers import (
+    ExtractFileSerializer,
+    ExtractFileStatusSerializer,
+    GenerateTempSecretSerializer,
+)
 
 
 class COSViewSet(ListMixin, MainViewSet):
@@ -47,12 +50,12 @@ class COSViewSet(ListMixin, MainViewSet):
         # generate
         data = asdict(await COSClient().generate_cos_upload_credential(filename=request_data["filename"]))
 
-        # save cache
+        # save db
         if request_data["purpose"] == FileUploadPurpose.EXTRACT:
-            cache.set(
-                key=FILE_UPLOAD_CACHE_KEY.format(key=data["key"]),
-                value=f"{settings.QCLOUD_COS_URL}{data['key']}",
-                timeout=settings.FILE_EXTRACT_CACHE_TIMEOUT,
+            file_path = f"{settings.QCLOUD_COS_URL}{data['key']}"
+            await database_sync_to_async(FileExtractInfo.objects.create)(
+                file_path=file_path,
+                key=FileExtractInfo.build_key(file_path=file_path),
             )
 
         # response
@@ -69,15 +72,33 @@ class COSViewSet(ListMixin, MainViewSet):
         serializer.is_valid(raise_exception=True)
         request_data = serializer.validated_data
 
-        # load file path
-        cache_key = FILE_UPLOAD_CACHE_KEY.format(key=request_data["key"])
-        file_path = cache.get(key=cache_key)
-        if not file_path:
-            raise KeyInvalid()
-        cache.delete(key=cache_key)
+        # load file
+        file_extract_info = await database_sync_to_async(get_object_or_404)(
+            FileExtractInfo, key=FileExtractInfo.build_key(file_path=request_data["file_path"])
+        )
 
         # extract
-        extract_file_async.apply_async(kwargs={"file_path": file_path})
+        extract_file_async.apply_async(kwargs={"key": file_extract_info.key})
 
         # response
         return Response()
+
+    @action(methods=["GET"], detail=False)
+    async def extract_file_status(self, request, *args, **kwargs):
+        """
+        Extract File Status
+        """
+
+        # validate
+        serializer = ExtractFileSerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        request_data = serializer.validated_data
+
+        # load file
+        file_extract_info = await database_sync_to_async(get_object_or_404)(
+            FileExtractInfo, key=FileExtractInfo.build_key(file_path=request_data["file_path"])
+        )
+
+        # response
+        response_serializer = ExtractFileStatusSerializer(instance=file_extract_info)
+        return Response(await response_serializer.adata)

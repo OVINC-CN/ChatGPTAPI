@@ -14,16 +14,23 @@ class ModelNameMixin:
     def model_name(self, inst: Union[ModelPermission, ChatLog]) -> str:
         model_inst: AIModel = AIModel.objects.filter(model=inst.model, is_enabled=True).first()
         if model_inst is None:
-            return f"--({inst.model})"
-        return f"{model_inst.name}({model_inst.model})"
+            return "--"
+        return model_inst.name
+
+
+class UserNicknameMixin:
+    @admin.display(description=gettext_lazy("Nick Name"))
+    def user__nick_name(self, inst) -> str:
+        return inst.user.nick_name
 
 
 @admin.register(ChatLog)
-class ChatLogAdmin(ModelNameMixin, admin.ModelAdmin):
+class ChatLogAdmin(ModelNameMixin, UserNicknameMixin, admin.ModelAdmin):
     list_display = [
         "id",
         "user",
         "user__nick_name",
+        "model",
         "model_name",
         "prompt_tokens",
         "completion_tokens",
@@ -33,7 +40,7 @@ class ChatLogAdmin(ModelNameMixin, admin.ModelAdmin):
         "is_charged",
     ]
     list_filter = ["model"]
-    search_fields = ["user"]
+    search_fields = ["user__nick_name", "user__username"]
 
     @admin.display(description=gettext_lazy("Total Price"))
     def total_price(self, log: ChatLog) -> str:
@@ -42,10 +49,6 @@ class ChatLogAdmin(ModelNameMixin, admin.ModelAdmin):
             + log.completion_tokens * log.completion_token_unit_price / 1000
         )
         return f"{log.currency_unit}{price:.4f}"
-
-    @admin.display(description=gettext_lazy("Nick Name"))
-    def user__nick_name(self, log: ChatLog) -> str:
-        return log.user.nick_name
 
     @admin.display(description=gettext_lazy("Duration(ms)"))
     def duration(self, log: ChatLog) -> int:
@@ -63,10 +66,19 @@ class ChatLogAdmin(ModelNameMixin, admin.ModelAdmin):
 
 
 @admin.register(ModelPermission)
-class ModelPermissionAdmin(ModelNameMixin, admin.ModelAdmin):
-    list_display = ["id", "user", "model_name", "available_usage", "expired_at", "created_at"]
+class ModelPermissionAdmin(ModelNameMixin, UserNicknameMixin, admin.ModelAdmin):
+    list_display = [
+        "id",
+        "user",
+        "user__nick_name",
+        "model",
+        "model_name",
+        "available_usage",
+        "expired_at",
+        "created_at",
+    ]
     list_filter = ["model"]
-    search_fields = ["user"]
+    search_fields = ["user__nick_name", "user__username"]
 
 
 @admin.register(AIModel)

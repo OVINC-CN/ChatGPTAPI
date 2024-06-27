@@ -11,3 +11,8 @@ class UploadNotEnabled(APIException):
 class KeyInvalid(APIException):
     status_code = status.HTTP_404_NOT_FOUND
     default_detail = gettext_lazy("File Key Invalid")
+
+
+class ExtractFailed(APIException):
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    default_detail = gettext_lazy("Extract Failed")

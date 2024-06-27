@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-27 20:46+0800\n"
+"POT-Creation-Date: 2024-06-28 02:38+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,11 +21,11 @@ msgstr ""
 msgid "Model Name"
 msgstr "模型名称"
 
-msgid "Total Price"
-msgstr "总价"
-
 msgid "Nick Name"
 msgstr "用户名"
+
+msgid "Total Price"
+msgstr "总价"
 
 msgid "Duration(ms)"
 msgstr "耗时(毫秒)"
@@ -107,6 +107,9 @@ msgstr "内容生成失败，请重试"
 
 msgid "File Not Ready, Please Wait Seconds and Try Again"
 msgstr "文件解析中，请稍等并重试"
+
+msgid "File Extract Failed"
+msgstr "文件提取失败"
 
 msgid "ID"
 msgstr "ID"
@@ -220,6 +223,33 @@ msgstr "文件上传未开启"
 msgid "File Key Invalid"
 msgstr "文件唯一标识不存在"
 
+msgid "Extract Failed"
+msgstr "提取失败"
+
+msgid "Key"
+msgstr "键"
+
+msgid "File Path"
+msgstr "文件路径"
+
+msgid "Upload Info"
+msgstr "上传信息"
+
+msgid "Extract Info"
+msgstr "提取信息"
+
+msgid "Is Finished"
+msgstr "是否完成"
+
+msgid "Is Success"
+msgstr "是否成功"
+
+msgid "Created At"
+msgstr "创建时间"
+
+msgid "File Extract Info"
+msgstr "文件提取信息"
+
 msgid "File Name"
 msgstr "文件名"
 
@@ -231,9 +261,6 @@ msgstr "腾讯云验证码"
 
 msgid "File Name Invalid"
 msgstr "文件名不合法"
-
-msgid "File Key"
-msgstr "文件唯一标识"
 
 msgid "Home Module"
 msgstr "首页"
