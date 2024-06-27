@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django_redis.client import DefaultClient
 from ovinc_client.core.logger import celery_logger
+from rest_framework import status
 
 from apps.cel import app
 from apps.cos.client import MoonshotClient
@@ -30,8 +31,12 @@ def extract_file(self, file_path: str):
     try:
         # download file
         with httpx.Client(http2=True) as client:
-            file_content = client.get(url=file_path, timeout=settings.LOAD_FILE_TIMEOUT).content
-            celery_logger.info("[ExtractFile] %s Download File Success; File => %s", self.request.id, file_path)
+            resp = client.get(url=file_path, timeout=settings.LOAD_FILE_TIMEOUT)
+            if resp.status_code == status.HTTP_200_OK:
+                file_content = resp.content
+                celery_logger.info("[ExtractFile] %s Download File Success; File => %s", self.request.id, file_path)
+            else:
+                raise httpx.HTTPError(message=f"Invalid Request With Code: {resp.status_code}; Content: {resp.content}")
         # save to local path
         local_path = os.path.join(tmp_dir, f"{uuid.uuid1().hex}.{file_path.split('.')[-1]}")
         with open(local_path, "wb+") as file:

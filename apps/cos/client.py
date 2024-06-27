@@ -3,7 +3,6 @@
 import datetime
 from dataclasses import dataclass
 from io import BytesIO
-from urllib.parse import quote
 
 import httpx
 from django.conf import settings
@@ -74,7 +73,7 @@ class COSClient:
         key = (
             f"/{datetime.datetime.today().strftime('%Y%m/%d')}"
             f"/{simple_uniq_id(settings.QCLOUD_COS_RANDOM_KEY_LENGTH)}"
-            f"/{quote(file_name)}"
+            f"/{file_name}"
         )
         cache_key = f"{self.__class__.__name__}:{key}"
         if cache.set(key=cache_key, value=cache_key, timeout=settings.QCLOUD_KEY_DUPLICATE_TIMEOUT, nx=True):
