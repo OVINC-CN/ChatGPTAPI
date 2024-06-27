@@ -18,7 +18,7 @@ from rest_framework import status
 
 from apps.chat.client.base import BaseClient
 from apps.chat.exceptions import GenerateFailed, LoadImageFailed
-from utils.cos import cos_client
+from apps.cos.client import COSClient
 
 
 class OpenAIMixin(abc.ABC):
@@ -112,7 +112,7 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
         image_resp = httpx_client.get(response.data[0].url)
         if image_resp.status_code != status.HTTP_200_OK:
             raise LoadImageFailed()
-        url = cos_client.put_object(
+        url = await COSClient().put_object(
             file=image_resp.content,
             file_name=f"{uuid.uuid4().hex}.{urlparse(response.data[0].url).path.split('.')[-1]}",
         )

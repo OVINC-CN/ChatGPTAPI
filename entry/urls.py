@@ -18,7 +18,9 @@ urlpatterns = [
     path("account/", include("ovinc_client.account.urls")),
     path("", include("apps.home.urls")),
     path("", include("apps.chat.urls")),
+    path("", include("apps.cos.urls")),
     path("", include("ovinc_client.trace.urls")),
+    path("tcaptcha/", include("ovinc_client.tcaptcha.urls")),
 ]
 
 handler400 = exceptions.bad_request

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-07 16:05+0800\n"
+"POT-Creation-Date: 2024-06-27 20:46+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -63,6 +63,9 @@ msgstr "Tencent"
 msgid "Aliyun"
 msgstr "Aliyun"
 
+msgid "Moonshot"
+msgstr "Moonshot"
+
 msgid "1024x1024"
 msgstr "1024x1024"
 
@@ -102,17 +105,14 @@ msgstr "加载图片失败"
 msgid "Generate Failed, Please Try Again"
 msgstr "内容生成失败，请重试"
 
+msgid "File Not Ready, Please Wait Seconds and Try Again"
+msgstr "文件解析中，请稍等并重试"
+
 msgid "ID"
 msgstr "ID"
 
 msgid "Chat ID"
 msgstr "对话ID"
-
-msgid "Prompt Content"
-msgstr "提示内容"
-
-msgid "Completion Content"
-msgstr "响应内容"
 
 msgid "Prompt Tokens"
 msgstr "提示Token数量"
@@ -180,6 +180,9 @@ msgstr "AI 模型"
 msgid "Role"
 msgstr "角色"
 
+msgid "File"
+msgstr "文件"
+
 msgid "Content"
 msgstr "内容"
 
@@ -192,8 +195,45 @@ msgstr "温度"
 msgid "Top Probability"
 msgstr "优选值"
 
+#, python-format
+msgid "The content of file is: %s"
+msgstr "文件内容是：%s"
+
 msgid "Messages too long, please clear all input"
 msgstr "消息过长，请清空重试"
+
+msgid "COS"
+msgstr "对象存储"
+
+msgid "COS Upload Failed"
+msgstr "对象存储上传失败"
+
+msgid "Temp Key Generate Failed"
+msgstr "临时密钥生成失败"
+
+msgid "File Extract"
+msgstr "文件提取"
+
+msgid "Upload File Not Enabled"
+msgstr "文件上传未开启"
+
+msgid "File Key Invalid"
+msgstr "文件唯一标识不存在"
+
+msgid "File Name"
+msgstr "文件名"
+
+msgid "Purpose"
+msgstr "目的"
+
+msgid "Tencent Captcha"
+msgstr "腾讯云验证码"
+
+msgid "File Name Invalid"
+msgstr "文件名不合法"
+
+msgid "File Key"
+msgstr "文件唯一标识"
 
 msgid "Home Module"
 msgstr "首页"
@@ -204,5 +244,5 @@ msgstr "语言ID非法"
 msgid "Language Code"
 msgstr "语言ID"
 
-msgid "COS Upload Failed"
-msgstr "COS上传失败"
+msgid "TCaptcha Verify Failed"
+msgstr "安全检查失败"

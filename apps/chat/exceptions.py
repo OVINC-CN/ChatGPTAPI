@@ -31,3 +31,8 @@ class LoadImageFailed(APIException):
 class GenerateFailed(APIException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     default_detail = gettext_lazy("Generate Failed, Please Try Again")
+
+
+class FileNotReady(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = gettext_lazy("File Not Ready, Please Wait Seconds and Try Again")
