@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.cos.client import cos_client
+from apps.cos.client import COSClient
 from apps.cos.serializers import GenerateTempSecretSerializer
 
 
@@ -27,7 +27,5 @@ class COSViewSet(MainViewSet):
         request_data = serializer.validated_data
 
         # generate
-        data = asdict(
-            await cos_client.generate_cos_upload_credential(user=request.user, filename=request_data["filename"])
-        )
+        data = asdict(await COSClient().generate_cos_upload_credential(filename=request_data["filename"]))
         return Response(data=data)

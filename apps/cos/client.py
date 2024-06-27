@@ -79,7 +79,7 @@ class COSClient:
             return key
         return self.build_key(file_name=file_name)
 
-    async def generate_cos_upload_credential(self, filename: str):
+    async def generate_cos_upload_credential(self, filename: str) -> COSCredential:
         key = self.build_key(file_name=filename)
         tencent_cloud_api_domain = settings.QCLOUD_API_DOMAIN_TMPL.format("sts")
         config = {
@@ -128,6 +128,3 @@ class COSClient:
             raise COSUploadFailed() from err
         logger.info("[UploadFileSuccess] %s %s", key, result)
         return f"{settings.QCLOUD_COS_URL}{key}"
-
-
-cos_client = COSClient()
