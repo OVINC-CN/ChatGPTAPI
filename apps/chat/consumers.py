@@ -19,6 +19,7 @@ from apps.chat.client import (
     QianfanClient,
 )
 from apps.chat.client.base import BaseClient
+from apps.chat.client.hunyuan import HunYuanVisionClient
 from apps.chat.client.kimi import KimiClient
 from apps.chat.constants import AIModelProvider
 from apps.chat.exceptions import UnexpectedProvider, VerifyFailed
@@ -91,6 +92,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def get_model_client(self, model: AIModel) -> Type[BaseClient]:
         match model.provider:
             case AIModelProvider.TENCENT:
+                if model.is_vision:
+                    return HunYuanVisionClient
                 return HunYuanClient
             case AIModelProvider.GOOGLE:
                 return GeminiClient

@@ -1,7 +1,7 @@
 import sys
 
 from django.utils.translation import gettext_lazy
-from ovinc_client.core.models import TextChoices
+from ovinc_client.core.models import IntegerChoices, TextChoices
 
 MESSAGE_MIN_LENGTH = 1
 TEMPERATURE_DEFAULT = 1
@@ -97,3 +97,35 @@ class CurrencyUnit(TextChoices):
 
     USD = "$", gettext_lazy("USD($)")
     RMB = "¥", gettext_lazy("RMB(¥)")
+
+
+class HunyuanLogoControl(IntegerChoices):
+    """
+    Hunyuan Logo Control
+    """
+
+    ADD = 1, gettext_lazy("Add AI Logo")
+    REMOVE = 0, gettext_lazy("Remove AI Logo")
+
+
+class HunyuanReviseControl(IntegerChoices):
+    """
+    Hunyuan Revise Prompt Control
+    """
+
+    ENABLED = 1, gettext_lazy("Enabled")
+    DISABLED = 0, gettext_lazy("Disabled")
+
+
+class HunyuanJobStatusCode(TextChoices):
+    """
+    Hunyuan Job Status Code
+    """
+
+    WAITING = 1, gettext_lazy("Waiting")
+    RUNNING = 2, gettext_lazy("Running")
+    FAILED = 4, gettext_lazy("Failed")
+    FINISHED = 5, gettext_lazy("Finished")
+
+
+HUNYUAN_SUCCESS_DETAIL = "Success"
