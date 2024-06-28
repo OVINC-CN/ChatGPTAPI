@@ -62,7 +62,10 @@ class AIModelViewSet(ListMixin, MainViewSet):
         List Models
         """
 
-        data = [{"id": model.model, "name": model.name} for model in await self.list_models(request)]
+        data = [
+            {"id": model.model, "name": model.name, "desc": model.desc or ""}
+            for model in await self.list_models(request)
+        ]
         data.sort(key=lambda model: model["name"])
         return Response(data=data)
 

@@ -177,6 +177,7 @@ class AIModel(BaseModel):
     provider = models.CharField(
         gettext_lazy("Provider"), max_length=MEDIUM_CHAR_LENGTH, choices=AIModelProvider.choices, db_index=True
     )
+    desc = models.TextField(gettext_lazy("Description"), null=True, blank=True)
     model = models.CharField(gettext_lazy("Model"), max_length=MEDIUM_CHAR_LENGTH, db_index=True)
     name = models.CharField(gettext_lazy("Model Name"), max_length=MEDIUM_CHAR_LENGTH)
     is_enabled = models.BooleanField(gettext_lazy("Enabled"), default=True, db_index=True)
