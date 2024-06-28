@@ -108,8 +108,9 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
         await self.record(response=response)
         if not settings.ENABLE_IMAGE_PROXY:
             yield f"![{self.messages[-1]['content']}]({response.data[0].url})"
-        httpx_client = httpx.Client(http2=True, proxy=settings.OPENAI_HTTP_PROXY_URL)
-        image_resp = httpx_client.get(response.data[0].url)
+        httpx_client = httpx.AsyncClient(http2=True, proxy=settings.OPENAI_HTTP_PROXY_URL)
+        image_resp = await httpx_client.get(response.data[0].url)
+        await httpx_client.aclose()
         if image_resp.status_code != status.HTTP_200_OK:
             raise LoadImageFailed()
         url = await COSClient().put_object(

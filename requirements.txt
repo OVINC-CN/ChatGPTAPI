@@ -39,7 +39,7 @@ google-ai-generativelanguage==0.4.0
 qianfan==0.3.0
 
 # Hunyuan
-tencentcloud-sdk-python==3.0.1137
+tencentcloud-sdk-python==3.0.1178
 
 # Aliyun
 dashscope==1.19.1
