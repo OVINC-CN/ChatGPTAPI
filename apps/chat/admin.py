@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy
 from rest_framework.settings import api_settings
 
-from apps.chat.models import AIModel, ChatLog, ModelPermission
+from apps.chat.models import AIModel, ChatLog, ModelPermission, SystemPreset
 
 
 class ModelNameMixin:
@@ -21,7 +21,9 @@ class ModelNameMixin:
 class UserNicknameMixin:
     @admin.display(description=gettext_lazy("Nick Name"))
     def user__nick_name(self, inst) -> str:
-        return inst.user.nick_name
+        if inst.user:
+            return inst.user.nick_name
+        return ""
 
 
 @admin.register(ChatLog)
@@ -94,3 +96,10 @@ class AIModelAdmin(admin.ModelAdmin):
         "currency_unit",
     ]
     list_filter = ["provider", "is_enabled"]
+
+
+@admin.register(SystemPreset)
+class SystemPresetAdmin(UserNicknameMixin, admin.ModelAdmin):
+    list_display = ["id", "name", "is_public", "user", "user__nick_name", "updated_at", "created_at"]
+    search_fields = ["name"]
+    list_filter = ["is_public"]

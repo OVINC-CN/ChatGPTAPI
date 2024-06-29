@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-28 02:38+0800\n"
+"POT-Creation-Date: 2024-06-29 19:23+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -87,6 +87,30 @@ msgstr "USD($)"
 msgid "RMB(¥)"
 msgstr "RMB(¥)"
 
+msgid "Add AI Logo"
+msgstr "增加 AI 标识"
+
+msgid "Remove AI Logo"
+msgstr "移除 AI 标识"
+
+msgid "Enabled"
+msgstr "启用"
+
+msgid "Disabled"
+msgstr "禁用"
+
+msgid "Waiting"
+msgstr "等待中"
+
+msgid "Running"
+msgstr "运行中"
+
+msgid "Failed"
+msgstr "失败"
+
+msgid "Finished"
+msgstr "完成"
+
 msgid "Unauthorized Model"
 msgstr "未授权的模型"
 
@@ -153,8 +177,8 @@ msgstr "模型权限"
 msgid "Provider"
 msgstr "提供商"
 
-msgid "Enabled"
-msgstr "启用"
+msgid "Description"
+msgstr "描述"
 
 msgid "Prompt Price"
 msgstr "提示令牌价格"
@@ -174,20 +198,38 @@ msgstr "图像质量"
 msgid "Vision Style"
 msgstr "图像风格"
 
+msgid "Support System Define"
+msgstr "支持系统预设"
+
 msgid "Settings"
 msgstr "配置"
 
 msgid "AI Model"
 msgstr "AI 模型"
 
+msgid "Name"
+msgstr "名称"
+
+msgid "Content"
+msgstr "内容"
+
+msgid "Is Public"
+msgstr "是否公开"
+
+msgid "Owner"
+msgstr "拥有者"
+
+msgid "Update Time"
+msgstr "更新时间"
+
+msgid "System Preset"
+msgstr "系统预设"
+
 msgid "Role"
 msgstr "角色"
 
 msgid "File"
 msgstr "文件"
-
-msgid "Content"
-msgstr "内容"
 
 msgid "Messages"
 msgstr "消息"

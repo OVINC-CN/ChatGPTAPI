@@ -215,6 +215,7 @@ class AIModel(BaseModel):
         null=True,
         blank=True,
     )
+    support_system_define = models.BooleanField(gettext_lazy("Support System Define"), default=True)
     settings = models.JSONField(gettext_lazy("Settings"), blank=True, null=True)
 
     class Meta:
@@ -222,3 +223,23 @@ class AIModel(BaseModel):
         verbose_name_plural = verbose_name
         ordering = ["provider", "name"]
         unique_together = [["provider", "model"]]
+
+
+class SystemPreset(BaseModel):
+    """
+    System Preset
+    """
+
+    id = UniqIDField(gettext_lazy("ID"), primary_key=True)
+    name = models.CharField(gettext_lazy("Name"), max_length=MEDIUM_CHAR_LENGTH)
+    content = models.TextField(gettext_lazy("Content"))
+    is_public = models.BooleanField(gettext_lazy("Is Public"), default=False, db_index=True)
+    user = ForeignKey(gettext_lazy("Owner"), to="account.User", on_delete=models.PROTECT, null=True, blank=True)
+    created_at = models.DateTimeField(gettext_lazy("Create Time"), auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(gettext_lazy("Update Time"), auto_now=True)
+
+    class Meta:
+        verbose_name = gettext_lazy("System Preset")
+        verbose_name_plural = verbose_name
+        ordering = ["-created_at"]
+        index_together = ["is_public", "user", "name"]
