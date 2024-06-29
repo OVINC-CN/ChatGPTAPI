@@ -3,17 +3,19 @@ from typing import List
 from channels.db import database_sync_to_async
 from django.conf import settings
 from django.core.cache import cache
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from ovinc_client.core.utils import uniq_id
 from ovinc_client.core.viewsets import ListMixin, MainViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.chat.models import AIModel, ChatLog, ModelPermission
+from apps.chat.models import AIModel, ChatLog, ModelPermission, SystemPreset
 from apps.chat.permissions import AIModelPermission
 from apps.chat.serializers import (
     CheckModelPermissionSerializer,
     OpenAIRequestSerializer,
+    SystemPresetSerializer,
 )
 
 
@@ -92,3 +94,19 @@ class AIModelViewSet(ListMixin, MainViewSet):
     @database_sync_to_async
     def check_model_permission(self, request, request_data):
         return ModelPermission.authed_models(user=request.user, model=request_data["model"]).exists()
+
+
+class SystemPresetViewSet(ListMixin, MainViewSet):
+    """
+    System Preset
+    """
+
+    queryset = SystemPreset.objects.all()
+
+    async def list(self, request, *args, **kwargs):
+        """
+        List System Presets
+        """
+
+        queryset = SystemPreset.get_queryset().filter(Q(Q(is_public=True) | Q(user=request.user))).order_by("name")
+        return Response(await SystemPresetSerializer(instance=queryset, many=True).adata)

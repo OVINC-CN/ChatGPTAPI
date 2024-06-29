@@ -1,6 +1,6 @@
 from typing import List
 
-from adrf.serializers import Serializer
+from adrf.serializers import ModelSerializer, Serializer
 from channels.db import database_sync_to_async
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -19,6 +19,7 @@ from apps.chat.constants import (
     OpenAIRole,
 )
 from apps.chat.exceptions import FileExtractFailed, FileNotReady
+from apps.chat.models import SystemPreset
 from apps.cos.models import FileExtractInfo
 
 
@@ -95,3 +96,13 @@ class OpenAIChatRequestSerializer(Serializer):
     """
 
     key = serializers.CharField()
+
+
+class SystemPresetSerializer(ModelSerializer):
+    """
+    System Preset
+    """
+
+    class Meta:
+        model = SystemPreset
+        exclude = ["user", "created_at", "updated_at"]
