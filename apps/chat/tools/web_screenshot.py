@@ -37,6 +37,8 @@ class WebScreenshot(Tool):
         self.options = webdriver.ChromeOptions()
         for arg in ("--headless=new", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage"):
             self.options.add_argument(arg)
+        if settings.OPENAI_HTTP_PROXY_URL:
+            self.options.add_argument(f"--proxy-server={settings.OPENAI_HTTP_PROXY_URL}")
         self.window_width = settings.WEB_SCREENSHOT_WINDOW_WIDTH
         self.window_height = settings.WEB_SCREENSHOT_WINDOW_HEIGHT
         self.timeout = settings.WEB_SCREENSHOT_TIMEOUT

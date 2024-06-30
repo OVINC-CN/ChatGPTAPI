@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-30 12:26+0800\n"
+"POT-Creation-Date: 2024-06-30 15:46+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -273,6 +273,9 @@ msgstr "谷歌搜索"
 
 msgid "This is a search engine powered by the Google Search API, offering robust online search capabilities."
 msgstr "这是一个由 Google 搜索 API 提供支持的搜索引擎，提供强大的在线搜索功能"
+
+msgid "No result found"
+msgstr "没有找到相关信息"
 
 msgid "WebScreenshot"
 msgstr "网页截屏"

@@ -2,7 +2,7 @@ import json
 
 import httpx
 from django.conf import settings
-from django.utils.translation import gettext_lazy
+from django.utils.translation import gettext, gettext_lazy
 
 from apps.chat.tools.base import Tool
 
@@ -20,7 +20,10 @@ class GoogleSearch(Tool):
         super().__init__()
 
     async def _run(self) -> str:
-        client = httpx.AsyncClient(http2=True)
+        client = httpx.AsyncClient(
+            http2=True,
+            proxy=settings.OPENAI_HTTP_PROXY_URL if settings.OPENAI_HTTP_PROXY_URL else None,
+        )
         try:
             resp = await client.get(
                 f"https://www.googleapis.com/customsearch/v1"
@@ -31,6 +34,8 @@ class GoogleSearch(Tool):
         finally:
             await client.aclose()
         data = resp.json()
+        if not data.get("items", []):
+            return gettext("No result found")
         return json.dumps(
             [
                 {
@@ -38,7 +43,7 @@ class GoogleSearch(Tool):
                     "snippet": item["snippet"],
                     "formattedUrl": item["formattedUrl"],
                 }
-                for item in data["items"]
+                for item in data.get("items", [])
             ]
         )
 
