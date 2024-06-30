@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-29 19:23+0800\n"
+"POT-Creation-Date: 2024-06-30 12:26+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,6 +33,10 @@ msgstr "耗时(毫秒)"
 msgid "Create Time"
 msgstr "创建时间"
 
+#, python-format
+msgid "[The result is using tool %s]"
+msgstr "[结果由 %s 生成]"
+
 msgid "User"
 msgstr "用户"
 
@@ -41,6 +45,9 @@ msgstr "系统"
 
 msgid "Assistant"
 msgstr "助理"
+
+msgid "Tool"
+msgstr "工具"
 
 msgid "Model"
 msgstr "模型"
@@ -110,6 +117,9 @@ msgstr "失败"
 
 msgid "Finished"
 msgstr "完成"
+
+msgid "Function"
+msgstr "函数"
 
 msgid "Unauthorized Model"
 msgstr "未授权的模型"
@@ -186,6 +196,9 @@ msgstr "提示令牌价格"
 msgid "Completion Price"
 msgstr "响应令牌价格"
 
+msgid "Support System Define"
+msgstr "支持系统预设"
+
 msgid "Is Vision"
 msgstr "是否为图像模型"
 
@@ -197,9 +210,6 @@ msgstr "图像质量"
 
 msgid "Vision Style"
 msgstr "图像风格"
-
-msgid "Support System Define"
-msgstr "支持系统预设"
 
 msgid "Settings"
 msgstr "配置"
@@ -240,12 +250,39 @@ msgstr "温度"
 msgid "Top Probability"
 msgstr "优选值"
 
+msgid "Tools"
+msgstr "工具"
+
 #, python-format
 msgid "The content of file is: %s"
 msgstr "文件内容是：%s"
 
 msgid "Messages too long, please clear all input"
 msgstr "消息过长，请清空重试"
+
+#, python-format
+msgid "Tool %s not supported"
+msgstr "不支持使用 %s"
+
+#, python-format
+msgid "Use tool failed: %s"
+msgstr "调用 %s 失败"
+
+msgid "GoogleSearch"
+msgstr "谷歌搜索"
+
+msgid "This is a search engine powered by the Google Search API, offering robust online search capabilities."
+msgstr "这是一个由 Google 搜索 API 提供支持的搜索引擎，提供强大的在线搜索功能"
+
+msgid "WebScreenshot"
+msgstr "网页截屏"
+
+msgid "This tool provides comprehensive website screenshot capabilities, allowing users to capture high-quality images of web pages."
+msgstr "该工具提供了全面的网站截图功能，允许用户截取高质量的网页图像"
+
+#, python-format
+msgid "The screenshot is saved to this url: %s"
+msgstr "截图已保存在 %s"
 
 msgid "COS"
 msgstr "对象存储"
