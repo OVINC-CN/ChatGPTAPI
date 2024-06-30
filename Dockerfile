@@ -1,6 +1,12 @@
 FROM ccr.ccs.tencentyun.com/ovinc/python:3.10-with-chrome
-RUN mkdir -p /usr/src/app/logs /usr/src/app/tmp
+
+RUN mkdir -p /usr/src/app/logs /usr/src/app/tmp /usr/share/fonts/zh_cn
+
+COPY ./support-files/fonts/* /usr/share/fonts/zh_cn
+RUN fc-list :lang=zh
+
 COPY . /usr/src/app
 WORKDIR /usr/src/app
+
 RUN pip3 install -U pip -i https://mirrors.cloud.tencent.com/pypi/simple && pip3 install -r requirements.txt -i https://mirrors.cloud.tencent.com/pypi/simple
 RUN bin/proxy_gemini.sh
