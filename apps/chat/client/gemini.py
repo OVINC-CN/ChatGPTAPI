@@ -21,8 +21,10 @@ class GeminiClient(BaseClient):
     """
 
     # pylint: disable=R0913
-    def __init__(self, user: str, model: str, messages: List[Message], temperature: float, top_p: float):
-        super().__init__(user=user, model=model, messages=messages, temperature=temperature, top_p=top_p)
+    def __init__(
+        self, user: str, model: str, messages: List[Message], temperature: float, top_p: float, tools: List[dict]
+    ):
+        super().__init__(user=user, model=model, messages=messages, temperature=temperature, top_p=top_p, tools=tools)
         genai.configure(api_key=settings.GEMINI_API_KEY)
         self.genai_model = genai.GenerativeModel(self.model)
 

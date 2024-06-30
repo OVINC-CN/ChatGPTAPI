@@ -47,3 +47,7 @@ dashscope==1.19.1
 # COS
 cos-python-sdk-v5==1.9.29
 qcloud-python-sts==3.1.5
+
+# Screenshot
+selenium==4.22.0
+pillow==10.3.0

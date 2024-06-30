@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM ccr.ccs.tencentyun.com/ovinc/python:3.10-with-chrome
 RUN mkdir -p /usr/src/app/logs /usr/src/app/tmp
 COPY . /usr/src/app
 WORKDIR /usr/src/app

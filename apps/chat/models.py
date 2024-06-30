@@ -193,6 +193,7 @@ class AIModel(BaseModel):
         choices=CurrencyUnit.choices,
         default=CurrencyUnit.USD,
     )
+    support_system_define = models.BooleanField(gettext_lazy("Support System Define"), default=True)
     is_vision = models.BooleanField(gettext_lazy("Is Vision"), default=False)
     vision_size = models.CharField(
         gettext_lazy("Vision Size"),
@@ -215,7 +216,6 @@ class AIModel(BaseModel):
         null=True,
         blank=True,
     )
-    support_system_define = models.BooleanField(gettext_lazy("Support System Define"), default=True)
     settings = models.JSONField(gettext_lazy("Settings"), blank=True, null=True)
 
     class Meta:
@@ -243,3 +243,11 @@ class SystemPreset(BaseModel):
         verbose_name_plural = verbose_name
         ordering = ["-created_at"]
         index_together = ["is_public", "user", "name"]
+
+
+@dataclass
+class ToolParams:
+    id: str = ""
+    name: str = ""
+    type: str = ""
+    arguments = str = ""

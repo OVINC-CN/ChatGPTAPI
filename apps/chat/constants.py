@@ -31,6 +31,7 @@ class OpenAIRole(TextChoices):
     USER = "user", gettext_lazy("User")
     SYSTEM = "system", gettext_lazy("System")
     ASSISTANT = "assistant", gettext_lazy("Assistant")
+    TOOL = "tool", gettext_lazy("Tool")
 
 
 class GeminiRole(TextChoices):
@@ -129,3 +130,11 @@ class HunyuanJobStatusCode(TextChoices):
 
 
 HUNYUAN_SUCCESS_DETAIL = "Success"
+
+
+class ToolType(TextChoices):
+    """
+    Tool Type
+    """
+
+    FUNCTION = "function", gettext_lazy("Function")

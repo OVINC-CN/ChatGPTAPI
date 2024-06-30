@@ -17,6 +17,7 @@ from apps.chat.serializers import (
     OpenAIRequestSerializer,
     SystemPresetSerializer,
 )
+from apps.chat.tools import TOOLS
 
 
 # pylint: disable=R0901
@@ -110,3 +111,20 @@ class SystemPresetViewSet(ListMixin, MainViewSet):
 
         queryset = SystemPreset.get_queryset().filter(Q(Q(is_public=True) | Q(user=request.user))).order_by("name")
         return Response(await SystemPresetSerializer(instance=queryset, many=True).adata)
+
+
+class ToolsViewSet(ListMixin, MainViewSet):
+    """
+    Tools
+    """
+
+    async def list(self, request, *args, **kwargs):
+        """
+        List Tools
+        """
+
+        return Response(
+            data=[
+                {"id": tool.name, "name": str(tool.name_alias), "desc": str(tool.desc_alias)} for tool in TOOLS.values()
+            ]
+        )

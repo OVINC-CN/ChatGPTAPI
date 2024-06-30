@@ -28,19 +28,17 @@ class BaiLianClient(BaseClient):
                 tempature=self.temperature,
                 top_p=self.top_p,
                 stream=True,
+                incremental_output=True,
             )
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[GenerateContentFailed] %s", err)
             yield str(GenerateFailed())
             response = []
-        last_text = ""
         for chunk in response:
             if chunk.status_code != HTTPStatus.OK:
                 raise UnexpectedError(detail=chunk.message)
             self.record(chunk)
-            output = chunk.output.text[len(last_text) :]
-            last_text = chunk.output.text
-            yield output
+            yield chunk.output.text
         if not self.log:
             return
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
