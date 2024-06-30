@@ -17,4 +17,4 @@ env
 
 # Static
 static
-support-files/drivers/darwin
+drivers

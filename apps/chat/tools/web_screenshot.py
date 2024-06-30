@@ -35,7 +35,7 @@ class WebScreenshot(Tool):
         self.max_scroll_times = settings.WEB_SCREENSHOT_MAX_SCROLL_TIMES
         self.service = Service(executable_path=settings.WEB_SCREENSHOT_CHROME_DRIVER_PATH)
         self.options = webdriver.ChromeOptions()
-        for arg in ("--headless", "--disable-gpu"):
+        for arg in ("--headless=new", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage"):
             self.options.add_argument(arg)
         self.window_width = settings.WEB_SCREENSHOT_WINDOW_WIDTH
         self.window_height = settings.WEB_SCREENSHOT_WINDOW_HEIGHT
