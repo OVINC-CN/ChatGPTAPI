@@ -3,6 +3,7 @@ import datetime
 import json
 from typing import List
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 
@@ -30,7 +31,7 @@ class BaseClient:
         self.messages: List[Message] = messages if self.model_inst.support_system_define else messages[1:]
         self.temperature: float = temperature
         self.top_p: float = top_p
-        self.tools: List[dict] = tools or None
+        self.tools: List[dict] = (tools or None) if settings.CHATGPT_TOOLS_ENABLED else None
         self.finished_at: int = int()
         self.log = ChatLog.objects.create(
             user=self.user,

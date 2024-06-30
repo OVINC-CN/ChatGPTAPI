@@ -123,6 +123,9 @@ class ToolsViewSet(ListMixin, MainViewSet):
         List Tools
         """
 
+        if not settings.CHATGPT_TOOLS_ENABLED:
+            return Response(data=[])
+
         return Response(
             data=[
                 {"id": tool.name, "name": str(tool.name_alias), "desc": str(tool.desc_alias)} for tool in TOOLS.values()

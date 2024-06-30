@@ -81,6 +81,9 @@ class OpenAIRequestSerializer(Serializer):
         check tool available
         """
 
+        if not settings.CHATGPT_TOOLS_ENABLED and tools:
+            raise serializers.ValidationError(gettext("Tools not available"))
+
         tool_schemas = []
         for tool in tools:
             if tool not in TOOLS:
