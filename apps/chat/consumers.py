@@ -14,13 +14,13 @@ from apps.chat.client import (
     BaiLianClient,
     GeminiClient,
     HunYuanClient,
+    HunYuanVisionClient,
+    KimiClient,
     OpenAIClient,
     OpenAIVisionClient,
     QianfanClient,
 )
 from apps.chat.client.base import BaseClient
-from apps.chat.client.hunyuan import HunYuanVisionClient
-from apps.chat.client.kimi import KimiClient
 from apps.chat.constants import AIModelProvider
 from apps.chat.exceptions import UnexpectedProvider, VerifyFailed
 from apps.chat.models import AIModel
