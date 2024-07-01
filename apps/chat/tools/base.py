@@ -45,8 +45,8 @@ class Tool:
     async def run(self) -> str:
         try:
             return await self._run()
-        except Exception as err:  # pylint: disable=W0718
-            return gettext("Use tool failed: %s") % err
+        except Exception as e:  # pylint: disable=W0718
+            return gettext("Use tool failed: %s") % e
 
     async def _run(self) -> str:
         raise NotImplementedError()

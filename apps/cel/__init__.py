@@ -13,6 +13,11 @@ app.autodiscover_tasks()
 
 # Schedule Tasks
 app.conf.beat_schedule = {
+    "celery_debug": {
+        "task": "apps.cel.tasks.debug.celery_debug",
+        "schedule": crontab(minute="*"),
+        "args": (),
+    },
     "check_usage_limit": {
         "task": "apps.cel.tasks.chat.check_usage_limit",
         "schedule": crontab(minute="*"),
