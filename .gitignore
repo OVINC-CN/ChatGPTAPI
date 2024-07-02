@@ -2,6 +2,7 @@
 .idea
 .test
 tmp
+.DS_Store
 
 # Env
 .env

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-30 18:03+0800\n"
+"POT-Creation-Date: 2024-07-02 14:07+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -356,5 +356,74 @@ msgstr "语言ID非法"
 msgid "Language Code"
 msgstr "语言ID"
 
+msgid "Wallet"
+msgstr "钱包"
+
+msgid "Balance"
+msgstr "余额"
+
+msgid "Amount"
+msgstr "金额"
+
+msgid "Message"
+msgstr "消息"
+
+msgid "Created Time"
+msgstr "创建时间"
+
+msgid "Callback Time"
+msgstr "回调时间"
+
+msgid "Callback Data"
+msgstr "回调数据"
+
+msgid "Billing History"
+msgstr "充值历史"
+
+msgid "Event Type"
+msgstr "事件类型"
+
+msgid "Resource Type"
+msgstr "资源类型"
+
+msgid "Resource"
+msgstr "资源"
+
+msgid "Summary"
+msgstr "总结"
+
+msgid "Wallet Charge"
+msgstr "钱包充值"
+
 msgid "TCaptcha Verify Failed"
 msgstr "安全检查失败"
+
+msgid "Success"
+msgstr "成功"
+
+msgid "Refund"
+msgstr "退款"
+
+msgid "Not Pay"
+msgstr "未支付"
+
+msgid "Closed"
+msgstr "关闭"
+
+msgid "Revoked"
+msgstr "撤销"
+
+msgid "User Paying"
+msgstr "支付中"
+
+msgid "Pay Error"
+msgstr "支付异常"
+
+msgid "WxPay API Error"
+msgstr "微信支付API异常"
+
+msgid "WxPay Cert Not Found"
+msgstr "微信支付证书异常"
+
+msgid "WxPay Insecure Response"
+msgstr "微信支付身份验证失败"

@@ -51,3 +51,6 @@ qcloud-python-sts==3.1.5
 # Screenshot
 selenium==4.22.0
 pillow==10.3.0
+
+# qrcode
+qrcode==7.4.2

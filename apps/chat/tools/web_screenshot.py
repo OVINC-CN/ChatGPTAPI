@@ -80,8 +80,8 @@ class WebScreenshot(Tool):
         full_screenshot_path = os.path.join(storage_path, f"{file_id}.png")
         self.vertically_concatenate(screenshots, full_screenshot_path)
         # upload image
-        with open(full_screenshot_path, "rb") as f:
-            url = await COSClient().put_object(file=f, file_name=f"{file_id}.png")
+        with open(full_screenshot_path, "rb") as file:
+            url = await COSClient().put_object(file=file, file_name=f"{file_id}.png")
             return gettext("The screenshot is saved to this url: %s") % f"{url}?{settings.WEB_SCREENSHOT_STYLE}"
 
     def crop_image(self, input_path: str, output_path: str, new_height: int) -> None:
