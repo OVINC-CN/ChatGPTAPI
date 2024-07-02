@@ -68,7 +68,7 @@ class WalletViewSet(MainViewSet):
                 "description": gettext("Wallet Charge"),
                 "out_trade_no": billing.id,
                 "notify_url": settings.WXPAY_NOTIFY_URL,
-                "amount": {"total": billing.amount},
+                "amount": {"total": billing.amount * settings.WXPAY_UNIT_TRANS},
             }
         )
 
