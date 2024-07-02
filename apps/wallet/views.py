@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext
+from ovinc_client.core.auth import SessionAuthenticate
 from ovinc_client.core.paginations import NumPagination
 from ovinc_client.core.viewsets import MainViewSet
 from rest_framework import status
@@ -77,7 +78,7 @@ class WalletViewSet(MainViewSet):
             img.save(buffered, format="PNG")
             return Response(data=base64.b64encode(buffered.getvalue()).decode("utf-8"))
 
-    @action(methods=["POST"], detail=False)
+    @action(methods=["POST"], detail=False, authentication_classes=[SessionAuthenticate])
     async def wxpay_notify(self, request, *args, **kwargs):
         """
         wxpay callback
