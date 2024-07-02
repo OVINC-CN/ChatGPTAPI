@@ -19,7 +19,7 @@ ChatGPT Web 是一个强大的多模型接入平台，支持多种主流的AI模
 
 ### 准备环境变量
 
-
+```
 WEB_PROCESSES=1
 WEB_THREADS=10
 WORKER_COUNT=1
@@ -61,16 +61,16 @@ WXPAY_MCHID=<微信支付商户 ID>
 WXPAY_API_V3_KEY=<微信支付 V3 API Key>
 WXPAY_NOTIFY_URL=<微信支付回调地址>
 WXPAY_UNIT=<微信支付结算单位>
-
+```
 
 ### 部署
 
-bash
+```bash
 docker run -d --name ChatGPTAPI \
 --env-file <env file> \
 ccr.ccs.tencentyun.com/ovinc/chatgpt-api:<release_version> \
 /bin/sh -c "gunicorn --bind \"[::]:8020\" -w $WEB_PROCESSES --threads $WEB_THREADS -k uvicorn_worker.UvicornWorker --proxy-protocol --proxy-allow-from \"*\" --forwarded-allow-ips \"*\" entry.asgi:application"
-
+```
 
 ## 许可证
 
