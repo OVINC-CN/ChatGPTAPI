@@ -21,7 +21,6 @@ from apps.wallet.serializers import (
     BillingHistorySerializer,
     NotifySerializer,
     PreChargeSerializer,
-    WalletSerializer,
 )
 from utils.wxpay.api import NaivePrePay
 from utils.wxpay.constants import TradeStatus
@@ -35,6 +34,19 @@ class WalletViewSet(MainViewSet):
 
     queryset = Wallet.objects.all()
 
+    @action(methods=["GET"], detail=False, authentication_classes=[SessionAuthenticate])
+    async def config(self, request, *args, **kwargs):
+        """
+        wallet config
+        """
+
+        return Response(
+            data={
+                "is_enabled": settings.WXPAY_ENABLED,
+                "unit": settings.WXPAY_UNIT,
+            }
+        )
+
     @action(methods=["GET"], detail=False)
     async def mine(self, request, *args, **kwargs):
         """
@@ -42,7 +54,7 @@ class WalletViewSet(MainViewSet):
         """
 
         inst, _ = await database_sync_to_async(Wallet.objects.get_or_create)(user=request.user)
-        return Response(data=await WalletSerializer(instance=inst).adata)
+        return Response(data={"balance": float(inst.balance)})
 
     @action(methods=["POST"], detail=False)
     async def pre_charge(self, request, *args, **kwargs):

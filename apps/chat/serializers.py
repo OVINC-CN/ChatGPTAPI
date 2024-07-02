@@ -1,5 +1,7 @@
+import datetime
 from typing import List
 
+import pytz
 from adrf.serializers import ModelSerializer, Serializer
 from channels.db import database_sync_to_async
 from django.conf import settings
@@ -138,6 +140,7 @@ class ChatLogSerializer(ModelSerializer):
     """
 
     model_name = SerializerMethodField()
+    created_at = SerializerMethodField()
 
     class Meta:
         model = ChatLog
@@ -153,3 +156,7 @@ class ChatLogSerializer(ModelSerializer):
 
     def get_model_name(self, obj: ChatLog) -> str:
         return self.context.get("model_map", {}).get(obj.model, obj.model)
+
+    def get_created_at(self, obj: ChatLog) -> str:
+        _datetime = datetime.datetime.fromtimestamp(obj.created_at / 1000, tz=pytz.timezone(settings.TIME_ZONE))
+        return _datetime.strftime("%y/%m/%d %H:%M:%S")

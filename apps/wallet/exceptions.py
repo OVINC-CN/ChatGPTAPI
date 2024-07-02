@@ -4,5 +4,5 @@ from rest_framework.exceptions import APIException
 
 
 class NoBalanceException(APIException):
-    status_code = status.HTTP_400_BAD_REQUEST
+    status_code = status.HTTP_403_FORBIDDEN
     default_detail = gettext_lazy("No Balance")

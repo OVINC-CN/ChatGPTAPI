@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from ovinc_client.core.auth import SessionAuthenticate
 from ovinc_client.core.paginations import NumPagination
 from ovinc_client.core.utils import uniq_id
 from ovinc_client.core.viewsets import ListMixin, MainViewSet
@@ -54,11 +55,14 @@ class ChatViewSet(MainViewSet):
         # response
         return Response(data={"key": cache_key})
 
-    @action(methods=["GET"], detail=False)
+    @action(methods=["GET"], detail=False, authentication_classes=[SessionAuthenticate])
     async def logs(self, request, *args, **kwargs):
         """
         chat logs
         """
+
+        if not request.user.is_authenticated:
+            return Response(data={"total": 0, "current": 1, "results": []})
 
         queryset = ChatLog.objects.filter(user=request.user)
 

@@ -171,7 +171,7 @@ LOGGING = get_logging_config_dict(LOG_LEVEL, LOG_DIR)
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ["ovinc_client.core.renderers.APIRenderer"],
     "DEFAULT_PAGINATION_CLASS": "ovinc_client.core.paginations.NumPagination",
-    "DATETIME_FORMAT": "%Y-%m-%d %H:%M",
+    "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",
     "DEFAULT_THROTTLE_RATES": {},
     "EXCEPTION_HANDLER": "ovinc_client.core.exceptions.exception_handler",
     "UNAUTHENTICATED_USER": "ovinc_client.account.models.CustomAnonymousUser",
@@ -295,3 +295,4 @@ WXPAY_CERT_TIMEOUT = int(os.getenv("WXPAY_CERT_TIMEOUT", str(60 * 60 * 24 * 7)))
 WXPAY_TIME_FORMAT = os.getenv("WXPAY_TIME_FORMAT", "%Y-%m-%dT%H:%M:%S%z")
 WXPAY_NOTIFY_URL = os.getenv("WXPAY_NOTIFY_URL", "")
 WXPAY_UNIT_TRANS = int(os.getenv("WXPAY_UNIT_TRANS", "100"))
+WXPAY_UNIT = os.getenv("WXPAY_UNIT", "")
