@@ -1,4 +1,4 @@
-FROM ccr.ccs.tencentyun.com/ovinc/python:3.10-with-chrome
+FROM python:3.10
 
 RUN mkdir -p /usr/src/app/logs /usr/src/app/tmp /usr/share/fonts/zh_cn
 
