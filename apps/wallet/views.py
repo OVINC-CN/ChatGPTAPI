@@ -1,4 +1,5 @@
 import base64
+import datetime
 import io
 import json
 
@@ -73,6 +74,8 @@ class WalletViewSet(MainViewSet):
         )
 
         # create wxpay charge
+        expire_time = timezone.now() + datetime.timedelta(seconds=settings.WXPAY_ORDER_TIMEOUT)
+        formatted_expire_time = expire_time.strftime(settings.WXPAY_TIME_FORMAT)
         prepay_data = await NaivePrePay().request(
             data={
                 "appid": settings.WXPAY_APP_ID,
@@ -81,6 +84,8 @@ class WalletViewSet(MainViewSet):
                 "out_trade_no": billing.id,
                 "notify_url": settings.WXPAY_NOTIFY_URL,
                 "amount": {"total": billing.amount * settings.WXPAY_UNIT_TRANS},
+                "support_fapiao": settings.WXPAY_SUPPORT_FAPIAO,
+                "time_expire": f"{formatted_expire_time[:-2]}:{formatted_expire_time[-2:]}",
             }
         )
 
