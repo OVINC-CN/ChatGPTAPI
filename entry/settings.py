@@ -253,6 +253,7 @@ QIANFAN_SECRET_KEY = os.getenv("QIANFAN_SECRET_KEY", "")
 # Log
 # this feature is removed and cannot be opened
 RECORD_CHAT_CONTENT = False
+CHATLOG_QUERY_DAYS = int(os.getenv("CHATLOG_QUERY_DAYS", "7"))
 
 # IMAGE
 ENABLE_IMAGE_PROXY = strtobool(os.getenv("ENABLE_IMAGE_PROXY", "False"))

@@ -1,3 +1,4 @@
+import datetime
 from typing import List
 
 from channels.db import database_sync_to_async
@@ -5,6 +6,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from ovinc_client.core.auth import SessionAuthenticate
 from ovinc_client.core.paginations import NumPagination
 from ovinc_client.core.utils import uniq_id
@@ -64,7 +66,15 @@ class ChatViewSet(MainViewSet):
         if not request.user.is_authenticated:
             return Response(data={"total": 0, "current": 1, "results": []})
 
-        queryset = ChatLog.objects.filter(user=request.user)
+        queryset = (
+            ChatLog.objects.filter(user=request.user)
+            .filter(
+                finished_at__isnull=False,
+                finished_at__gt=(timezone.now() - datetime.timedelta(days=settings.CHATLOG_QUERY_DAYS)).timestamp()
+                * 1000,
+            )
+            .order_by("-created_at")
+        )
 
         page = NumPagination()
         paged_queryset = await database_sync_to_async(page.paginate_queryset)(

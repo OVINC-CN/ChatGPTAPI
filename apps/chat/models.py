@@ -61,7 +61,10 @@ class ChatLog(BaseModel):
         verbose_name = gettext_lazy("Chat Log")
         verbose_name_plural = verbose_name
         ordering = ["-created_at"]
-        index_together = [["finished_at", "is_charged"]]
+        index_together = [
+            ["finished_at", "is_charged"],
+            ["user", "finished_at", "created_at"],
+        ]
 
 
 @dataclass
