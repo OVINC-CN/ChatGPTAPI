@@ -1,11 +1,12 @@
 from django.db import transaction
-from django.db.models import F, Func, Value
+from django.db.models import F
 from django.shortcuts import get_object_or_404
 from ovinc_client.core.lock import task_lock
 from ovinc_client.core.logger import celery_logger
 
 from apps.cel import app
-from apps.chat.models import ChatLog, ModelPermission
+from apps.chat.models import ChatLog
+from apps.wallet.models import Wallet
 
 
 @app.task(bind=True)
@@ -48,12 +49,10 @@ def calculate_usage_limit(self, log_id: str):
     )
 
     ChatLog.objects.filter(id=log.id).update(is_charged=True)
-    ModelPermission.objects.filter(user=log.user, model=log.model).update(
-        available_usage=Func(
-            F("available_usage") - usage,
-            Value(0),
-            function="GREATEST",
-        )
+    Wallet.objects.filter(user=log.user).update(
+        balance=F("balance")
+        - (log.prompt_tokens * log.prompt_token_unit_price / 1000)
+        - (log.completion_tokens * log.completion_token_unit_price / 1000)
     )
 
     celery_logger.info("[CalculateUsageLimit] End %s", self.request.id)

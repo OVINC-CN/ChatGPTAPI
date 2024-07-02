@@ -19,6 +19,7 @@ urlpatterns = [
     path("", include("apps.home.urls")),
     path("", include("apps.chat.urls")),
     path("", include("apps.cos.urls")),
+    path("", include("apps.wallet.urls")),
     path("", include("ovinc_client.trace.urls")),
     path("tcaptcha/", include("ovinc_client.tcaptcha.urls")),
 ]

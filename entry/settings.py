@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "apps.chat",
     "apps.home",
     "apps.cos",
+    "apps.wallet",
 ]
 
 # MIDDLEWARE
@@ -170,7 +171,7 @@ LOGGING = get_logging_config_dict(LOG_LEVEL, LOG_DIR)
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ["ovinc_client.core.renderers.APIRenderer"],
     "DEFAULT_PAGINATION_CLASS": "ovinc_client.core.paginations.NumPagination",
-    "DATETIME_FORMAT": "%Y-%m-%d %H:%M",
+    "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",
     "DEFAULT_THROTTLE_RATES": {},
     "EXCEPTION_HANDLER": "ovinc_client.core.exceptions.exception_handler",
     "UNAUTHENTICATED_USER": "ovinc_client.account.models.CustomAnonymousUser",
@@ -252,6 +253,7 @@ QIANFAN_SECRET_KEY = os.getenv("QIANFAN_SECRET_KEY", "")
 # Log
 # this feature is removed and cannot be opened
 RECORD_CHAT_CONTENT = False
+CHATLOG_QUERY_DAYS = int(os.getenv("CHATLOG_QUERY_DAYS", "7"))
 
 # IMAGE
 ENABLE_IMAGE_PROXY = strtobool(os.getenv("ENABLE_IMAGE_PROXY", "False"))
@@ -280,3 +282,18 @@ WEB_SCREENSHOT_STYLE = os.getenv("WEB_SCREENSHOT_STYLE", "imageMogr2/quality/80/
 
 # Tool
 CHATGPT_TOOLS_ENABLED = strtobool(os.getenv("CHATGPT_TOOLS_ENABLED", "False"))
+
+# WXPay
+WXPAY_ENABLED = strtobool(os.getenv("WXPAY_ENABLED", "False"))
+WXPAY_PRIVATE_KEY_SERIAL_NO = os.getenv("WXPAY_PRIVATE_KEY_SERIAL_NO", "")
+WXPAY_PRIVATE_KEY_PATH = os.getenv("WXPAY_PRIVATE_KEY_PATH", "")
+WXPAY_AUTH_TYPE = os.getenv("WXPAY_AUTH_TYPE", "WECHATPAY2-SHA256-RSA2048")
+WXPAY_APP_ID = os.getenv("WXPAY_APP_ID", "")
+WXPAY_MCHID = os.getenv("WXPAY_MCHID", "")
+WXPAY_API_BASE_URL = os.getenv("WXPAY_API_BASE_URL", "https://api.mch.weixin.qq.com")
+WXPAY_API_V3_KEY = os.getenv("WXPAY_API_V3_KEY", "")
+WXPAY_CERT_TIMEOUT = int(os.getenv("WXPAY_CERT_TIMEOUT", str(60 * 60 * 24 * 7)))
+WXPAY_TIME_FORMAT = os.getenv("WXPAY_TIME_FORMAT", "%Y-%m-%dT%H:%M:%S%z")
+WXPAY_NOTIFY_URL = os.getenv("WXPAY_NOTIFY_URL", "")
+WXPAY_UNIT_TRANS = int(os.getenv("WXPAY_UNIT_TRANS", "100"))
+WXPAY_UNIT = os.getenv("WXPAY_UNIT", "")
