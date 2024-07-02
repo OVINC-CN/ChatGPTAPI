@@ -19,7 +19,7 @@ from apps.chat.constants import (
     OpenAIRole,
 )
 from apps.chat.exceptions import FileExtractFailed, FileNotReady
-from apps.chat.models import SystemPreset
+from apps.chat.models import ChatLog, SystemPreset
 from apps.chat.tools import TOOLS
 from apps.cos.models import FileExtractInfo
 
@@ -125,3 +125,31 @@ class SystemPresetSerializer(ModelSerializer):
     class Meta:
         model = SystemPreset
         exclude = ["user", "created_at", "updated_at"]
+
+
+class SerializerMethodField(serializers.SerializerMethodField):
+    async def ato_representation(self, value):
+        return super().to_representation(value)
+
+
+class ChatLogSerializer(ModelSerializer):
+    """
+    Chat Log
+    """
+
+    model_name = SerializerMethodField()
+
+    class Meta:
+        model = ChatLog
+        fields = [
+            "id",
+            "model_name",
+            "prompt_tokens",
+            "completion_tokens",
+            "prompt_token_unit_price",
+            "completion_token_unit_price",
+            "created_at",
+        ]
+
+    def get_model_name(self, obj: ChatLog) -> str:
+        return self.context.get("model_map", {}).get(obj.model, obj.model)

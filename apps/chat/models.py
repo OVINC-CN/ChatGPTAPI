@@ -5,21 +5,14 @@ from typing import List
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Q, QuerySet
-from django.utils import timezone
 from django.utils.translation import gettext_lazy
-from ovinc_client.core.constants import (
-    MAX_CHAR_LENGTH,
-    MEDIUM_CHAR_LENGTH,
-    SHORT_CHAR_LENGTH,
-)
+from ovinc_client.core.constants import MAX_CHAR_LENGTH, MEDIUM_CHAR_LENGTH
 from ovinc_client.core.models import BaseModel, ForeignKey, UniqIDField
 
 from apps.chat.constants import (
     PRICE_DECIMAL_NUMS,
     PRICE_DIGIT_NUMS,
     AIModelProvider,
-    CurrencyUnit,
     OpenAIRole,
     VisionQuality,
     VisionSize,
@@ -60,12 +53,6 @@ class ChatLog(BaseModel):
         decimal_places=PRICE_DECIMAL_NUMS,
         default=float,
     )
-    currency_unit = models.CharField(
-        gettext_lazy("Currency Unit"),
-        max_length=SHORT_CHAR_LENGTH,
-        choices=CurrencyUnit.choices,
-        default=CurrencyUnit.USD,
-    )
     created_at = models.BigIntegerField(gettext_lazy("Create Time"), db_index=True)
     finished_at = models.BigIntegerField(gettext_lazy("Finish Time"), db_index=True, null=True, blank=True)
     is_charged = models.BooleanField(gettext_lazy("Is Charged"), default=False, db_index=True)
@@ -85,49 +72,6 @@ class Message:
 
     role: OpenAIRole
     content: str
-
-
-class ModelPermission(BaseModel):
-    """
-    Model Permission
-    """
-
-    id = UniqIDField(gettext_lazy("ID"))
-    user = ForeignKey(gettext_lazy("User"), to="account.User", on_delete=models.PROTECT)
-    model = models.CharField(
-        gettext_lazy("Model"),
-        max_length=MEDIUM_CHAR_LENGTH,
-        null=True,
-        blank=True,
-        db_index=True,
-    )
-    available_usage = models.BigIntegerField(gettext_lazy("Available Usage"), default=int, db_index=True)
-    expired_at = models.DateTimeField(gettext_lazy("Expire Time"), null=True, blank=True)
-    created_at = models.DateTimeField(gettext_lazy("Create Time"), auto_now_add=True)
-
-    class Meta:
-        verbose_name = gettext_lazy("Model Permission")
-        verbose_name_plural = verbose_name
-        ordering = ["-created_at"]
-        index_together = [["user", "model", "expired_at"], ["user", "available_usage", "model", "expired_at"]]
-        unique_together = [["user", "model"]]
-
-    @classmethod
-    def authed_models(cls, user: USER_MODEL, model: str = None) -> QuerySet:
-        # load enabled models
-        queryset = AIModel.objects.filter(is_enabled=True)
-        # build filter
-        q = Q(user=user, available_usage__gt=0)  # pylint: disable=C0103
-        if model:
-            q &= Q(  # pylint: disable=C0103
-                Q(model=str(model), expired_at__gt=timezone.now()) | Q(model=str(model), expired_at__isnull=True)
-            )
-        else:
-            q &= Q(Q(expired_at__gt=timezone.now()) | Q(expired_at__isnull=True))  # pylint: disable=C0103
-        # load permission
-        authed_models = cls.objects.filter(q).values("model")
-        # load authed models
-        return queryset.filter(model__in=authed_models)
 
 
 @dataclass
@@ -186,12 +130,6 @@ class AIModel(BaseModel):
     )
     completion_price = models.DecimalField(
         gettext_lazy("Completion Price"), max_digits=PRICE_DIGIT_NUMS, decimal_places=PRICE_DECIMAL_NUMS
-    )
-    currency_unit = models.CharField(
-        gettext_lazy("Currency Unit"),
-        max_length=SHORT_CHAR_LENGTH,
-        choices=CurrencyUnit.choices,
-        default=CurrencyUnit.USD,
     )
     support_system_define = models.BooleanField(gettext_lazy("Support System Define"), default=True)
     is_vision = models.BooleanField(gettext_lazy("Is Vision"), default=False)

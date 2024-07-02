@@ -6,12 +6,12 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy
 from rest_framework.settings import api_settings
 
-from apps.chat.models import AIModel, ChatLog, ModelPermission, SystemPreset
+from apps.chat.models import AIModel, ChatLog, SystemPreset
 
 
 class ModelNameMixin:
     @admin.display(description=gettext_lazy("Model Name"))
-    def model_name(self, inst: Union[ModelPermission, ChatLog]) -> str:
+    def model_name(self, inst: Union[ChatLog]) -> str:
         model_inst: AIModel = AIModel.objects.filter(model=inst.model, is_enabled=True).first()
         if model_inst is None:
             return "--"
@@ -50,7 +50,7 @@ class ChatLogAdmin(ModelNameMixin, UserNicknameMixin, admin.ModelAdmin):
             log.prompt_tokens * log.prompt_token_unit_price / 1000
             + log.completion_tokens * log.completion_token_unit_price / 1000
         )
-        return f"{log.currency_unit}{price:.4f}"
+        return f"{price:.4f}"
 
     @admin.display(description=gettext_lazy("Duration(ms)"))
     def duration(self, log: ChatLog) -> int:
@@ -67,22 +67,6 @@ class ChatLogAdmin(ModelNameMixin, UserNicknameMixin, admin.ModelAdmin):
         )
 
 
-@admin.register(ModelPermission)
-class ModelPermissionAdmin(ModelNameMixin, UserNicknameMixin, admin.ModelAdmin):
-    list_display = [
-        "id",
-        "user",
-        "user__nick_name",
-        "model",
-        "model_name",
-        "available_usage",
-        "expired_at",
-        "created_at",
-    ]
-    list_filter = ["model"]
-    search_fields = ["user__nick_name", "user__username"]
-
-
 @admin.register(AIModel)
 class AIModelAdmin(admin.ModelAdmin):
     list_display = [
@@ -93,7 +77,6 @@ class AIModelAdmin(admin.ModelAdmin):
         "is_enabled",
         "prompt_price",
         "completion_price",
-        "currency_unit",
     ]
     list_filter = ["provider", "is_enabled"]
 

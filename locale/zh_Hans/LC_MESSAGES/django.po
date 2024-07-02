@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-02 14:07+0800\n"
+"POT-Creation-Date: 2024-07-02 15:40+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -88,12 +88,6 @@ msgstr "生动"
 msgid "Natural"
 msgstr "自然"
 
-msgid "USD($)"
-msgstr "USD($)"
-
-msgid "RMB(¥)"
-msgstr "RMB(¥)"
-
 msgid "Add AI Logo"
 msgstr "增加 AI 标识"
 
@@ -163,9 +157,6 @@ msgstr "提示Token单价"
 msgid "Completion Token Unit Price"
 msgstr "响应Token单价"
 
-msgid "Currency Unit"
-msgstr "计费单位"
-
 msgid "Finish Time"
 msgstr "完成时间"
 
@@ -174,15 +165,6 @@ msgstr "是否计费"
 
 msgid "Chat Log"
 msgstr "对话日志"
-
-msgid "Available Usage"
-msgstr "可用额度"
-
-msgid "Expire Time"
-msgstr "过期时间"
-
-msgid "Model Permission"
-msgstr "模型权限"
 
 msgid "Provider"
 msgstr "提供商"
@@ -271,25 +253,6 @@ msgstr "不支持使用 %s"
 msgid "Use tool failed: %s"
 msgstr "调用 %s 失败"
 
-msgid "GoogleSearch"
-msgstr "谷歌搜索"
-
-msgid "This is a search engine powered by the Google Search API, offering robust online search capabilities."
-msgstr "这是一个由 Google 搜索 API 提供支持的搜索引擎，提供强大的在线搜索功能"
-
-msgid "No result found"
-msgstr "没有找到相关信息"
-
-msgid "WebScreenshot"
-msgstr "网页截屏"
-
-msgid "This tool provides comprehensive website screenshot capabilities, allowing users to capture high-quality images of web pages."
-msgstr "该工具提供了全面的网站截图功能，允许用户截取高质量的网页图像"
-
-#, python-format
-msgid "The screenshot is saved to this url: %s"
-msgstr "截图已保存在 %s"
-
 msgid "COS"
 msgstr "对象存储"
 
@@ -358,6 +321,9 @@ msgstr "语言ID"
 
 msgid "Wallet"
 msgstr "钱包"
+
+msgid "No Balance"
+msgstr "余额不足"
 
 msgid "Balance"
 msgstr "余额"

@@ -91,15 +91,6 @@ class VisionStyle(TextChoices):
     NATURAL = "natural", gettext_lazy("Natural")
 
 
-class CurrencyUnit(TextChoices):
-    """
-    Currency Unit
-    """
-
-    USD = "$", gettext_lazy("USD($)")
-    RMB = "¥", gettext_lazy("RMB(¥)")
-
-
 class HunyuanLogoControl(IntegerChoices):
     """
     Hunyuan Logo Control

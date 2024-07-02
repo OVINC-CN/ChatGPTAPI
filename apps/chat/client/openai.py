@@ -101,7 +101,6 @@ class OpenAIClient(OpenAIMixin, OpenAIToolMixin, BaseClient):
         # calculate price
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
         self.log.completion_token_unit_price = self.model_inst.completion_price
-        self.log.currency_unit = self.model_inst.currency_unit
         # save
         self.log.finished_at = self.finished_at
         await database_sync_to_async(self.log.save)()
@@ -145,6 +144,5 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
     async def record(self, response: ImagesResponse, **kwargs) -> None:
         self.log.completion_tokens = 1
         self.log.completion_token_unit_price = self.model_inst.completion_price
-        self.log.currency_unit = self.model_inst.currency_unit
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
         await database_sync_to_async(self.log.save)()

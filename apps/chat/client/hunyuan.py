@@ -57,7 +57,6 @@ class HunYuanClient(BaseClient):
         self.log.completion_tokens = response.Usage.CompletionTokens
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
         self.log.completion_token_unit_price = self.model_inst.completion_price
-        self.log.currency_unit = self.model_inst.currency_unit
 
     def call_api(self) -> models.ChatCompletionsResponse:
         client = hunyuan_client.HunyuanClient(
@@ -140,7 +139,6 @@ class HunYuanVisionClient(BaseClient):
         self.log.completion_tokens = len(result.ResultImage)
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
         self.log.completion_token_unit_price = self.model_inst.completion_price
-        self.log.currency_unit = self.model_inst.currency_unit
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
         await database_sync_to_async(self.log.save)()
 

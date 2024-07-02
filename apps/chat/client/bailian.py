@@ -51,7 +51,6 @@ class BaiLianClient(BaseClient):
         self.log.completion_tokens = response.usage.models[0].output_tokens
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
         self.log.completion_token_unit_price = self.model_inst.completion_price
-        self.log.currency_unit = self.model_inst.currency_unit
 
     def get_prompt(self) -> str:
         return self.messages[-1]["content"]
