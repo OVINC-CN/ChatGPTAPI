@@ -28,7 +28,11 @@ class BaseClient:
         self.model: str = model
         self.model_inst: AIModel = AIModel.objects.get(model=model, is_enabled=True)
         self.model_settings: dict = self.model_inst.settings or {}
-        self.messages: List[Message] = messages if self.model_inst.support_system_define else messages[1:]
+        self.messages: List[Message] = [
+            message
+            for message in messages
+            if (message["role"] != OpenAIRole.SYSTEM or self.model_inst.support_system_define)
+        ]
         self.temperature: float = temperature
         self.top_p: float = top_p
         self.tools: List[dict] = (tools or None) if settings.CHATGPT_TOOLS_ENABLED else None
