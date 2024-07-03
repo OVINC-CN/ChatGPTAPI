@@ -12,6 +12,7 @@ from ovinc_client.core.logger import logger
 
 from apps.chat.client import (
     BaiLianClient,
+    DoubaoClient,
     GeminiClient,
     HunYuanClient,
     HunYuanVisionClient,
@@ -106,5 +107,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 return BaiLianClient
             case AIModelProvider.MOONSHOT:
                 return KimiClient
+            case AIModelProvider.DOUBAO:
+                return DoubaoClient
             case _:
                 raise UnexpectedProvider()

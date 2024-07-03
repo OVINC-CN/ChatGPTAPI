@@ -299,3 +299,7 @@ WXPAY_UNIT_TRANS = int(os.getenv("WXPAY_UNIT_TRANS", "100"))
 WXPAY_UNIT = os.getenv("WXPAY_UNIT", "")
 WXPAY_ORDER_TIMEOUT = int(os.getenv("WXPAY_ORDER_TIMEOUT", str(60 * 10)))
 WXPAY_SUPPORT_FAPIAO = strtobool(os.getenv("WXPAY_SUPPORT_FAPIAO", "False"))
+
+# Doubao
+DOUBAO_API_BASE_URL = os.getenv("DOUBAO_API_BASE_URL", "")
+DOUBAO_API_KEY = os.getenv("DOUBAO_API_KEY", "")

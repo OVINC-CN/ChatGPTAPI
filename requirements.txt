@@ -50,3 +50,6 @@ qcloud-python-sts==3.1.5
 
 # qrcode
 qrcode==7.4.2
+
+# doubao
+volcengine-python-sdk[ark]==1.0.90

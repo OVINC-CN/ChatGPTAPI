@@ -1,4 +1,5 @@
 from apps.chat.client.bailian import BaiLianClient
+from apps.chat.client.doubao import DoubaoClient
 from apps.chat.client.gemini import GeminiClient
 from apps.chat.client.hunyuan import HunYuanClient, HunYuanVisionClient
 from apps.chat.client.kimi import KimiClient
@@ -14,4 +15,5 @@ __all__ = (
     "QianfanClient",
     "BaiLianClient",
     "KimiClient",
+    "DoubaoClient",
 )
