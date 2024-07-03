@@ -6,7 +6,7 @@ ChatGPT Web 是一个强大的多模型接入平台，支持多种主流的AI模
 
 ## 功能特点
 
-- **多模型接入**：支持Azure OpenAI、腾讯混元、阿里通义千问、百度ERNIE-BOT、Google Gemini、Moonshot V1等多种AI模型。
+- **多模型接入**：支持Azure OpenAI、腾讯混元、阿里通义千问、百度ERNIE-BOT、字节跳动豆包、Google Gemini、Moonshot V1等多种AI模型。
 - **微信支付接入**：提供了微信支付的接入能力，方便用户进行支付操作。
 - **前后端分离**：前端由Vue构建，可静态部署，后端使用Django搭建，可横向扩容，支持高并发访问。
 
