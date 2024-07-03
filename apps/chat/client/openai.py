@@ -138,7 +138,7 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
             file=image_resp.content,
             file_name=f"{uuid.uuid4().hex}.{urlparse(response.data[0].url).path.split('.')[-1]}",
         )
-        yield f"![{self.messages[-1]['content']}]({url})"
+        yield f"![{self.messages[-1]['content']}]({url}?{settings.QCLOUD_COS_IMAGE_STYLE})"
 
     # pylint: disable=W0221,R1710,W0236
     async def record(self, response: ImagesResponse, **kwargs) -> None:

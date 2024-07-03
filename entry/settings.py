@@ -1,5 +1,4 @@
 import os
-import sys
 from pathlib import Path
 
 from environ import environ
@@ -240,6 +239,7 @@ QCLOUD_COS_SECRET_ID = os.getenv("QCLOUD_COS_SECRET_ID", QCLOUD_SECRET_ID)
 QCLOUD_COS_SECRET_KEY = os.getenv("QCLOUD_COS_SECRET_KEY", QCLOUD_SECRET_KEY)
 QCLOUD_COS_RANDOM_KEY_LENGTH = int(os.getenv("QCLOUD_COS_RANDOM_KEY_LENGTH", "10"))
 QCLOUD_KEY_DUPLICATE_TIMEOUT = int(os.getenv("QCLOUD_KEY_DUPLICATE_TIMEOUT", str(60 * 60 * 24)))
+QCLOUD_COS_IMAGE_STYLE = os.getenv("QCLOUD_COS_IMAGE_STYLE", "imageMogr2/quality/80/format/webp/interlace/1")
 
 # STS
 QCLOUD_API_DOMAIN_TMPL = os.getenv("QCLOUD_API_DOMAIN_TMPL", "{}.tencentcloudapi.com")
@@ -265,20 +265,6 @@ KIMI_API_BASE_URL = os.getenv("KIMI_API_BASE_URL")
 # File
 ENABLE_FILE_UPLOAD = strtobool(os.getenv("ENABLE_FILE_UPLOAD", "False"))
 LOAD_FILE_TIMEOUT = int(os.getenv("LOAD_FILE_TIMEOUT", "60"))
-
-# Google Search
-GOOGLE_SEARCH_API_KEY = os.getenv("GOOGLE_SEARCH_API_KEY")
-GOOGLE_SEARCH_API_CX = os.getenv("GOOGLE_SEARCH_API_CX")
-
-# Screenshot
-WEB_SCREENSHOT_WINDOW_WIDTH = int(os.getenv("WEB_SCREENSHOT_WINDOW_WIDTH", "1600"))
-WEB_SCREENSHOT_WINDOW_HEIGHT = int(os.getenv("WEB_SCREENSHOT_WINDOW_WIDTH", "1100"))
-WEB_SCREENSHOT_CHROME_DRIVER_PATH = os.getenv(
-    "WEB_SCREENSHOT_CHROME_DRIVER_PATH", os.path.join(BASE_DIR, f"drivers/{sys.platform}")
-)
-WEB_SCREENSHOT_TIMEOUT = int(os.getenv("WEB_SCREENSHOT_TIMEOUT", "3"))
-WEB_SCREENSHOT_MAX_SCROLL_TIMES = int(os.getenv("WEB_SCREENSHOT_MAX_SCROLL_TIMES", "1"))
-WEB_SCREENSHOT_STYLE = os.getenv("WEB_SCREENSHOT_STYLE", "imageMogr2/quality/80/format/webp/interlace/1")
 
 # Tool
 CHATGPT_TOOLS_ENABLED = strtobool(os.getenv("CHATGPT_TOOLS_ENABLED", "False"))
