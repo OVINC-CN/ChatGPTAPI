@@ -104,7 +104,13 @@ class AIModelViewSet(ListMixin, MainViewSet):
         """
 
         data = [
-            {"id": model.model, "name": model.name, "desc": model.desc or ""}
+            {
+                "id": model.model,
+                "name": model.name,
+                "desc": model.desc or "",
+                "prompt_price": float(model.prompt_price),
+                "completion_price": float(model.completion_price),
+            }
             for model in await self.list_models(request)
         ]
         data.sort(key=lambda model: model["name"])
