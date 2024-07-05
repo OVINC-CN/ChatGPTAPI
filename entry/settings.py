@@ -189,11 +189,9 @@ CELERY_ACCEPT_CONTENT = ["pickle", "json"]
 BROKER_URL = f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
 
 # APM
-ENABLE_TRACE = strtobool(os.getenv("ENABLE_TRACE", "True"))
-JAEGER_HOST = os.getenv("JAEGER_HOST", "localhost")
-JAEGER_PORT = int(os.getenv("JAEGER_PORT", "6831"))
+ENABLE_TRACE = strtobool(os.getenv("ENABLE_TRACE", "False"))
 SERVICE_NAME = os.getenv("SERVICE_NAME", APP_CODE)
-OTLP_HOST = os.getenv("OTLP_HOST", "")
+OTLP_HOST = os.getenv("OTLP_HOST", "http://127.0.0.1:4317")
 OTLP_TOKEN = os.getenv("OTLP_TOKEN", "")
 
 # RUM
