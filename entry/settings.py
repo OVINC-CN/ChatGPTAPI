@@ -96,6 +96,7 @@ DATABASES = {
         "PASSWORD": getenv_or_raise("DB_PASSWORD"),
         "HOST": getenv_or_raise("DB_HOST"),
         "PORT": int(getenv_or_raise("DB_PORT")),
+        "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", str(60 * 60))),
         "OPTIONS": {"charset": "utf8mb4"},
     }
 }
@@ -227,7 +228,7 @@ CAPTCHA_TCLOUD_KEY = os.getenv("CAPTCHA_TCLOUD_KEY", QCLOUD_SECRET_KEY)
 CAPTCHA_ENABLED = strtobool(os.getenv("CAPTCHA_ENABLED", "False"))
 CAPTCHA_APP_ID = int(os.getenv("CAPTCHA_APP_ID", str(0)))
 CAPTCHA_APP_SECRET = os.getenv("CAPTCHA_APP_SECRET", "")
-CAPTCHA_APP_INFO_TIMEOUT = int(os.getenv("CAPTCHA_APP_INFO_TIMEOUT", str(60 * 18)))
+CAPTCHA_APP_INFO_TIMEOUT = int(os.getenv("CAPTCHA_APP_INFO_TIMEOUT", str(60 * 10)))
 
 # COS
 QCLOUD_COS_URL = os.getenv("QCLOUD_COS_URL")
