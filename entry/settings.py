@@ -20,6 +20,7 @@ APP_SECRET = getenv_or_raise("APP_SECRET")
 SECRET_KEY = getenv_or_raise("APP_SECRET")
 
 # Hosts
+BACKEND_URL = getenv_or_raise("BACKEND_URL")
 ALLOWED_HOSTS = [getenv_or_raise("BACKEND_HOST")]
 CORS_ALLOW_CREDENTIALS = strtobool(os.getenv("CORS_ALLOW_CREDENTIALS", "True"))
 CORS_ORIGIN_WHITELIST = [getenv_or_raise("FRONTEND_URL")]
@@ -61,9 +62,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "ovinc_client.core.middlewares.SQLDebugMiddleware",
 ]
-if DEBUG:
-    MIDDLEWARE += ["pyinstrument.middleware.ProfilerMiddleware"]
-    PYINSTRUMENT_PROFILE_DIR = ".report"
 if not DEBUG:
     MIDDLEWARE += ["ovinc_client.core.middlewares.UnHandleExceptionMiddleware"]
 
@@ -201,6 +199,7 @@ RUM_HOST = os.getenv("RUM_HOST", "https://rumt-zh.com")
 
 # OVINC
 OVINC_API_DOMAIN = getenv_or_raise("OVINC_API_DOMAIN")
+OVINC_WEB_URL = getenv_or_raise("OVINC_WEB_URL")
 OVINC_API_RECORD_LOG = strtobool(os.getenv("OVINC_API_RECORD_LOG", "True"))
 
 # OpenAI
