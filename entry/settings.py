@@ -157,7 +157,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "staticfiles")]
 SESSION_COOKIE_NAME = os.getenv("SESSION_COOKIE_NAME", f"{'dev-' if DEBUG else ''}{APP_CODE}-sessionid")
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 7
+SESSION_COOKIE_AGE = int(os.getenv("SESSION_COOKIE_AGE", str(60 * 60 * 24 * 7)))
 SESSION_COOKIE_DOMAIN = os.getenv("SESSION_COOKIE_DOMAIN")
 
 # Log
