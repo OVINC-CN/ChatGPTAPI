@@ -64,6 +64,7 @@ class AIModelProvider(TextChoices):
     ALIYUN = "aliyun", gettext_lazy("Aliyun")
     MOONSHOT = "moonshot", gettext_lazy("Moonshot")
     DOUBAO = "doubao", gettext_lazy("Doubao")
+    MIDJOURNEY = "midjourney", gettext_lazy("Midjourney")
 
 
 class VisionSize(TextChoices):
@@ -130,3 +131,16 @@ class ToolType(TextChoices):
     """
 
     FUNCTION = "function", gettext_lazy("Function")
+
+
+class MidjourneyResult(TextChoices):
+    """
+    Midjourney Result
+    """
+
+    NOT_START = "NOT_START", gettext_lazy("Not Start")
+    SUBMITTED = "SUBMITTED", gettext_lazy("Submitted")
+    MODAL = "MODAL", gettext_lazy("Modal")
+    IN_PROGRESS = "IN_PROGRESS", gettext_lazy("In Progress")
+    FAILURE = "FAILURE", gettext_lazy("Failure")
+    SUCCESS = "SUCCESS", gettext_lazy("Success")

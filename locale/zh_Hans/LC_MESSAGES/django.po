@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-02 15:40+0800\n"
+"POT-Creation-Date: 2024-07-30 16:39+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -73,6 +73,12 @@ msgstr "Aliyun"
 msgid "Moonshot"
 msgstr "Moonshot"
 
+msgid "Doubao"
+msgstr "Doubao"
+
+msgid "Midjourney"
+msgstr "Midjourney"
+
 msgid "1024x1024"
 msgstr "1024x1024"
 
@@ -114,6 +120,24 @@ msgstr "完成"
 
 msgid "Function"
 msgstr "函数"
+
+msgid "Not Start"
+msgstr "未开始"
+
+msgid "Submitted"
+msgstr "已提交"
+
+msgid "Modal"
+msgstr "模态"
+
+msgid "In Progress"
+msgstr "进程中"
+
+msgid "Failure"
+msgstr "失败"
+
+msgid "Success"
+msgstr "成功"
 
 msgid "Unauthorized Model"
 msgstr "未授权的模型"
@@ -363,9 +387,6 @@ msgstr "钱包充值"
 
 msgid "TCaptcha Verify Failed"
 msgstr "安全检查失败"
-
-msgid "Success"
-msgstr "成功"
 
 msgid "Refund"
 msgstr "退款"

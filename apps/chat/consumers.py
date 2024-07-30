@@ -17,6 +17,7 @@ from apps.chat.client import (
     HunYuanClient,
     HunYuanVisionClient,
     KimiClient,
+    MidjourneyClient,
     OpenAIClient,
     OpenAIVisionClient,
     QianfanClient,
@@ -109,5 +110,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 return KimiClient
             case AIModelProvider.DOUBAO:
                 return DoubaoClient
+            case AIModelProvider.MIDJOURNEY:
+                return MidjourneyClient
             case _:
                 raise UnexpectedProvider()
