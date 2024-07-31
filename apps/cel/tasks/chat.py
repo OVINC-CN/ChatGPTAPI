@@ -66,4 +66,6 @@ def async_reply(self, channel_name: str, key: str):
     Async Reply to User
     """
 
+    celery_logger.info("[AsyncReply] Start %s %s %s", self.request.id, channel_name, key)
     async_to_sync(AsyncConsumer(channel_name=channel_name, key=key).chat)()
+    celery_logger.info("[AsyncReply] End %s %s %s", self.request.id, channel_name, key)
