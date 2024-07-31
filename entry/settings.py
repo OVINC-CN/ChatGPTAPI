@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 
 from environ import environ
@@ -119,9 +120,14 @@ CHANNEL_LAYERS = {
             "hosts": [
                 f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
             ],
+            "channel_capacity": {
+                re.compile(r".*"): int(os.getenv("CHANNEL_LAYER_DEFAULT_CAPACITY", "100")),
+            },
         },
     },
 }
+CHANNEL_RETRY_TIMES = int(os.getenv("CHANNEL_RETRY_TIMES", "1"))
+CHANNEL_RETRY_SLEEP = int(os.getenv("CHANNEL_RETRY_SLEEP", "1"))  # seconds
 
 # Auth
 AUTH_PASSWORD_VALIDATORS = [

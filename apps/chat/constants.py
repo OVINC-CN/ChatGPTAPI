@@ -1,3 +1,4 @@
+import os
 import sys
 
 from django.utils.translation import gettext_lazy
@@ -14,6 +15,11 @@ AI_API_REQUEST_TIMEOUT = 10 * 60
 
 PRICE_DIGIT_NUMS = 20
 PRICE_DECIMAL_NUMS = 10
+
+WS_CLOSED_KEY = "ws:closed:{}"
+WS_CLOSED_KEY_TIMEOUT = int(os.getenv("WS_CLOSED_KEY_TIMEOUT", "60"))
+
+MESSAGE_CACHE_KEY = "message:{}"
 
 if "celery" in sys.argv:
     TOKEN_ENCODING = ""

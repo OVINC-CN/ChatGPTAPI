@@ -1,3 +1,4 @@
+from asgiref.sync import async_to_sync
 from django.db import transaction
 from django.db.models import F
 from django.shortcuts import get_object_or_404
@@ -5,6 +6,7 @@ from ovinc_client.core.lock import task_lock
 from ovinc_client.core.logger import celery_logger
 
 from apps.cel import app
+from apps.chat.consumers_async import AsyncConsumer
 from apps.chat.models import ChatLog
 from apps.wallet.models import Wallet
 
@@ -56,3 +58,12 @@ def calculate_usage_limit(self, log_id: str):
     )
 
     celery_logger.info("[CalculateUsageLimit] End %s", self.request.id)
+
+
+@app.task(bind=True)
+def async_reply(self, channel_name: str, key: str):
+    """
+    Async Reply to User
+    """
+
+    async_to_sync(AsyncConsumer(channel_name=channel_name, key=key).chat)()
