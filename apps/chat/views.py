@@ -14,6 +14,7 @@ from ovinc_client.core.viewsets import ListMixin, MainViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from apps.chat.constants import MESSAGE_CACHE_KEY
 from apps.chat.models import AIModel, ChatLog, SystemPreset
 from apps.chat.permissions import AIModelPermission
 from apps.chat.serializers import (
@@ -47,7 +48,7 @@ class ChatViewSet(MainViewSet):
         await database_sync_to_async(get_object_or_404)(AIModel, model=request_data["model"], is_enabled=True)
 
         # cache
-        cache_key = uniq_id()
+        cache_key = MESSAGE_CACHE_KEY.format(uniq_id())
         cache.set(
             key=cache_key,
             value={**request_data, "user": request.user.username},

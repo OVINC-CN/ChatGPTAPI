@@ -15,6 +15,10 @@ AI_API_REQUEST_TIMEOUT = 10 * 60
 PRICE_DIGIT_NUMS = 20
 PRICE_DECIMAL_NUMS = 10
 
+WS_CLOSED_KEY = "ws:closed:{}"
+
+MESSAGE_CACHE_KEY = "message:{}"
+
 if "celery" in sys.argv:
     TOKEN_ENCODING = ""
 else:
