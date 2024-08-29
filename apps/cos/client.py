@@ -50,6 +50,7 @@ class COSCredential:
     token: str
     start_time: int
     expired_time: int
+    use_accelerate: bool
 
 
 class COSClient:
@@ -107,6 +108,7 @@ class COSClient:
                 token=response["credentials"]["sessionToken"],
                 start_time=response["startTime"],
                 expired_time=response["expiredTime"],
+                use_accelerate=settings.QCLOUD_COS_USE_ACCELERATE,
             )
         except Exception as err:
             logger.exception("[TempKeyGenerateFailed] %s", err)
