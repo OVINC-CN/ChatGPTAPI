@@ -20,7 +20,7 @@ class GeminiClient(BaseClient):
     Gemini Pro
     """
 
-    # pylint: disable=R0913
+    # pylint: disable=R0913,R0917
     def __init__(
         self, user: str, model: str, messages: List[Message], temperature: float, top_p: float, tools: List[dict]
     ):
