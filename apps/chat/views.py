@@ -15,6 +15,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.chat.constants import MESSAGE_CACHE_KEY
+from apps.chat.consumers_async import JSONModeConsumer
 from apps.chat.models import AIModel, ChatLog, SystemPreset
 from apps.chat.permissions import AIModelPermission
 from apps.chat.serializers import (
@@ -91,6 +92,23 @@ class ChatViewSet(MainViewSet):
     def load_model_map(self) -> dict:
         models = AIModel.objects.all()
         return {model.model: model.name for model in models}
+
+    @action(methods=["POST"], detail=False, permission_classes=[AIModelPermission])
+    async def json(self, request, *args, **kwargs):
+        """
+        JSON Mode
+        """
+
+        # pre check
+        pre_response = await self.pre_check(request, *args, **kwargs)
+        data = pre_response.data
+
+        # chat
+        consumer = JSONModeConsumer(data["key"])
+        await consumer.chat()
+
+        # response
+        return Response(data={"data": consumer.message})
 
 
 # pylint: disable=R0901
