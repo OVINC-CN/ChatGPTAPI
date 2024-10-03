@@ -145,3 +145,19 @@ class AsyncConsumer:
                 return MidjourneyClient
             case _:
                 raise UnexpectedProvider()
+
+
+class JSONModeConsumer(AsyncConsumer):
+    """
+    JSON Mode Consumer
+    """
+
+    def __init__(self, key: str):
+        super().__init__("", key)
+        self.message = ""
+
+    async def send(self, text_data: str):
+        self.message += json.loads(text_data).get("data", "")
+
+    async def close(self):
+        return
