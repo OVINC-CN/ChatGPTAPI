@@ -47,15 +47,6 @@ class GeminiRole(TextChoices):
     MODEL = "model", gettext_lazy("Model")
 
 
-class BaiLianRole(TextChoices):
-    """
-    Bai Lian Chat Role
-    """
-
-    USER = "user", gettext_lazy("User")
-    BOT = "bot", gettext_lazy("Bot")
-
-
 class AIModelProvider(TextChoices):
     """
     AI Model Provider

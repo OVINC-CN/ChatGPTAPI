@@ -13,7 +13,6 @@ from django.shortcuts import get_object_or_404
 from ovinc_client.core.logger import logger
 
 from apps.chat.client import (
-    BaiLianClient,
     DoubaoClient,
     GeminiClient,
     HunYuanClient,
@@ -135,8 +134,6 @@ class AsyncConsumer:
                 if model.is_vision:
                     return OpenAIVisionClient
                 return OpenAIClient
-            case AIModelProvider.ALIYUN:
-                return BaiLianClient
             case AIModelProvider.MOONSHOT:
                 return KimiClient
             case AIModelProvider.DOUBAO:
