@@ -38,9 +38,6 @@ qianfan==0.3.0
 # Hunyuan
 tencentcloud-sdk-python==3.0.1178
 
-# Aliyun
-dashscope==1.19.1
-
 # COS
 cos-python-sdk-v5==1.9.29
 qcloud-python-sts==3.1.5
