@@ -11,7 +11,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import gettext
 from httpx import Client
-from openai import AzureOpenAI
+from openai import OpenAI
 from openai.types import ImagesResponse
 from openai.types.chat import ChatCompletionChunk
 from ovinc_client.core.logger import logger
@@ -31,11 +31,10 @@ class OpenAIMixin(abc.ABC):
 
     model_settings: Optional[dict]
 
-    def build_client(self, api_version: str) -> AzureOpenAI:
-        return AzureOpenAI(
+    def build_client(self, api_version: str) -> OpenAI:
+        return OpenAI(
             api_key=self.model_settings.get("api_key", settings.OPENAI_API_KEY),
-            api_version=api_version,
-            azure_endpoint=self.model_settings.get("endpoint", settings.OPENAI_API_BASE),
+            base_url=self.model_settings.get("base_url", settings.OPENAI_API_BASE),
             http_client=Client(proxy=settings.OPENAI_HTTP_PROXY_URL) if settings.OPENAI_HTTP_PROXY_URL else None,
         )
 
