@@ -184,11 +184,3 @@ class SystemPreset(BaseModel):
         verbose_name_plural = verbose_name
         ordering = ["-created_at"]
         index_together = ["is_public", "user", "name"]
-
-
-@dataclass
-class ToolParams:
-    id: str = ""
-    name: str = ""
-    type: str = ""
-    arguments = str = ""

@@ -23,7 +23,6 @@ from apps.chat.serializers import (
     OpenAIRequestSerializer,
     SystemPresetSerializer,
 )
-from apps.chat.tools import TOOLS
 
 
 # pylint: disable=R0901
@@ -166,11 +165,4 @@ class ToolsViewSet(ListMixin, MainViewSet):
         List Tools
         """
 
-        if not settings.CHATGPT_TOOLS_ENABLED:
-            return Response(data=[])
-
-        return Response(
-            data=[
-                {"id": tool.name, "name": str(tool.name_alias), "desc": str(tool.desc_alias)} for tool in TOOLS.values()
-            ]
-        )
+        return Response(data=[])

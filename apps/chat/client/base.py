@@ -1,15 +1,12 @@
 import abc
 import datetime
-import json
 from typing import List
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 
 from apps.chat.constants import OpenAIRole
-from apps.chat.models import AIModel, ChatLog, Message, ToolParams
-from apps.chat.tools import TOOLS
+from apps.chat.models import AIModel, ChatLog, Message
 
 USER_MODEL = get_user_model()
 
@@ -21,9 +18,7 @@ class BaseClient:
     """
 
     # pylint: disable=R0913,R0917
-    def __init__(
-        self, user: str, model: str, messages: List[Message], temperature: float, top_p: float, tools: List[dict]
-    ):
+    def __init__(self, user: str, model: str, messages: List[Message], temperature: float, top_p: float):
         self.user: USER_MODEL = get_object_or_404(USER_MODEL, username=user)
         self.model: str = model
         self.model_inst: AIModel = AIModel.objects.get(model=model, is_enabled=True)
@@ -35,7 +30,6 @@ class BaseClient:
         ]
         self.temperature: float = temperature
         self.top_p: float = top_p
-        self.tools: List[dict] = (tools or None) if settings.CHATGPT_TOOLS_ENABLED else None
         self.finished_at: int = int()
         self.log = ChatLog.objects.create(
             user=self.user,
@@ -58,33 +52,3 @@ class BaseClient:
         """
 
         raise NotImplementedError()
-
-
-class OpenAIToolMixin:
-    """
-    OpenAI Tool Mixin
-    """
-
-    async def use_tool(self, tool_params: ToolParams, *args, **kwargs) -> any:
-        self.messages.append(
-            {
-                "role": OpenAIRole.ASSISTANT.value,
-                "tool_calls": [
-                    {
-                        "id": tool_params.id,
-                        "type": tool_params.type,
-                        "function": {
-                            "arguments": tool_params.arguments,
-                            "name": tool_params.name,
-                        },
-                    }
-                ],
-                "content": "",
-            }
-        )
-        result = await TOOLS[tool_params.name](**json.loads(tool_params.arguments)).run()
-
-        self.messages.append({"role": OpenAIRole.TOOL, "content": result, "tool_call_id": tool_params.id})
-
-        async for i in self.chat(*args, **kwargs):
-            yield i
