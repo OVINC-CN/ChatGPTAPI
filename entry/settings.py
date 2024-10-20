@@ -255,10 +255,6 @@ QCLOUD_API_DOMAIN_TMPL = os.getenv("QCLOUD_API_DOMAIN_TMPL", "{}.tencentcloudapi
 QCLOUD_API_SCHEME = os.getenv("QCLOUD_API_SCHEME", "https")
 QCLOUD_STS_EXPIRE_TIME = int(os.getenv("QCLOUD_STS_EXPIRE_TIME", str(60 * 10)))
 
-# Baidu Qianfan
-QIANFAN_ACCESS_KEY = os.getenv("QIANFAN_ACCESS_KEY", "")
-QIANFAN_SECRET_KEY = os.getenv("QIANFAN_SECRET_KEY", "")
-
 # Log
 # this feature is removed and cannot be opened
 RECORD_CHAT_CONTENT = False
@@ -291,10 +287,6 @@ WXPAY_UNIT_TRANS = int(os.getenv("WXPAY_UNIT_TRANS", "100"))
 WXPAY_UNIT = os.getenv("WXPAY_UNIT", "")
 WXPAY_ORDER_TIMEOUT = int(os.getenv("WXPAY_ORDER_TIMEOUT", str(60 * 10)))
 WXPAY_SUPPORT_FAPIAO = strtobool(os.getenv("WXPAY_SUPPORT_FAPIAO", "False"))
-
-# Doubao
-DOUBAO_API_BASE_URL = os.getenv("DOUBAO_API_BASE_URL", "")
-DOUBAO_API_KEY = os.getenv("DOUBAO_API_KEY", "")
 
 # Midjourney
 MIDJOURNEY_API_BASE_URL = os.getenv("MIDJOURNEY_API_BASE_URL", "")
