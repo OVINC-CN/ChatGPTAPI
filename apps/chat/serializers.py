@@ -22,7 +22,6 @@ from apps.chat.constants import (
 )
 from apps.chat.exceptions import FileExtractFailed, FileNotReady
 from apps.chat.models import ChatLog, SystemPreset
-from apps.chat.tools import TOOLS
 from apps.cos.models import FileExtractInfo
 
 
@@ -55,9 +54,6 @@ class OpenAIRequestSerializer(Serializer):
     top_p = serializers.FloatField(
         label=gettext_lazy("Top Probability"), min_value=TOP_P_MIN, default=TOP_P_DEFAULT, required=False
     )
-    tools = serializers.ListField(
-        label=gettext_lazy("Tools"), child=serializers.CharField(), max_length=1, min_length=1, default=list
-    )
 
     def validate_messages(self, messages: List[dict]) -> List[dict]:
         """
@@ -77,21 +73,6 @@ class OpenAIRequestSerializer(Serializer):
         if total_tokens >= settings.OPENAI_MAX_ALLOWED_TOKENS:
             raise serializers.ValidationError(gettext("Messages too long, please clear all input"))
         return messages
-
-    def validate_tools(self, tools: List[str]) -> List[dict]:
-        """
-        check tool available
-        """
-
-        if not settings.CHATGPT_TOOLS_ENABLED and tools:
-            raise serializers.ValidationError(gettext("Tools not available"))
-
-        tool_schemas = []
-        for tool in tools:
-            if tool not in TOOLS:
-                raise serializers.ValidationError(gettext("Tool %s not supported") % tool)
-            tool_schemas.append(TOOLS[tool].get_schema())
-        return tool_schemas
 
     @database_sync_to_async
     def load_file_content(self, file_path: str) -> str:

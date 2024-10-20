@@ -35,7 +35,6 @@ class OpenAIRole(TextChoices):
     USER = "user", gettext_lazy("User")
     SYSTEM = "system", gettext_lazy("System")
     ASSISTANT = "assistant", gettext_lazy("Assistant")
-    TOOL = "tool", gettext_lazy("Tool")
 
 
 class GeminiRole(TextChoices):
@@ -54,11 +53,7 @@ class AIModelProvider(TextChoices):
 
     OPENAI = "openai", gettext_lazy("Open AI")
     GOOGLE = "google", gettext_lazy("Google")
-    BAIDU = "baidu", gettext_lazy("Baidu")
     TENCENT = "tencent", gettext_lazy("Tencent")
-    ALIYUN = "aliyun", gettext_lazy("Aliyun")
-    MOONSHOT = "moonshot", gettext_lazy("Moonshot")
-    DOUBAO = "doubao", gettext_lazy("Doubao")
     MIDJOURNEY = "midjourney", gettext_lazy("Midjourney")
 
 

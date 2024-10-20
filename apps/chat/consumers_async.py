@@ -13,15 +13,12 @@ from django.shortcuts import get_object_or_404
 from ovinc_client.core.logger import logger
 
 from apps.chat.client import (
-    DoubaoClient,
     GeminiClient,
     HunYuanClient,
     HunYuanVisionClient,
-    KimiClient,
     MidjourneyClient,
     OpenAIClient,
     OpenAIVisionClient,
-    QianfanClient,
 )
 from apps.chat.client.base import BaseClient
 from apps.chat.constants import WS_CLOSED_KEY, AIModelProvider
@@ -128,16 +125,10 @@ class AsyncConsumer:
                 return HunYuanClient
             case AIModelProvider.GOOGLE:
                 return GeminiClient
-            case AIModelProvider.BAIDU:
-                return QianfanClient
             case AIModelProvider.OPENAI:
                 if model.is_vision:
                     return OpenAIVisionClient
                 return OpenAIClient
-            case AIModelProvider.MOONSHOT:
-                return KimiClient
-            case AIModelProvider.DOUBAO:
-                return DoubaoClient
             case AIModelProvider.MIDJOURNEY:
                 return MidjourneyClient
             case _:

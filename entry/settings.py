@@ -275,9 +275,6 @@ KIMI_API_BASE_URL = os.getenv("KIMI_API_BASE_URL")
 ENABLE_FILE_UPLOAD = strtobool(os.getenv("ENABLE_FILE_UPLOAD", "False"))
 LOAD_FILE_TIMEOUT = int(os.getenv("LOAD_FILE_TIMEOUT", "60"))
 
-# Tool
-CHATGPT_TOOLS_ENABLED = strtobool(os.getenv("CHATGPT_TOOLS_ENABLED", "False"))
-
 # WXPay
 WXPAY_ENABLED = strtobool(os.getenv("WXPAY_ENABLED", "False"))
 WXPAY_PRIVATE_KEY_SERIAL_NO = os.getenv("WXPAY_PRIVATE_KEY_SERIAL_NO", "")
