@@ -62,9 +62,10 @@ class GeminiClient(BaseClient):
     async def post_chat(self, contents: List[Message], response: any) -> None:
         if not self.log:
             return
+        text = [i.text for i in response.candidates[0].content.parts]
         # calculate characters
         self.log.prompt_tokens = self.genai_model.count_tokens(contents).total_tokens
-        self.log.completion_tokens = self.genai_model.count_tokens(response.text).total_tokens
+        self.log.completion_tokens = self.genai_model.count_tokens(text).total_tokens
         # calculate price
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
         self.log.completion_token_unit_price = self.model_inst.completion_price
