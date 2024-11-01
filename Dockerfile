@@ -1,12 +1,10 @@
-FROM python:3.10
+FROM python:3.10.15-slim
 
-RUN mkdir -p /usr/src/app/logs /usr/src/app/tmp /usr/share/fonts/zh_cn
-
-COPY ./support-files/fonts/* /usr/share/fonts/zh_cn
-RUN fc-list :lang=zh
+WORKDIR /usr/src/app
+COPY requirements.txt /usr/src/app/
+RUN pip3 install -U pip && pip3 install -r requirements.txt
 
 COPY . /usr/src/app
-WORKDIR /usr/src/app
+RUN mkdir -p /usr/src/app/logs /usr/src/app/tmp /usr/share/fonts/zh_cn
 
-RUN pip3 install -U pip && pip3 install -r requirements.txt
 RUN bin/proxy_gemini.sh
