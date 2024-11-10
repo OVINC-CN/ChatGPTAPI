@@ -93,7 +93,14 @@ class COSClient:
             "bucket": settings.QCLOUD_COS_BUCKET,
             "region": settings.QCLOUD_COS_REGION,
             "allow_prefix": [key],
-            "allow_actions": ["name/cos:PutObject"],
+            "allow_actions": [
+                "cos:PutObject",
+                "cos:ListMultipartUploads",
+                "cos:ListParts",
+                "cos:InitiateMultipartUpload",
+                "cos:UploadPart",
+                "cos:CompleteMultipartUpload",
+            ],
         }
         try:
             sts = Sts(config)
