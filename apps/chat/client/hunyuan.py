@@ -69,6 +69,7 @@ class HunYuanClient(BaseClient):
             "TopP": self.top_p,
             "Temperature": self.temperature,
             "Stream": True,
+            "EnableEnhancement": False,
         }
         req.from_json_string(json.dumps(params))
         return client.ChatCompletions(req)
