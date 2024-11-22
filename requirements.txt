@@ -23,7 +23,7 @@ arrow==1.2.3
 pycryptodome==3.20.0
 
 # OpenAI
-openai==1.51.2
+openai==1.55.0
 tiktoken==0.8.0
 pillow==10.3.0
 
