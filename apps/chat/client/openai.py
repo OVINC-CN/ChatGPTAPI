@@ -19,6 +19,7 @@ from rest_framework import status
 from apps.chat.client.base import BaseClient
 from apps.chat.exceptions import GenerateFailed, LoadImageFailed
 from apps.cos.client import COSClient
+from apps.cos.utils import TCloudUrlParser
 
 
 class OpenAIMixin(abc.ABC):
@@ -125,7 +126,7 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
             file=image_resp.content,
             file_name=f"{uuid.uuid4().hex}.{urlparse(response.data[0].url).path.split('.')[-1]}",
         )
-        yield f"![output]({url}?{settings.QCLOUD_COS_IMAGE_STYLE})"
+        yield f"![output]({TCloudUrlParser(url).url})"
 
     # pylint: disable=W0221,R1710,W0236
     async def record(self, response: ImagesResponse, **kwargs) -> None:

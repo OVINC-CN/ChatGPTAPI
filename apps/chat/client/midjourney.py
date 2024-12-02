@@ -13,6 +13,7 @@ from apps.chat.client.base import BaseClient
 from apps.chat.constants import MidjourneyResult
 from apps.chat.exceptions import GenerateFailed, LoadImageFailed
 from apps.cos.client import COSClient
+from apps.cos.utils import TCloudUrlParser
 
 
 class MidjourneyClient(BaseClient):
@@ -59,7 +60,7 @@ class MidjourneyClient(BaseClient):
                     file=image_resp.content,
                     file_name=f"{uuid.uuid4().hex}.{image_resp.headers['content-type'].split('/')[-1]}",
                 )
-                yield f"![output]({url}?{settings.QCLOUD_COS_IMAGE_STYLE})"
+                yield f"![output]({TCloudUrlParser(url).url})"
                 break
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[GenerateContentFailed] %s", err)

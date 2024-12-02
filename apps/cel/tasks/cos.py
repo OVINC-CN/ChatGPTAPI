@@ -11,6 +11,7 @@ from apps.cel import app
 from apps.cos.client import MoonshotClient
 from apps.cos.exceptions import ExtractFailed
 from apps.cos.models import FileExtractInfo
+from apps.cos.utils import TCloudUrlParser
 
 
 @app.task(bind=True)
@@ -26,11 +27,13 @@ def extract_file(self, key: str):
     if file_extract_info.is_finished:
         celery_logger.info("[ExtractFile] %s Skipped %s", self.request.id, key)
         return
+    # sign file path
+    file_path = TCloudUrlParser(file_extract_info.file_path).url
     # extract file
     try:
         # download file
         with httpx.Client(http2=True) as client:
-            resp = client.get(url=file_extract_info.file_path, timeout=settings.LOAD_FILE_TIMEOUT)
+            resp = client.get(url=file_path, timeout=settings.LOAD_FILE_TIMEOUT)
             if resp.status_code == status.HTTP_200_OK:
                 file_content = resp.content
                 celery_logger.info("[ExtractFile] %s Download Success; File => %s", self.request.id, key)

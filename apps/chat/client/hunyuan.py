@@ -24,6 +24,7 @@ from apps.chat.constants import (
 from apps.chat.exceptions import GenerateFailed, LoadImageFailed
 from apps.chat.models import HunYuanChuck
 from apps.cos.client import COSClient
+from apps.cos.utils import TCloudUrlParser
 
 
 class HunYuanClient(BaseClient):
@@ -121,7 +122,7 @@ class HunYuanVisionClient(BaseClient):
                         file=image_resp.content,
                         file_name=f"{uuid.uuid4().hex}.{image_resp.headers['content-type'].split('/')[-1]}",
                     )
-                    yield f"![output]({url}?{settings.QCLOUD_COS_IMAGE_STYLE})"
+                    yield f"![output]({TCloudUrlParser(url).url})"
                 else:
                     yield f"{result.JobErrorMsg}({result.JobErrorCode})"
                 break

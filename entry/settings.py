@@ -250,6 +250,10 @@ QCLOUD_KEY_DUPLICATE_TIMEOUT = int(os.getenv("QCLOUD_KEY_DUPLICATE_TIMEOUT", str
 QCLOUD_COS_IMAGE_STYLE = os.getenv("QCLOUD_COS_IMAGE_STYLE", "imageMogr2/quality/80/format/webp/interlace/1")
 QCLOUD_COS_USE_ACCELERATE = strtobool(os.getenv("QCLOUD_COS_USE_ACCELERATE", "False"))
 
+# CDN
+QCLOUD_CDN_SIGN_KEY_URL_PARAM = os.getenv("QCLOUD_CDN_SIGN_KEY_URL_PARAM", "sign")
+QCLOUD_CDN_SIGN_KEY = os.getenv("QCLOUD_CDN_SIGN_KEY")
+
 # STS
 QCLOUD_API_DOMAIN_TMPL = os.getenv("QCLOUD_API_DOMAIN_TMPL", "{}.tencentcloudapi.com")
 QCLOUD_API_SCHEME = os.getenv("QCLOUD_API_SCHEME", "https")

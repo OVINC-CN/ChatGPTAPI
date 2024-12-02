@@ -52,7 +52,7 @@ class COSViewSet(ListMixin, MainViewSet):
 
         # save db
         if request_data["purpose"] == FileUploadPurpose.EXTRACT:
-            file_path = f"{settings.QCLOUD_COS_URL}{data['key']}"
+            file_path = f"{settings.QCLOUD_COS_URL}/{data['key']}"
             await database_sync_to_async(FileExtractInfo.objects.create)(
                 file_path=file_path,
                 key=FileExtractInfo.build_key(file_path=file_path),

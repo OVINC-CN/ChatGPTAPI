@@ -3,6 +3,7 @@
 import datetime
 from dataclasses import dataclass
 from io import BytesIO
+from urllib.parse import quote
 
 import httpx
 from django.conf import settings
@@ -18,6 +19,8 @@ from qcloud_cos import CosConfig, CosS3Client
 from rest_framework import status
 from rest_framework.exceptions import APIException
 from sts.sts import Sts
+
+from apps.cos.utils import TCloudUrlParser
 
 cache: DefaultClient
 
@@ -51,6 +54,9 @@ class COSCredential:
     start_time: int
     expired_time: int
     use_accelerate: bool
+    cdn_sign: str
+    cdn_sign_param: str = settings.QCLOUD_CDN_SIGN_KEY_URL_PARAM
+    image_format: str = settings.QCLOUD_COS_IMAGE_STYLE
 
 
 class COSClient:
@@ -72,7 +78,7 @@ class COSClient:
         """
 
         key = (
-            f"/{datetime.datetime.today().strftime('%Y%m/%d')}"
+            f"{datetime.datetime.today().strftime('%Y%m/%d')}"
             f"/{simple_uniq_id(settings.QCLOUD_COS_RANDOM_KEY_LENGTH)}"
             f"/{file_name}"
         )
@@ -116,6 +122,7 @@ class COSClient:
                 start_time=response["startTime"],
                 expired_time=response["expiredTime"],
                 use_accelerate=settings.QCLOUD_COS_USE_ACCELERATE,
+                cdn_sign=TCloudUrlParser.sign("/" + quote(key)),
             )
         except Exception as err:
             logger.exception("[TempKeyGenerateFailed] %s", err)
@@ -137,7 +144,7 @@ class COSClient:
             logger.exception("[UploadFileFailed] %s", err)
             raise COSUploadFailed() from err
         logger.info("[UploadFileSuccess] %s %s", key, result)
-        return f"{settings.QCLOUD_COS_URL}{key}"
+        return f"{settings.QCLOUD_COS_URL}/{key}"
 
 
 class MoonshotClient:
