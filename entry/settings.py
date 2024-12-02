@@ -248,6 +248,7 @@ QCLOUD_COS_SECRET_KEY = os.getenv("QCLOUD_COS_SECRET_KEY", QCLOUD_SECRET_KEY)
 QCLOUD_COS_RANDOM_KEY_LENGTH = int(os.getenv("QCLOUD_COS_RANDOM_KEY_LENGTH", "10"))
 QCLOUD_KEY_DUPLICATE_TIMEOUT = int(os.getenv("QCLOUD_KEY_DUPLICATE_TIMEOUT", str(60 * 60 * 24)))
 QCLOUD_COS_IMAGE_STYLE = os.getenv("QCLOUD_COS_IMAGE_STYLE", "imageMogr2/quality/80/format/webp/interlace/1")
+QCLOUD_COS_IMAGE_SUFFIX = ["jpg", "jpeg", "png", "bmp", "webp", "tiff", "gif", "avif", "heif", "heic", "tpg", "apng"]
 QCLOUD_COS_USE_ACCELERATE = strtobool(os.getenv("QCLOUD_COS_USE_ACCELERATE", "False"))
 
 # CDN
