@@ -16,6 +16,7 @@ from apps.chat.client import (
     GeminiClient,
     HunYuanClient,
     HunYuanVisionClient,
+    KimiClient,
     MidjourneyClient,
     OpenAIClient,
     OpenAIVisionClient,
@@ -131,6 +132,8 @@ class AsyncConsumer:
                 return OpenAIClient
             case AIModelProvider.MIDJOURNEY:
                 return MidjourneyClient
+            case AIModelProvider.MOONSHOT:
+                return KimiClient
             case _:
                 raise UnexpectedProvider()
 
