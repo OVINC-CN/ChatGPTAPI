@@ -14,7 +14,7 @@ from ovinc_client.core.viewsets import ListMixin, MainViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.chat.constants import MESSAGE_CACHE_KEY
+from apps.chat.constants import MESSAGE_CACHE_KEY, MessageContentType
 from apps.chat.consumers_async import JSONModeConsumer
 from apps.chat.models import AIModel, ChatLog, SystemPreset
 from apps.chat.permissions import AIModelPermission
@@ -23,6 +23,7 @@ from apps.chat.serializers import (
     OpenAIRequestSerializer,
     SystemPresetSerializer,
 )
+from apps.cos.utils import TCloudUrlParser
 
 
 # pylint: disable=R0901
@@ -45,7 +46,24 @@ class ChatViewSet(MainViewSet):
         request_data = request_serializer.validated_data
 
         # check model
-        await database_sync_to_async(get_object_or_404)(AIModel, model=request_data["model"], is_enabled=True)
+        model: AIModel = await database_sync_to_async(get_object_or_404)(
+            AIModel, model=request_data["model"], is_enabled=True
+        )
+
+        # format message
+        for index, message in enumerate(request_data["messages"]):
+            file = message.get("file")
+            if file and model.support_vision:
+                request_data["messages"][index] = {
+                    **message,
+                    "content": [
+                        {"type": MessageContentType.TEXT, "text": message["content"]},
+                        {
+                            "type": MessageContentType.IMAGE_URL,
+                            "image_url": {"url": TCloudUrlParser(file).url},
+                        },
+                    ],
+                }
 
         # cache
         cache_key = MESSAGE_CACHE_KEY.format(uniq_id())
@@ -128,6 +146,11 @@ class AIModelViewSet(ListMixin, MainViewSet):
                 "desc": model.desc or "",
                 "prompt_price": float(model.prompt_price),
                 "completion_price": float(model.completion_price),
+                "config": {
+                    "support_system_define": model.support_system_define,
+                    "support_vision": model.support_vision,
+                    "is_vision": model.is_vision,
+                },
             }
             for model in await self.list_models(request)
         ]
@@ -153,16 +176,3 @@ class SystemPresetViewSet(ListMixin, MainViewSet):
 
         queryset = SystemPreset.get_queryset().filter(Q(Q(is_public=True) | Q(user=request.user))).order_by("name")
         return Response(await SystemPresetSerializer(instance=queryset, many=True).adata)
-
-
-class ToolsViewSet(ListMixin, MainViewSet):
-    """
-    Tools
-    """
-
-    async def list(self, request, *args, **kwargs):
-        """
-        List Tools
-        """
-
-        return Response(data=[])

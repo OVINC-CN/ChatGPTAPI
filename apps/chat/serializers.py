@@ -3,11 +3,8 @@ from typing import List
 
 import pytz
 from adrf.serializers import ModelSerializer, Serializer
-from channels.db import database_sync_to_async
 from django.conf import settings
-from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext, gettext_lazy
-from ovinc_client.core.async_tools import SyncRunner
 from rest_framework import serializers
 
 from apps.chat.constants import (
@@ -20,9 +17,7 @@ from apps.chat.constants import (
     TOP_P_MIN,
     OpenAIRole,
 )
-from apps.chat.exceptions import FileExtractFailed, FileNotReady
 from apps.chat.models import ChatLog, SystemPreset
-from apps.cos.models import FileExtractInfo
 
 
 class OpenAIMessageSerializer(Serializer):
@@ -59,29 +54,11 @@ class OpenAIRequestSerializer(Serializer):
         """
         make sure the messages won't be so long
         """
-        # load file
-        for message in messages:
-            file = message.get("file")
-            if not file:
-                continue
-            file_content = gettext("The content of file is: %s") % SyncRunner().run(
-                self.load_file_content(file_path=file)
-            )
-            message["content"] = f"{message['content']}\n{file_content}"
         # check tokens
         total_tokens = len(TOKEN_ENCODING.encode("".join([message["content"] for message in messages])))
         if total_tokens >= settings.OPENAI_MAX_ALLOWED_TOKENS:
             raise serializers.ValidationError(gettext("Messages too long, please clear all input"))
         return messages
-
-    @database_sync_to_async
-    def load_file_content(self, file_path: str) -> str:
-        file_extract_info = get_object_or_404(FileExtractInfo, key=FileExtractInfo.build_key(file_path=file_path))
-        if not file_extract_info.is_finished:
-            raise FileNotReady()
-        if not file_extract_info.is_success:
-            raise FileExtractFailed()
-        return file_extract_info.extract_info["content"]
 
 
 class CheckModelPermissionSerializer(Serializer):

@@ -1,11 +1,10 @@
-from adrf.serializers import ModelSerializer, Serializer
+from adrf.serializers import Serializer
 from django.utils.translation import gettext, gettext_lazy
 from ovinc_client.core.async_tools import SyncRunner
 from ovinc_client.tcaptcha.utils import TCaptchaVerify
 from rest_framework import serializers
 
 from apps.cos.constants import FileUploadPurpose
-from apps.cos.models import FileExtractInfo
 from core.exceptions import TCaptchaVerifyFailed
 
 
@@ -30,21 +29,3 @@ class GenerateTempSecretSerializer(Serializer):
         if filename.find("/") != -1:
             raise serializers.ValidationError(gettext("File Name Invalid"))
         return filename
-
-
-class ExtractFileSerializer(Serializer):
-    """
-    Extract File
-    """
-
-    file_path = serializers.CharField(label=gettext_lazy("File Path"))
-
-
-class ExtractFileStatusSerializer(ModelSerializer):
-    """
-    Extract File Status
-    """
-
-    class Meta:
-        model = FileExtractInfo
-        fields = ["key", "file_path", "is_finished", "is_success"]

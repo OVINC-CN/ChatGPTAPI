@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 
 from dataclasses import dataclass
-from typing import List
+from typing import List, Union
 
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -68,13 +68,16 @@ class ChatLog(BaseModel):
 
 
 @dataclass
-class Message:
-    """
-    OpenAI Message
-    """
+class ImageContent:
+    type: str
+    text: str
+    image_url: dict
 
+
+@dataclass
+class Message:
     role: OpenAIRole
-    content: str
+    content: Union[ImageContent, str]
 
 
 @dataclass
@@ -135,6 +138,7 @@ class AIModel(BaseModel):
         gettext_lazy("Completion Price"), max_digits=PRICE_DIGIT_NUMS, decimal_places=PRICE_DECIMAL_NUMS
     )
     support_system_define = models.BooleanField(gettext_lazy("Support System Define"), default=True)
+    support_vision = models.BooleanField(gettext_lazy("Support Vision"), default=False)
     is_vision = models.BooleanField(gettext_lazy("Is Vision"), default=False)
     vision_size = models.CharField(
         gettext_lazy("Vision Size"),
