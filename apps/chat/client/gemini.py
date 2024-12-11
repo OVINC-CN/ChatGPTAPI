@@ -1,7 +1,6 @@
 # pylint: disable=R0801
 
 import base64
-import json
 from typing import List
 
 import google.generativeai as genai
@@ -77,7 +76,7 @@ class GeminiClient(BaseClient):
         if not self.log:
             return
         # calculate characters
-        self.log.prompt_tokens = self.genai_model.count_tokens(json.dumps(self.messages)).total_tokens
+        self.log.prompt_tokens = self.genai_model.count_tokens(self.parse_messages()).total_tokens
         self.log.completion_tokens = self.genai_model.count_tokens(content).total_tokens
         # calculate price
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
@@ -92,3 +91,15 @@ class GeminiClient(BaseClient):
             if response.status_code == 200:
                 return f"data:image/jpeg;base64,{base64.b64encode(response.content).decode()}"
             raise FileExtractFailed(gettext("Parse Image To Base64 Failed"))
+
+    def parse_messages(self) -> str:
+        data = ""
+        for message in self.messages:
+            if isinstance(message["content"], list):
+                for content in message["content"]:
+                    if content.get("type") == MessageContentType.IMAGE_URL:
+                        continue
+                    data += str(content["text"])
+                continue
+            data += str(message["content"])
+        return data
