@@ -33,7 +33,7 @@ google_api_core==2.15.0
 google-ai-generativelanguage==0.4.0
 
 # Hunyuan
-tencentcloud-sdk-python==3.0.1178
+tencentcloud-sdk-python==3.0.1279
 
 # COS
 cos-python-sdk-v5==1.9.29

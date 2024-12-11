@@ -1,7 +1,7 @@
 # pylint: disable=R0801
 import abc
 import uuid
-from typing import Optional
+from typing import List, Optional
 from urllib.parse import urlparse
 
 import httpx
@@ -18,6 +18,7 @@ from rest_framework import status
 
 from apps.chat.client.base import BaseClient
 from apps.chat.exceptions import GenerateFailed, LoadImageFailed
+from apps.chat.models import Message
 from apps.cos.client import COSClient
 from apps.cos.utils import TCloudUrlParser
 
@@ -29,8 +30,10 @@ class OpenAIMixin(abc.ABC):
 
     model_settings: Optional[dict]
 
-    def build_client(self, api_version: str) -> OpenAI:
-        return OpenAI(
+    # pylint: disable=R0913,R0917
+    def __init__(self, user: str, model: str, messages: List[Message], temperature: float, top_p: float):
+        super().__init__(user=user, model=model, messages=messages, temperature=temperature, top_p=top_p)
+        self.client = OpenAI(
             api_key=self.model_settings.get("api_key", settings.OPENAI_API_KEY),
             base_url=self.model_settings.get("base_url", settings.OPENAI_API_BASE),
             http_client=Client(proxy=settings.OPENAI_HTTP_PROXY_URL) if settings.OPENAI_HTTP_PROXY_URL else None,
@@ -43,9 +46,8 @@ class OpenAIClient(OpenAIMixin, BaseClient):
     """
 
     async def chat(self, *args, **kwargs) -> any:
-        client = self.build_client(api_version="2023-05-15")
         try:
-            response = client.chat.completions.create(
+            response = self.client.chat.completions.create(
                 model=self.model.replace(".", ""),
                 messages=self.messages,
                 temperature=self.temperature,
@@ -65,7 +67,7 @@ class OpenAIClient(OpenAIMixin, BaseClient):
             if chunk.choices:
                 content += chunk.choices[0].delta.content or ""
                 yield chunk.choices[0].delta.content or ""
-            elif chunk.usage:
+            if chunk.usage:
                 prompt_tokens = chunk.usage.prompt_tokens
                 completion_tokens = chunk.usage.completion_tokens
         self.finished_at = int(timezone.now().timestamp() * 1000)
@@ -84,7 +86,9 @@ class OpenAIClient(OpenAIMixin, BaseClient):
             self.log.completion_tokens = completion_tokens
         else:
             encoding = tiktoken.encoding_for_model(self.model)
-            self.log.prompt_tokens = len(encoding.encode("".join([message["content"] for message in self.messages])))
+            self.log.prompt_tokens = len(
+                encoding.encode("".join([str(message["content"]) for message in self.messages]))
+            )
             self.log.completion_tokens = len(encoding.encode(content))
         # calculate price
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
@@ -100,9 +104,8 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
     """
 
     async def chat(self, *args, **kwargs) -> any:
-        client = self.build_client(api_version="2023-12-01-preview")
         try:
-            response = client.images.generate(
+            response = self.client.images.generate(
                 model=self.model.replace(".", ""),
                 prompt=self.messages[-1]["content"],
                 n=1,

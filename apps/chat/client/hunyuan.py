@@ -3,6 +3,7 @@ import asyncio
 import json
 import time
 import uuid
+from typing import Union
 
 import httpx
 from channels.db import database_sync_to_async
@@ -20,6 +21,7 @@ from apps.chat.constants import (
     HunyuanJobStatusCode,
     HunyuanLogoControl,
     HunyuanReviseControl,
+    MessageContentType,
 )
 from apps.chat.exceptions import GenerateFailed, LoadImageFailed
 from apps.chat.models import HunYuanChuck
@@ -66,7 +68,9 @@ class HunYuanClient(BaseClient):
         req = models.ChatCompletionsRequest()
         params = {
             "Model": self.model,
-            "Messages": [{"Role": message["role"], "Content": message["content"]} for message in self.messages],
+            "Messages": [
+                {"Role": message["role"], **self.parse_content(message["content"])} for message in self.messages
+            ],
             "TopP": self.top_p,
             "Temperature": self.temperature,
             "Stream": True,
@@ -74,6 +78,29 @@ class HunYuanClient(BaseClient):
         }
         req.from_json_string(json.dumps(params))
         return client.ChatCompletions(req)
+
+    def parse_content(self, content: Union[str, list]) -> dict:
+        if isinstance(content, list):
+            new_content = []
+            for content_item in content:
+                if content_item.get("type") == MessageContentType.TEXT:
+                    new_content.append(
+                        {
+                            "Type": MessageContentType.TEXT,
+                            "Text": content_item["text"],
+                        }
+                    )
+                elif content_item.get("type") == MessageContentType.IMAGE_URL:
+                    new_content.append(
+                        {
+                            "Type": MessageContentType.IMAGE_URL,
+                            "ImageUrl": {
+                                "Url": content_item["image_url"]["url"],
+                            },
+                        }
+                    )
+            return {"Contents": new_content}
+        return {"Content": content}
 
 
 class HunYuanVisionClient(BaseClient):

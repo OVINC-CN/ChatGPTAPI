@@ -135,3 +135,12 @@ class MidjourneyResult(TextChoices):
     IN_PROGRESS = "IN_PROGRESS", gettext_lazy("In Progress")
     FAILURE = "FAILURE", gettext_lazy("Failure")
     SUCCESS = "SUCCESS", gettext_lazy("Success")
+
+
+class MessageContentType(TextChoices):
+    """
+    Message Content Type
+    """
+
+    TEXT = "text", gettext_lazy("Text")
+    IMAGE_URL = "image_url", gettext_lazy("Image URL")
