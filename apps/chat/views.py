@@ -153,16 +153,3 @@ class SystemPresetViewSet(ListMixin, MainViewSet):
 
         queryset = SystemPreset.get_queryset().filter(Q(Q(is_public=True) | Q(user=request.user))).order_by("name")
         return Response(await SystemPresetSerializer(instance=queryset, many=True).adata)
-
-
-class ToolsViewSet(ListMixin, MainViewSet):
-    """
-    Tools
-    """
-
-    async def list(self, request, *args, **kwargs):
-        """
-        List Tools
-        """
-
-        return Response(data=[])
