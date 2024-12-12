@@ -89,7 +89,7 @@ class GeminiClient(BaseClient):
         with httpx.Client(http2=True) as client:
             response = client.get(url)
             if response.status_code == 200:
-                return f"data:image/jpeg;base64,{base64.b64encode(response.content).decode()}"
+                return f"data:image/webp;base64,{base64.b64encode(response.content).decode()}"
             raise FileExtractFailed(gettext("Parse Image To Base64 Failed"))
 
     def parse_messages(self) -> str:
