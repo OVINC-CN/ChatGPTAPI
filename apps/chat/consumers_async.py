@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404
 from ovinc_client.core.logger import logger
 
 from apps.chat.client import (
+    ClaudeClient,
     GeminiClient,
     HunYuanClient,
     HunYuanVisionClient,
@@ -134,6 +135,8 @@ class AsyncConsumer:
                 return MidjourneyClient
             case AIModelProvider.MOONSHOT:
                 return KimiClient
+            case AIModelProvider.CLAUDE:
+                return ClaudeClient
             case _:
                 raise UnexpectedProvider()
 
