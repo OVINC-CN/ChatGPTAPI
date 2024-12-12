@@ -107,11 +107,6 @@ class COSClient:
                 "cos:UploadPart",
                 "cos:CompleteMultipartUpload",
             ],
-            "condition": {
-                "numeric_less_than_equal": {
-                    "cos:content-length": settings.QCLOUD_COS_MAX_UPLOAD_SIZE,
-                },
-            },
         }
         try:
             sts = Sts(config)
