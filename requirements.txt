@@ -37,6 +37,7 @@ tencentcloud-sdk-python==3.0.1279
 
 # COS
 cos-python-sdk-v5==1.9.29
+qcloud-python-sts==3.1.5
 
 # qrcode
 qrcode==7.4.2

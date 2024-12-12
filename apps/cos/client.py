@@ -1,8 +1,6 @@
 # -*- coding=utf-8
 
 import datetime
-import json
-import time
 from dataclasses import dataclass
 from io import BytesIO
 from urllib.parse import quote
@@ -20,10 +18,7 @@ from ovinc_client.core.utils import simple_uniq_id
 from qcloud_cos import CosConfig, CosS3Client
 from rest_framework import status
 from rest_framework.exceptions import APIException
-from tencentcloud.common.credential import Credential
-from tencentcloud.common.exception import TencentCloudSDKException
-from tencentcloud.sts.v20180813 import models as sts_models
-from tencentcloud.sts.v20180813.sts_client import StsClient
+from sts.sts import Sts
 
 from apps.cos.utils import TCloudUrlParser
 
@@ -75,12 +70,7 @@ class COSClient:
             SecretId=settings.QCLOUD_COS_SECRET_ID,
             SecretKey=settings.QCLOUD_COS_SECRET_KEY,
         )
-        self.cos_client = CosS3Client(self._config)
-        self._cred = Credential(
-            secret_id=settings.QCLOUD_COS_SECRET_ID,
-            secret_key=settings.QCLOUD_COS_SECRET_KEY,
-        )
-        self.sts_client = StsClient(self._cred, region=settings.QCLOUD_COS_REGION)
+        self.client = CosS3Client(self._config)
 
     def build_key(self, file_name: str) -> str:
         """
@@ -97,84 +87,47 @@ class COSClient:
             return key
         return self.build_key(file_name=file_name)
 
-    async def generate_cos_upload_credential(self, user: USER_MODEL, filename: str) -> COSCredential:
+    async def generate_cos_upload_credential(self, filename: str) -> COSCredential:
         key = self.build_key(file_name=filename)
-        resource = (
-            f"qcs::cos:{settings.QCLOUD_COS_REGION}:"
-            f"uid/{settings.QCLOUD_COS_BUCKET.rsplit('-', 1)[-1]}:"
-            f"{settings.QCLOUD_COS_BUCKET}/{key}"
-        )
-        req = sts_models.GetFederationTokenRequest()
-        req.from_json_string(
-            json.dumps(
-                {
-                    "Name": user.username,
-                    "Policy": quote(
-                        json.dumps(
-                            {
-                                "statement": [
-                                    {
-                                        "action": [
-                                            "cos:PutObject",
-                                        ],
-                                        "condition": {
-                                            "string_like": {
-                                                "cos:content-type": "image/*",
-                                            },
-                                        },
-                                        "effect": "allow",
-                                        "resource": [resource],
-                                    },
-                                    {
-                                        "action": [
-                                            "cos:InitiateMultipartUpload",
-                                        ],
-                                        "effect": "allow",
-                                        "resource": [resource],
-                                        "condition": {
-                                            "string_like": {
-                                                "cos:content-type": "image/*",
-                                            },
-                                        },
-                                    },
-                                    {
-                                        "action": [
-                                            "cos:UploadPart",
-                                            "cos:CompleteMultipartUpload",
-                                            "cos:ListMultipartUploads",
-                                            "cos:ListParts",
-                                        ],
-                                        "effect": "allow",
-                                        "resource": [resource],
-                                    },
-                                ],
-                                "version": "2.0",
-                            }
-                        )
-                    ),
-                    "DurationSeconds": settings.QCLOUD_STS_EXPIRE_TIME,
-                }
-            )
-        )
+        tencent_cloud_api_domain = settings.QCLOUD_API_DOMAIN_TMPL.format("sts")
+        config = {
+            "domain": tencent_cloud_api_domain,
+            "url": f"{settings.QCLOUD_API_SCHEME}://{tencent_cloud_api_domain}",
+            "duration_seconds": settings.QCLOUD_STS_EXPIRE_TIME,
+            "secret_id": settings.QCLOUD_SECRET_ID,
+            "secret_key": settings.QCLOUD_SECRET_KEY,
+            "bucket": settings.QCLOUD_COS_BUCKET,
+            "region": settings.QCLOUD_COS_REGION,
+            "allow_prefix": [key],
+            "allow_actions": [
+                "cos:PutObject",
+                "cos:ListMultipartUploads",
+                "cos:ListParts",
+                "cos:InitiateMultipartUpload",
+                "cos:UploadPart",
+                "cos:CompleteMultipartUpload",
+            ],
+        }
         try:
-            response: sts_models.GetFederationTokenResponse = self.sts_client.GetFederationToken(req)
+            sts = Sts(config)
+            response = sts.get_credential()
             return COSCredential(
                 cos_url=settings.QCLOUD_COS_URL,
                 cos_bucket=settings.QCLOUD_COS_BUCKET,
                 cos_region=settings.QCLOUD_COS_REGION,
                 key=key,
-                secret_id=response.Credentials.TmpSecretId,
-                secret_key=response.Credentials.TmpSecretKey,
-                token=response.Credentials.Token,
-                start_time=int(time.time()),
-                expired_time=response.ExpiredTime,
+                secret_id=response["credentials"]["tmpSecretId"],
+                secret_key=response["credentials"]["tmpSecretKey"],
+                token=response["credentials"]["sessionToken"],
+                start_time=response["startTime"],
+                expired_time=response["expiredTime"],
                 use_accelerate=settings.QCLOUD_COS_USE_ACCELERATE,
                 image_format=settings.QCLOUD_COS_IMAGE_STYLE
                 if key.split(".")[-1] in settings.QCLOUD_COS_IMAGE_SUFFIX
                 else "",
                 cdn_sign=TCloudUrlParser.sign("/" + quote(key)),
             )
-        except TencentCloudSDKException as err:
+        except Exception as err:
             logger.exception("[TempKeyGenerateFailed] %s", err)
             raise TempKeyGenerateFailed() from err
 
@@ -185,7 +138,7 @@ class COSClient:
 
         key = self.build_key(file_name)
         try:
-            result = self.cos_client.put_object(
+            result = self.client.put_object(
                 Bucket=settings.QCLOUD_COS_BUCKET,
                 Body=file,
                 Key=key,

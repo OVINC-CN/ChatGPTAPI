@@ -47,9 +47,7 @@ class COSViewSet(ListMixin, MainViewSet):
         request_data = serializer.validated_data
 
         # generate
-        data = asdict(
-            await COSClient().generate_cos_upload_credential(user=request.user, filename=request_data["filename"])
-        )
+        data = asdict(await COSClient().generate_cos_upload_credential(filename=request_data["filename"]))
 
         # save db
         if request_data["purpose"] == FileUploadPurpose.EXTRACT:
