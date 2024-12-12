@@ -25,7 +25,12 @@ class COSViewSet(ListMixin, MainViewSet):
         Load Configs
         """
 
-        return Response({"upload_file_enabled": settings.ENABLE_FILE_UPLOAD})
+        return Response(
+            {
+                "upload_file_enabled": settings.ENABLE_FILE_UPLOAD,
+                "upload_max_size": settings.QCLOUD_COS_MAX_UPLOAD_SIZE,
+            }
+        )
 
     @action(methods=["POST"], detail=False)
     async def temp_secret(self, request: Request, *args, **kwargs):

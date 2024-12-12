@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-04 16:46+0800\n"
+"POT-Creation-Date: 2024-12-12 10:47+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,6 +32,9 @@ msgstr "耗时(毫秒)"
 
 msgid "Create Time"
 msgstr "创建时间"
+
+msgid "Parse Image To Base64 Failed"
+msgstr "解析图片失败"
 
 msgid "User"
 msgstr "用户"
@@ -120,6 +123,12 @@ msgstr "失败"
 msgid "Success"
 msgstr "成功"
 
+msgid "Text"
+msgstr "文本"
+
+msgid "Image URL"
+msgstr "图片链接"
+
 msgid "Unauthorized Model"
 msgstr "未授权的模型"
 
@@ -186,6 +195,9 @@ msgstr "响应令牌价格"
 msgid "Support System Define"
 msgstr "支持系统预设"
 
+msgid "Support Vision"
+msgstr "支持视觉"
+
 msgid "Is Vision"
 msgstr "是否为图像模型"
 
@@ -236,10 +248,6 @@ msgstr "温度"
 
 msgid "Top Probability"
 msgstr "优选值"
-
-#, python-format
-msgid "The content of file is: %s"
-msgstr "文件内容是：%s"
 
 msgid "Messages too long, please clear all input"
 msgstr "消息过长，请清空重试"
