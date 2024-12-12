@@ -56,6 +56,7 @@ class AIModelProvider(TextChoices):
     TENCENT = "tencent", gettext_lazy("Tencent")
     MIDJOURNEY = "midjourney", gettext_lazy("Midjourney")
     MOONSHOT = "moonshot", gettext_lazy("Moonshot")
+    CLAUDE = "claude", gettext_lazy("Claude")
 
 
 class VisionSize(TextChoices):
@@ -144,3 +145,14 @@ class MessageContentType(TextChoices):
 
     TEXT = "text", gettext_lazy("Text")
     IMAGE_URL = "image_url", gettext_lazy("Image URL")
+    IMAGE = "image", gettext_lazy("Image")
+
+
+class ClaudeMessageType(TextChoices):
+    """
+    Clause Message Type
+    """
+
+    MESSAGE_START = "message_start", gettext_lazy("Message Start")
+    MESSAGE_DELTA = "message_delta", gettext_lazy("Message Delta")
+    CONTENT_BLOCK_DELTA = "content_block_delta", gettext_lazy("Content Block Delta")
