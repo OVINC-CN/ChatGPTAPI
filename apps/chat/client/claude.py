@@ -40,6 +40,7 @@ class ClaudeClient(BaseClient):
                 temperature=self.temperature,
                 top_p=self.top_p,
                 stream=True,
+                timeout=settings.ANTHROPIC_TIMEOUT,
             )
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[GenerateContentFailed] %s", err)
