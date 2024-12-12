@@ -5,13 +5,11 @@ from dataclasses import dataclass
 from io import BytesIO
 from urllib.parse import quote
 
-import httpx
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy
 from django_redis.client import DefaultClient
-from httpx._types import FileTypes
 from ovinc_client.account.models import User
 from ovinc_client.core.logger import logger
 from ovinc_client.core.utils import simple_uniq_id
