@@ -27,6 +27,7 @@ class MidjourneyClient(BaseClient):
             headers={"Authorization": f"Bearer {settings.MIDJOURNEY_API_KEY}"},
             base_url=settings.MIDJOURNEY_API_BASE_URL,
             proxy=settings.OPENAI_HTTP_PROXY_URL or None,
+            timeout=settings.MIDJOURNEY_API_TIMEOUT,
         )
         # call midjourney api
         try:
