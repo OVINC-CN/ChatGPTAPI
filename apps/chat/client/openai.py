@@ -6,7 +6,6 @@ from typing import List, Optional
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.utils import timezone
 from httpx import AsyncClient, Client
 from openai import OpenAI
 from ovinc_client.core.logger import logger
@@ -67,7 +66,6 @@ class OpenAIClient(OpenAIMixin, BaseClient):
             if chunk.usage:
                 prompt_tokens = chunk.usage.prompt_tokens
                 completion_tokens = chunk.usage.completion_tokens
-        self.finished_at = int(timezone.now().timestamp() * 1000)
         await self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens)
 
 

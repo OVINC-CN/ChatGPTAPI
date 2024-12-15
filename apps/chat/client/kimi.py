@@ -3,7 +3,6 @@
 from typing import List
 
 from django.conf import settings
-from django.utils import timezone
 from openai import OpenAI
 from ovinc_client.core.logger import logger
 
@@ -48,5 +47,4 @@ class KimiClient(BaseClient):
                 prompt_tokens = usage.get("prompt_tokens", prompt_tokens)
                 completion_tokens = usage.get("completion_tokens", completion_tokens)
             yield chunk.choices[0].delta.content or ""
-        self.finished_at = int(timezone.now().timestamp() * 1000)
         await self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens)

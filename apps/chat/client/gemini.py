@@ -4,7 +4,6 @@ import base64
 from typing import List
 
 from django.conf import settings
-from django.utils import timezone
 from django.utils.translation import gettext
 from httpx import Client
 from openai import OpenAI
@@ -63,7 +62,6 @@ class GeminiClient(BaseClient):
             if chunk.usage:
                 prompt_tokens = chunk.usage.prompt_tokens
                 completion_tokens = chunk.usage.completion_tokens
-        self.finished_at = int(timezone.now().timestamp() * 1000)
         await self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens)
 
     def convert_url_to_base64(self, url: str) -> str:

@@ -5,6 +5,7 @@ from typing import List
 from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 from apps.chat.constants import OpenAIRole
 from apps.chat.models import AIModel, ChatLog
@@ -31,7 +32,6 @@ class BaseClient:
         ]
         self.temperature: float = temperature
         self.top_p: float = top_p
-        self.finished_at: int = int()
         self.log = ChatLog.objects.create(
             user=self.user,
             model=self.model,
@@ -68,5 +68,5 @@ class BaseClient:
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
         self.log.completion_token_unit_price = self.model_inst.completion_price
         # save
-        self.log.finished_at = self.finished_at
+        self.log.finished_at = int(timezone.now().timestamp() * 1000)
         await database_sync_to_async(self.log.save)()
