@@ -46,8 +46,9 @@ class BaseClient:
         try:
             async for text in self._chat(*args, **kwargs):
                 yield text
-        finally:
+        except Exception as e:
             await self.record()
+            raise e
 
     @abc.abstractmethod
     async def _chat(self, *args, **kwargs) -> any:
