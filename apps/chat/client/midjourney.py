@@ -2,9 +2,7 @@ import asyncio
 import time
 import uuid
 
-from channels.db import database_sync_to_async
 from django.conf import settings
-from django.utils import timezone
 from httpx import AsyncClient
 from ovinc_client.core.logger import logger
 from rest_framework import status
@@ -21,7 +19,7 @@ class MidjourneyClient(BaseClient):
     Midjourney Client
     """
 
-    async def chat(self, *args, **kwargs) -> any:
+    async def _chat(self, *args, **kwargs) -> any:
         client = AsyncClient(
             http2=True,
             headers={"Authorization": f"Bearer {settings.MIDJOURNEY_API_KEY}"},
@@ -51,7 +49,7 @@ class MidjourneyClient(BaseClient):
                     yield str(result_data.get("failReason") or GenerateFailed())
                     break
                 # record
-                await self.record()
+                await self.record(completion_tokens=1)
                 # use first success picture
                 message_url = result_data["imageUrl"]
                 image_resp = await client.get(message_url)
@@ -68,10 +66,3 @@ class MidjourneyClient(BaseClient):
             yield str(GenerateFailed())
         finally:
             await client.aclose()
-
-    # pylint: disable=W0221,R1710,W0236
-    async def record(self) -> None:
-        self.log.completion_tokens = 1
-        self.log.completion_token_unit_price = self.model_inst.completion_price
-        self.log.finished_at = int(timezone.now().timestamp() * 1000)
-        await database_sync_to_async(self.log.save)()

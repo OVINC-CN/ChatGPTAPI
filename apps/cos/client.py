@@ -3,6 +3,7 @@
 import datetime
 from dataclasses import dataclass
 from io import BytesIO
+from typing import Union
 from urllib.parse import quote
 
 from django.conf import settings
@@ -129,7 +130,7 @@ class COSClient:
             logger.exception("[TempKeyGenerateFailed] %s", err)
             raise TempKeyGenerateFailed() from err
 
-    async def put_object(self, file: BytesIO, file_name: str) -> str:
+    async def put_object(self, file: Union[bytes, BytesIO], file_name: str) -> str:
         """
         Upload File To COS
         """

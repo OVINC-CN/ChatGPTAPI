@@ -7,9 +7,7 @@ from anthropic.types import (
     RawMessageDeltaEvent,
     RawMessageStartEvent,
 )
-from channels.db import database_sync_to_async
 from django.conf import settings
-from django.utils import timezone
 from django.utils.translation import gettext
 from httpx import Client
 from ovinc_client.core.logger import logger
@@ -24,7 +22,7 @@ class ClaudeClient(BaseClient):
     Claude Client
     """
 
-    async def chat(self, *args, **kwargs) -> any:
+    async def _chat(self, *args, **kwargs) -> any:
         client = Anthropic(
             api_key=settings.ANTHROPIC_API_KEY,
             base_url=settings.ANTHROPIC_BASE_URL,
@@ -46,23 +44,22 @@ class ClaudeClient(BaseClient):
             logger.exception("[GenerateContentFailed] %s", err)
             yield str(GenerateFailed())
             response = []
-        input_tokens = 0
-        output_tokens = 0
+        prompt_tokens = 0
+        completion_tokens = 0
         # pylint: disable=E1133
         for chunk in response:
             match chunk.type:
                 case ClaudeMessageType.MESSAGE_START:
                     chunk: RawMessageStartEvent
-                    input_tokens = chunk.message.usage.input_tokens
-                    self.record(chunk=chunk)
+                    prompt_tokens = chunk.message.usage.input_tokens
+                    self.log.chat_id = chunk.message.id
                 case ClaudeMessageType.MESSAGE_DELTA:
                     chunk: RawMessageDeltaEvent
-                    output_tokens = chunk.usage.output_tokens
+                    completion_tokens = chunk.usage.output_tokens
                 case ClaudeMessageType.CONTENT_BLOCK_DELTA:
                     chunk: RawContentBlockDeltaEvent
                     yield chunk.delta.text
-        self.finished_at = int(timezone.now().timestamp() * 1000)
-        await self.post_chat(input_tokens=input_tokens, output_tokens=output_tokens)
+        await self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens)
 
     def parse_messages(self) -> (str, List[dict]):
         # parse image
@@ -94,20 +91,3 @@ class ClaudeClient(BaseClient):
             if response.status_code == 200:
                 return base64.b64encode(response.content).decode()
             raise FileExtractFailed(gettext("Parse Image To Base64 Failed"))
-
-    # pylint: disable=W0221
-    def record(self, chunk, *args, **kwargs) -> None:
-        self.log.chat_id = chunk.message.id
-
-    async def post_chat(self, input_tokens: int, output_tokens: int) -> None:
-        if not self.log:
-            return
-        # calculate characters
-        self.log.prompt_tokens = input_tokens
-        self.log.completion_tokens = output_tokens
-        # calculate price
-        self.log.prompt_token_unit_price = self.model_inst.prompt_price
-        self.log.completion_token_unit_price = self.model_inst.completion_price
-        # save
-        self.log.finished_at = self.finished_at
-        await database_sync_to_async(self.log.save)()

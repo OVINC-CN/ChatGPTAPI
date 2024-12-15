@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List
 
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -13,7 +13,6 @@ from apps.chat.constants import (
     PRICE_DECIMAL_NUMS,
     PRICE_DIGIT_NUMS,
     AIModelProvider,
-    OpenAIRole,
     VisionQuality,
     VisionSize,
     VisionStyle,
@@ -65,19 +64,6 @@ class ChatLog(BaseModel):
             ["finished_at", "is_charged"],
             ["user", "finished_at", "created_at"],
         ]
-
-
-@dataclass
-class ImageContent:
-    type: str
-    text: str
-    image_url: dict
-
-
-@dataclass
-class Message:
-    role: OpenAIRole
-    content: Union[ImageContent, str]
 
 
 @dataclass

@@ -1,5 +1,3 @@
-import sys
-
 from django.utils.translation import gettext_lazy
 from ovinc_client.core.models import IntegerChoices, TextChoices
 
@@ -18,13 +16,6 @@ PRICE_DECIMAL_NUMS = 10
 WS_CLOSED_KEY = "ws:closed:{}"
 
 MESSAGE_CACHE_KEY = "message:{}"
-
-if "celery" in sys.argv:
-    TOKEN_ENCODING = ""
-else:
-    import tiktoken
-
-    TOKEN_ENCODING = tiktoken.encoding_for_model("gpt-3.5-turbo")
 
 
 class OpenAIRole(TextChoices):
