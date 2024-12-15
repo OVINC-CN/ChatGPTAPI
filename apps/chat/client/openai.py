@@ -1,24 +1,18 @@
 # pylint: disable=R0801
+
 import abc
 import uuid
 from typing import List, Optional
 from urllib.parse import urlparse
 
-import httpx
-import tiktoken
-from channels.db import database_sync_to_async
 from django.conf import settings
-from django.utils import timezone
-from httpx import Client
+from httpx import AsyncClient, Client
 from openai import OpenAI
-from openai.types import ImagesResponse
-from openai.types.chat import ChatCompletionChunk
 from ovinc_client.core.logger import logger
 from rest_framework import status
 
 from apps.chat.client.base import BaseClient
 from apps.chat.exceptions import GenerateFailed, LoadImageFailed
-from apps.chat.models import Message
 from apps.cos.client import COSClient
 from apps.cos.utils import TCloudUrlParser
 
@@ -31,7 +25,7 @@ class OpenAIMixin(abc.ABC):
     model_settings: Optional[dict]
 
     # pylint: disable=R0913,R0917
-    def __init__(self, user: str, model: str, messages: List[Message], temperature: float, top_p: float):
+    def __init__(self, user: str, model: str, messages: List[dict], temperature: float, top_p: float):
         super().__init__(user=user, model=model, messages=messages, temperature=temperature, top_p=top_p)
         self.client = OpenAI(
             api_key=self.model_settings.get("api_key", settings.OPENAI_API_KEY),
@@ -45,7 +39,7 @@ class OpenAIClient(OpenAIMixin, BaseClient):
     OpenAI Client
     """
 
-    async def chat(self, *args, **kwargs) -> any:
+    async def _chat(self, *args, **kwargs) -> any:
         try:
             response = self.client.chat.completions.create(
                 model=self.model.replace(".", ""),
@@ -54,6 +48,7 @@ class OpenAIClient(OpenAIMixin, BaseClient):
                 top_p=self.top_p,
                 stream=True,
                 timeout=settings.OPENAI_CHAT_TIMEOUT,
+                stream_options={"include_usage": True},
             )
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[GenerateContentFailed] %s", err)
@@ -64,39 +59,14 @@ class OpenAIClient(OpenAIMixin, BaseClient):
         completion_tokens = 0
         # pylint: disable=E1133
         for chunk in response:
-            self.record(response=chunk)
+            self.log.chat_id = chunk.id
             if chunk.choices:
                 content += chunk.choices[0].delta.content or ""
                 yield chunk.choices[0].delta.content or ""
             if chunk.usage:
                 prompt_tokens = chunk.usage.prompt_tokens
                 completion_tokens = chunk.usage.completion_tokens
-        self.finished_at = int(timezone.now().timestamp() * 1000)
-        await self.post_chat(content, prompt_tokens, completion_tokens)
-
-    # pylint: disable=W0221,R1710
-    def record(self, response: ChatCompletionChunk, **kwargs) -> None:
-        self.log.chat_id = response.id
-
-    async def post_chat(self, content: str, prompt_tokens: int, completion_tokens: int) -> None:
-        if not self.log:
-            return
-        # calculate tokens
-        if prompt_tokens and completion_tokens:
-            self.log.prompt_tokens = prompt_tokens
-            self.log.completion_tokens = completion_tokens
-        else:
-            encoding = tiktoken.encoding_for_model(self.model)
-            self.log.prompt_tokens = len(
-                encoding.encode("".join([str(message["content"]) for message in self.messages]))
-            )
-            self.log.completion_tokens = len(encoding.encode(content))
-        # calculate price
-        self.log.prompt_token_unit_price = self.model_inst.prompt_price
-        self.log.completion_token_unit_price = self.model_inst.completion_price
-        # save
-        self.log.finished_at = self.finished_at
-        await database_sync_to_async(self.log.save)()
+        await self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens)
 
 
 class OpenAIVisionClient(OpenAIMixin, BaseClient):
@@ -104,8 +74,9 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
     OpenAI Vision Client
     """
 
-    async def chat(self, *args, **kwargs) -> any:
+    async def _chat(self, *args, **kwargs) -> any:
         try:
+            # noinspection PyTypeChecker
             response = self.client.images.generate(
                 model=self.model.replace(".", ""),
                 prompt=self.messages[-1]["content"],
@@ -118,10 +89,12 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
             logger.exception("[GenerateContentFailed] %s", err)
             yield str(GenerateFailed())
             return
-        await self.record(response=response)
+        # record
+        await self.record(completion_tokens=1)
+        # image
         if not settings.ENABLE_IMAGE_PROXY:
             yield f"![{self.messages[-1]['content']}]({response.data[0].url})"
-        httpx_client = httpx.AsyncClient(http2=True, proxy=settings.OPENAI_HTTP_PROXY_URL)
+        httpx_client = AsyncClient(http2=True, proxy=settings.OPENAI_HTTP_PROXY_URL)
         image_resp = await httpx_client.get(response.data[0].url)
         await httpx_client.aclose()
         if image_resp.status_code != status.HTTP_200_OK:
@@ -131,10 +104,3 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
             file_name=f"{uuid.uuid4().hex}.{urlparse(response.data[0].url).path.split('.')[-1]}",
         )
         yield f"![output]({TCloudUrlParser(url).url})"
-
-    # pylint: disable=W0221,R1710,W0236
-    async def record(self, response: ImagesResponse, **kwargs) -> None:
-        self.log.completion_tokens = 1
-        self.log.completion_token_unit_price = self.model_inst.completion_price
-        self.log.finished_at = int(timezone.now().timestamp() * 1000)
-        await database_sync_to_async(self.log.save)()

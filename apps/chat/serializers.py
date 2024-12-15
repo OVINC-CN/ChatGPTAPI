@@ -1,10 +1,9 @@
 import datetime
-from typing import List
 
 import pytz
 from adrf.serializers import ModelSerializer, Serializer
 from django.conf import settings
-from django.utils.translation import gettext, gettext_lazy
+from django.utils.translation import gettext_lazy
 from rest_framework import serializers
 
 from apps.chat.constants import (
@@ -12,7 +11,6 @@ from apps.chat.constants import (
     TEMPERATURE_DEFAULT,
     TEMPERATURE_MAX,
     TEMPERATURE_MIN,
-    TOKEN_ENCODING,
     TOP_P_DEFAULT,
     TOP_P_MIN,
     OpenAIRole,
@@ -49,16 +47,6 @@ class OpenAIRequestSerializer(Serializer):
     top_p = serializers.FloatField(
         label=gettext_lazy("Top Probability"), min_value=TOP_P_MIN, default=TOP_P_DEFAULT, required=False
     )
-
-    def validate_messages(self, messages: List[dict]) -> List[dict]:
-        """
-        make sure the messages won't be so long
-        """
-        # check tokens
-        total_tokens = len(TOKEN_ENCODING.encode("".join([message["content"] for message in messages])))
-        if total_tokens >= settings.OPENAI_MAX_ALLOWED_TOKENS:
-            raise serializers.ValidationError(gettext("Messages too long, please clear all input"))
-        return messages
 
 
 class CheckModelPermissionSerializer(Serializer):
