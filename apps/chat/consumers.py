@@ -26,7 +26,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # async chat
         async_reply.apply_async(kwargs={"channel_name": self.channel_name, "key": data["key"]})
-        async_reply.apply_async(kwargs={"channel_name": self.channel_name, "key": data["key"]})
 
     async def chat_send(self, event: dict):
         await self.send(text_data=event["text_data"])
