@@ -48,7 +48,7 @@ class HunYuanClient(BaseClient):
         for chunk in response:
             chunk = json.loads(chunk["data"])
             chunk = HunYuanChuck.create(chunk)
-            self.log.chat_id = response.Id
+            self.log.chat_id = chunk.Id
             prompt_tokens = response.Usage.PromptTokens
             completion_tokens = response.Usage.CompletionTokens
             yield chunk.Choices[0].Delta.Content

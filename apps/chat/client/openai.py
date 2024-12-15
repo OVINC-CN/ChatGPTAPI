@@ -60,7 +60,7 @@ class OpenAIClient(OpenAIMixin, BaseClient):
         completion_tokens = 0
         # pylint: disable=E1133
         for chunk in response:
-            self.log.chat_id = response.id
+            self.log.chat_id = chunk.id
             if chunk.choices:
                 content += chunk.choices[0].delta.content or ""
                 yield chunk.choices[0].delta.content or ""

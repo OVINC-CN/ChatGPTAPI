@@ -42,7 +42,7 @@ class KimiClient(BaseClient):
         completion_tokens = 0
         # pylint: disable=E1133
         for chunk in response:
-            self.log.chat_id = response.id
+            self.log.chat_id = chunk.id
             usage = chunk.choices[0].model_extra.get("usage") or {}
             if usage:
                 prompt_tokens = usage.get("prompt_tokens", prompt_tokens)

@@ -44,7 +44,8 @@ class BaseClient:
         """
 
         try:
-            return await self._chat(*args, **kwargs)
+            async for text in self._chat(*args, **kwargs):
+                yield text
         finally:
             await self.record()
 
