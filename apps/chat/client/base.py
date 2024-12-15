@@ -6,8 +6,11 @@ from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from opentelemetry import trace
+from opentelemetry.sdk.trace import Span
+from opentelemetry.trace import SpanKind
 
-from apps.chat.constants import OpenAIRole
+from apps.chat.constants import OpenAIRole, SpanType
 from apps.chat.models import AIModel, ChatLog
 
 USER_MODEL = get_user_model()
@@ -37,18 +40,20 @@ class BaseClient:
             model=self.model,
             created_at=int(datetime.datetime.now().timestamp() * 1000),
         )
+        self.tracer = trace.get_tracer(self.__class__.__name__)
 
     async def chat(self, *args, **kwargs) -> any:
         """
         Chat
         """
 
-        try:
-            async for text in self._chat(*args, **kwargs):
-                yield text
-        except Exception as e:
-            await self.record()
-            raise e
+        with self.start_span(SpanType.CHAT, SpanKind.SERVER):
+            try:
+                async for text in self._chat(*args, **kwargs):
+                    yield text
+            except Exception as e:
+                await self.record()
+                raise e
 
     @abc.abstractmethod
     async def _chat(self, *args, **kwargs) -> any:
@@ -70,3 +75,7 @@ class BaseClient:
         # save
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
         await database_sync_to_async(self.log.save)()
+
+    def start_span(self, name: str, kind: SpanKind, **kwargs) -> Span:
+        span: Span = self.tracer.start_as_current_span(name=name, kind=kind, **kwargs)
+        return span
