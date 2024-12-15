@@ -47,6 +47,7 @@ class MidjourneyClient(BaseClient):
                 # if failed
                 if result_data["status"] == MidjourneyResult.FAILURE:
                     yield str(result_data.get("failReason") or GenerateFailed())
+                    await self.record()
                     break
                 # record
                 await self.record(completion_tokens=1)

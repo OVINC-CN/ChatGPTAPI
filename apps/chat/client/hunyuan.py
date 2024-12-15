@@ -125,6 +125,7 @@ class HunYuanVisionClient(BaseClient):
                     # all failed
                     if all(i != HUNYUAN_SUCCESS_DETAIL for i in result.ResultDetails):
                         yield str(GenerateFailed())
+                        await self.record()
                         break
                     # record
                     self.log.chat_id = response.JobId
@@ -146,6 +147,7 @@ class HunYuanVisionClient(BaseClient):
                     yield f"![output]({TCloudUrlParser(url).url})"
                 else:
                     yield f"{result.JobErrorMsg}({result.JobErrorCode})"
+                    await self.record()
                 break
         except TencentCloudSDKException as err:
             logger.exception("[GenerateContentFailed] %s", err)
