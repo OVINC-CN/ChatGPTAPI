@@ -44,7 +44,7 @@ class BaseClient:
         """
 
         try:
-            await self._chat(*args, **kwargs)
+            return await self._chat(*args, **kwargs)
         finally:
             await self.record()
 
