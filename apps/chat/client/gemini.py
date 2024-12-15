@@ -7,10 +7,11 @@ from django.conf import settings
 from django.utils.translation import gettext
 from httpx import Client
 from openai import OpenAI
+from opentelemetry.trace import SpanKind
 from ovinc_client.core.logger import logger
 
 from apps.chat.client.openai import BaseClient
-from apps.chat.constants import MessageContentType
+from apps.chat.constants import MessageContentType, SpanType
 from apps.chat.exceptions import FileExtractFailed, GenerateFailed
 
 
@@ -40,28 +41,30 @@ class GeminiClient(BaseClient):
 
     async def _chat(self, *args, **kwargs) -> any:
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=self.messages,
-                temperature=self.temperature,
-                top_p=self.top_p,
-                stream=True,
-                timeout=settings.GEMINI_CHAT_TIMEOUT,
-                stream_options={"include_usage": True},
-            )
+            with self.start_span(SpanType.API, SpanKind.CLIENT):
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=self.messages,
+                    temperature=self.temperature,
+                    top_p=self.top_p,
+                    stream=True,
+                    timeout=settings.GEMINI_CHAT_TIMEOUT,
+                    stream_options={"include_usage": True},
+                )
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[GenerateContentFailed] %s", err)
             yield str(GenerateFailed())
             response = []
         prompt_tokens = 0
         completion_tokens = 0
-        # pylint: disable=E1133
-        for chunk in response:
-            if chunk.choices:
-                yield chunk.choices[0].delta.content or ""
-            if chunk.usage:
-                prompt_tokens = chunk.usage.prompt_tokens
-                completion_tokens = chunk.usage.completion_tokens
+        with self.start_span(SpanType.CHUNK, SpanKind.SERVER):
+            # pylint: disable=E1133
+            for chunk in response:
+                if chunk.choices:
+                    yield chunk.choices[0].delta.content or ""
+                if chunk.usage:
+                    prompt_tokens = chunk.usage.prompt_tokens
+                    completion_tokens = chunk.usage.completion_tokens
         await self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens)
 
     def convert_url_to_base64(self, url: str) -> str:

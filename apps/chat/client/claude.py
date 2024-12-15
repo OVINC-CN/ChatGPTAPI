@@ -10,10 +10,16 @@ from anthropic.types import (
 from django.conf import settings
 from django.utils.translation import gettext
 from httpx import Client
+from opentelemetry.trace import SpanKind
 from ovinc_client.core.logger import logger
 
 from apps.chat.client.base import BaseClient
-from apps.chat.constants import ClaudeMessageType, MessageContentType, OpenAIRole
+from apps.chat.constants import (
+    ClaudeMessageType,
+    MessageContentType,
+    OpenAIRole,
+    SpanType,
+)
 from apps.chat.exceptions import FileExtractFailed, GenerateFailed
 
 
@@ -30,35 +36,37 @@ class ClaudeClient(BaseClient):
         )
         system, messages = self.parse_messages()
         try:
-            response = client.messages.create(
-                max_tokens=settings.ANTHROPIC_MAX_TOKENS,
-                system=system,
-                messages=messages,
-                model=self.model,
-                temperature=self.temperature,
-                top_p=self.top_p,
-                stream=True,
-                timeout=settings.ANTHROPIC_TIMEOUT,
-            )
+            with self.start_span(SpanType.API, SpanKind.CLIENT):
+                response = client.messages.create(
+                    max_tokens=settings.ANTHROPIC_MAX_TOKENS,
+                    system=system,
+                    messages=messages,
+                    model=self.model,
+                    temperature=self.temperature,
+                    top_p=self.top_p,
+                    stream=True,
+                    timeout=settings.ANTHROPIC_TIMEOUT,
+                )
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[GenerateContentFailed] %s", err)
             yield str(GenerateFailed())
             response = []
         prompt_tokens = 0
         completion_tokens = 0
-        # pylint: disable=E1133
-        for chunk in response:
-            match chunk.type:
-                case ClaudeMessageType.MESSAGE_START:
-                    chunk: RawMessageStartEvent
-                    prompt_tokens = chunk.message.usage.input_tokens
-                    self.log.chat_id = chunk.message.id
-                case ClaudeMessageType.MESSAGE_DELTA:
-                    chunk: RawMessageDeltaEvent
-                    completion_tokens = chunk.usage.output_tokens
-                case ClaudeMessageType.CONTENT_BLOCK_DELTA:
-                    chunk: RawContentBlockDeltaEvent
-                    yield chunk.delta.text
+        with self.start_span(SpanType.CHUNK, SpanKind.SERVER):
+            # pylint: disable=E1133
+            for chunk in response:
+                match chunk.type:
+                    case ClaudeMessageType.MESSAGE_START:
+                        chunk: RawMessageStartEvent
+                        prompt_tokens = chunk.message.usage.input_tokens
+                        self.log.chat_id = chunk.message.id
+                    case ClaudeMessageType.MESSAGE_DELTA:
+                        chunk: RawMessageDeltaEvent
+                        completion_tokens = chunk.usage.output_tokens
+                    case ClaudeMessageType.CONTENT_BLOCK_DELTA:
+                        chunk: RawContentBlockDeltaEvent
+                        yield chunk.delta.text
         await self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens)
 
     def parse_messages(self) -> (str, List[dict]):

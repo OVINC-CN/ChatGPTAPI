@@ -147,3 +147,14 @@ class ClaudeMessageType(TextChoices):
     MESSAGE_START = "message_start", gettext_lazy("Message Start")
     MESSAGE_DELTA = "message_delta", gettext_lazy("Message Delta")
     CONTENT_BLOCK_DELTA = "content_block_delta", gettext_lazy("Content Block Delta")
+
+
+class SpanType(TextChoices):
+    """
+    Span Type
+    """
+
+    API = "api", gettext_lazy("API")
+    CHUNK = "chunk", gettext_lazy("Chunk")
+    FETCH = "fetch", gettext_lazy("Fetch")
+    CHAT = "chat", gettext_lazy("Chat")
