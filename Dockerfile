@@ -1,4 +1,4 @@
-FROM python:3.10.15-slim
+FROM python:3.12.7-slim
 
 WORKDIR /usr/src/app
 COPY requirements.txt /usr/src/app/
@@ -13,5 +13,3 @@ RUN cp env.example .env \
     && rm -rf .env
 
 RUN mkdir -p /usr/src/app/logs /usr/src/app/tmp /usr/share/fonts/zh_cn
-
-RUN bin/proxy_gemini.sh
