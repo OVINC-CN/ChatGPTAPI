@@ -1,7 +1,7 @@
 {
   "template": "https://github.com/OVINC-CN/DevTemplateDjango.git",
-  "commit": "9bf74f1001fc3449c40d7ee79626986ec3165fdf",
-  "checkout": "chore_py312",
+  "commit": "5281a1802f609dde876e1b80816a82c86a202767",
+  "checkout": "main",
   "context": {
     "cookiecutter": {
       "project_name": "chatgpt-api",
