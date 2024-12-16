@@ -1,42 +1,40 @@
 # ovinc
-ovinc-client==0.3.13
+ovinc-client==0.3.14b0
 
 # Celery
 celery==5.4.0
 
 # Async
 asgiref==3.8.1
-channels[daphne]==4.1.0
-channels_redis==4.2.0
+channels[daphne]==4.2.0
+channels_redis==4.2.1
 
 # Server
-gunicorn==22.0.0
+gunicorn==23.0.0
 uvicorn-worker==0.2.0
-uvicorn==0.30.1
+uvicorn==0.34.0
 
 # Datetime
-arrow==1.2.3
+arrow==1.3.0
 
 # RSA
-pycryptodome==3.20.0
+pycryptodome==3.21.0
 
 # tcloud
-tencentcloud-sdk-python==3.0.785
+tencentcloud-sdk-python==3.0.1282
 
 # OpenAI
-openai==1.56.1
-tiktoken==0.8.0
-pillow==10.3.0
+openai==1.57.4
 
 # COS
 cos-python-sdk-v5==1.9.29
-qcloud-python-sts==3.1.5
+qcloud-python-sts==3.1.6
 
 # qrcode
-qrcode==7.4.2
+qrcode==8.0.0
 
 # claude
 anthropic==0.40.0
 
 # websocket
-websockets==12.0
+websockets==14.1
