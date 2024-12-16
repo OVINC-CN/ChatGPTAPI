@@ -13,7 +13,6 @@ channels_redis==4.2.0
 gunicorn==22.0.0
 uvicorn-worker==0.2.0
 uvicorn==0.30.1
-websockets==12.0
 
 # Datetime
 arrow==1.2.3
@@ -21,13 +20,13 @@ arrow==1.2.3
 # RSA
 pycryptodome==3.20.0
 
+# tcloud
+tencentcloud-sdk-python==3.0.785
+
 # OpenAI
 openai==1.56.1
 tiktoken==0.8.0
 pillow==10.3.0
-
-# Hunyuan
-tencentcloud-sdk-python==3.0.1279
 
 # COS
 cos-python-sdk-v5==1.9.29
@@ -38,3 +37,6 @@ qrcode==7.4.2
 
 # claude
 anthropic==0.40.0
+
+# websocket
+websockets==12.0
