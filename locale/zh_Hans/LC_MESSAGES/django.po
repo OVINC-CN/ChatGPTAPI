@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-12 10:47+0800\n"
+"POT-Creation-Date: 2024-12-16 14:04+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,6 +62,9 @@ msgstr "Midjourney"
 
 msgid "Moonshot"
 msgstr "Moonshot"
+
+msgid "Claude"
+msgstr "Claude"
 
 msgid "1024x1024"
 msgstr "1024x1024"
@@ -128,6 +131,30 @@ msgstr "文本"
 
 msgid "Image URL"
 msgstr "图片链接"
+
+msgid "Image"
+msgstr "图片"
+
+msgid "Message Start"
+msgstr "消息开始"
+
+msgid "Message Delta"
+msgstr "消息块"
+
+msgid "Content Block Delta"
+msgstr "内容块"
+
+msgid "API"
+msgstr "API"
+
+msgid "Chunk"
+msgstr "块"
+
+msgid "Fetch"
+msgstr "拉取"
+
+msgid "Chat"
+msgstr "对话"
 
 msgid "Unauthorized Model"
 msgstr "未授权的模型"
@@ -248,9 +275,6 @@ msgstr "温度"
 
 msgid "Top Probability"
 msgstr "优选值"
-
-msgid "Messages too long, please clear all input"
-msgstr "消息过长，请清空重试"
 
 msgid "COS"
 msgstr "对象存储"
