@@ -13,5 +13,3 @@ RUN cp env.example .env \
     && rm -rf .env
 
 RUN mkdir -p /usr/src/app/logs /usr/src/app/tmp /usr/share/fonts/zh_cn
-
-RUN bin/proxy_gemini.sh

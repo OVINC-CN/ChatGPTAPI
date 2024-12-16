@@ -4,7 +4,6 @@ ovinc-client==0.3.13
 # Celery
 celery==5.4.0
 
-
 # Async
 asgiref==3.8.1
 channels[daphne]==4.1.0
@@ -26,11 +25,6 @@ pycryptodome==3.20.0
 openai==1.56.1
 tiktoken==0.8.0
 pillow==10.3.0
-
-# Gemini
-google-generativeai==0.3.2
-google_api_core==2.15.0
-google-ai-generativelanguage==0.4.0
 
 # Hunyuan
 tencentcloud-sdk-python==3.0.1279
