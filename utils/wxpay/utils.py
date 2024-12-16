@@ -53,7 +53,7 @@ class WXPaySignatureTool:
             request_url=request_path,
             timestamp=timestamp,
             nonce=nonce,
-            request_body=json.dumps(request_body) if request_body else "",
+            request_body=json.dumps(request_body, ensure_ascii=False, separators=(",", ":")) if request_body else "",
         )
         signature = trader_cert.private_key.sign(
             data=raw_info.encode("utf-8"),
