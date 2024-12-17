@@ -48,6 +48,7 @@ class AIModelProvider(TextChoices):
     MIDJOURNEY = "midjourney", gettext_lazy("Midjourney")
     MOONSHOT = "moonshot", gettext_lazy("Moonshot")
     CLAUDE = "claude", gettext_lazy("Claude")
+    ZHIPU = "zhipu", gettext_lazy("Zhipu")
 
 
 class VisionSize(TextChoices):

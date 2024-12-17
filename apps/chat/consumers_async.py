@@ -21,6 +21,7 @@ from apps.chat.client import (
     MidjourneyClient,
     OpenAIClient,
     OpenAIVisionClient,
+    ZhipuClient,
 )
 from apps.chat.client.base import BaseClient
 from apps.chat.constants import WS_CLOSED_KEY, AIModelProvider
@@ -137,6 +138,8 @@ class AsyncConsumer:
                 return KimiClient
             case AIModelProvider.CLAUDE:
                 return ClaudeClient
+            case AIModelProvider.ZHIPU:
+                return ZhipuClient
             case _:
                 raise UnexpectedProvider()
 
