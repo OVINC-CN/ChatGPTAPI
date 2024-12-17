@@ -1,6 +1,5 @@
 import abc
 import datetime
-from typing import List
 
 from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
@@ -11,7 +10,7 @@ from opentelemetry.sdk.trace import Span
 from opentelemetry.trace import SpanKind
 
 from apps.chat.constants import OpenAIRole, SpanType
-from apps.chat.models import AIModel, ChatLog
+from apps.chat.models import AIModel, ChatLog, Message
 
 USER_MODEL = get_user_model()
 
@@ -23,15 +22,15 @@ class BaseClient:
     """
 
     # pylint: disable=R0913,R0917
-    def __init__(self, user: str, model: str, messages: List[dict], temperature: float, top_p: float):
+    def __init__(self, user: str, model: str, messages: list[Message], temperature: float, top_p: float):
         self.user: USER_MODEL = get_object_or_404(USER_MODEL, username=user)
         self.model: str = model
         self.model_inst: AIModel = AIModel.objects.get(model=model, is_enabled=True)
         self.model_settings: dict = self.model_inst.settings or {}
-        self.messages: List[dict] = [
+        self.messages = [
             message
             for message in messages
-            if (message["role"] != OpenAIRole.SYSTEM or self.model_inst.support_system_define)
+            if (message.role != OpenAIRole.SYSTEM or self.model_inst.support_system_define)
         ]
         self.temperature: float = temperature
         self.top_p: float = top_p

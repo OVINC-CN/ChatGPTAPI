@@ -1,5 +1,3 @@
-from dataclasses import asdict
-
 from channels.db import database_sync_to_async
 from django.conf import settings
 from ovinc_client.core.utils import get_ip
@@ -47,15 +45,15 @@ class COSViewSet(ListMixin, MainViewSet):
         request_data = serializer.validated_data
 
         # generate
-        data = asdict(await COSClient().generate_cos_upload_credential(filename=request_data["filename"]))
+        data = await COSClient().generate_cos_upload_credential(filename=request_data["filename"])
 
         # save db
         if request_data["purpose"] == FileUploadPurpose.EXTRACT:
-            file_path = f"{settings.QCLOUD_COS_URL}/{data['key']}"
+            file_path = f"{settings.QCLOUD_COS_URL}/{data.key}"
             await database_sync_to_async(FileExtractInfo.objects.create)(
                 file_path=file_path,
                 key=FileExtractInfo.build_key(file_path=file_path),
             )
 
         # response
-        return Response(data=data)
+        return Response(data=data.model_dump())

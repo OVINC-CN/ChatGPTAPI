@@ -1,5 +1,4 @@
 import base64
-from typing import List
 
 from anthropic import Anthropic
 from anthropic.types import (
@@ -21,6 +20,7 @@ from apps.chat.constants import (
     SpanType,
 )
 from apps.chat.exceptions import FileExtractFailed, GenerateFailed
+from apps.chat.models import Message, MessageContent, MessageContentSource
 
 
 class ClaudeClient(BaseClient):
@@ -40,7 +40,7 @@ class ClaudeClient(BaseClient):
                 response = client.messages.create(
                     max_tokens=settings.ANTHROPIC_MAX_TOKENS,
                     system=system,
-                    messages=messages,
+                    messages=[message.model_dump(exclude_none=True) for message in messages],
                     model=self.model,
                     temperature=self.temperature,
                     top_p=self.top_p,
@@ -69,27 +69,26 @@ class ClaudeClient(BaseClient):
                         yield chunk.delta.text
         await self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens)
 
-    def parse_messages(self) -> (str, List[dict]):
+    def parse_messages(self) -> (str, list[Message]):
         # parse image
         for message in self.messages:
-            if not isinstance(message["content"], list):
+            if not isinstance(message.content, list):
                 continue
-            for index, content in enumerate(message["content"]):
-                if content.get("type") != MessageContentType.IMAGE_URL:
+            for content in message.content:
+                content: MessageContent
+                if content.type != MessageContentType.IMAGE_URL or not content.image_url:
                     continue
-                image_data = self.convert_url_to_base64(content["image_url"]["url"])
-                message["content"][index] = {
-                    "type": MessageContentType.IMAGE,
-                    "source": {
-                        "type": "base64",
-                        "media_type": "image/webp",
-                        "data": image_data,
-                    },
-                }
+                content.type = MessageContentType.IMAGE
+                content.source = MessageContentSource(
+                    type="base64",
+                    media_type="image/webp",
+                    data=self.convert_url_to_base64(content.image_url.url),
+                )
+                content.image_url = None
         # parse system
         system = ""
-        if self.messages[0]["role"] == OpenAIRole.SYSTEM:
-            system = self.messages[0]["content"]
+        if self.messages[0].role == OpenAIRole.SYSTEM:
+            system = self.messages[0].content
             return system, self.messages[1:]
         return system, self.messages
 

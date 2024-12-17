@@ -1,7 +1,6 @@
 # pylint: disable=R0801
 
 import base64
-from typing import List
 
 from django.conf import settings
 from django.utils.translation import gettext
@@ -13,6 +12,7 @@ from ovinc_client.core.logger import logger
 from apps.chat.client.openai import BaseClient
 from apps.chat.constants import MessageContentType, SpanType
 from apps.chat.exceptions import FileExtractFailed, GenerateFailed
+from apps.chat.models import Message, MessageContent
 
 
 class GeminiClient(BaseClient):
@@ -20,31 +20,29 @@ class GeminiClient(BaseClient):
     Gemini Client
     """
 
-    # pylint: disable=R0913,R0917
-    def __init__(self, user: str, model: str, messages: List[dict], temperature: float, top_p: float):
-        super().__init__(user=user, model=model, messages=messages, temperature=temperature, top_p=top_p)
-        self.client = OpenAI(
+    def format_message(self) -> None:
+        for message in self.messages:
+            message: Message
+            if not isinstance(message.content, list):
+                continue
+            for content in message.content:
+                content: MessageContent
+                if content.type != MessageContentType.IMAGE_URL or not content.image_url:
+                    continue
+                content.image_url.url = self.convert_url_to_base64(content.image_url.url)
+
+    async def _chat(self, *args, **kwargs) -> any:
+        self.format_message()
+        client = OpenAI(
             api_key=settings.GEMINI_API_KEY,
             base_url=settings.GEMINI_API_URL,
             http_client=Client(proxy=settings.OPENAI_HTTP_PROXY_URL) if settings.OPENAI_HTTP_PROXY_URL else None,
         )
-        self.post_init()
-
-    def post_init(self) -> None:
-        for message in self.messages:
-            if not isinstance(message["content"], list):
-                continue
-            for content in message["content"]:
-                if content.get("type") != MessageContentType.IMAGE_URL:
-                    continue
-                content["image_url"]["url"] = self.convert_url_to_base64(content["image_url"]["url"])
-
-    async def _chat(self, *args, **kwargs) -> any:
         try:
             with self.start_span(SpanType.API, SpanKind.CLIENT):
-                response = self.client.chat.completions.create(
+                response = client.chat.completions.create(
                     model=self.model,
-                    messages=self.messages,
+                    messages=[message.model_dump(exclude_none=True) for message in self.messages],
                     temperature=self.temperature,
                     top_p=self.top_p,
                     stream=True,

@@ -33,7 +33,7 @@ class MidjourneyClient(BaseClient):
             with self.start_span(SpanType.API, SpanKind.CLIENT):
                 # submit job
                 response = await client.post(
-                    url=settings.MIDJOURNEY_IMAGINE_API_PATH, json={"prompt": self.messages[-1]["content"]}
+                    url=settings.MIDJOURNEY_IMAGINE_API_PATH, json={"prompt": self.messages[-1].content}
                 )
             result_id = response.json()["result"]
             # wait for result

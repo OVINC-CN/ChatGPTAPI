@@ -1,9 +1,7 @@
 # -*- coding=utf-8
 
 import datetime
-from dataclasses import dataclass
 from io import BytesIO
-from typing import Union
 from urllib.parse import quote
 
 from django.conf import settings
@@ -14,6 +12,7 @@ from django_redis.client import DefaultClient
 from ovinc_client.account.models import User
 from ovinc_client.core.logger import logger
 from ovinc_client.core.utils import simple_uniq_id
+from pydantic import BaseModel as BaseDataModel
 from qcloud_cos import CosConfig, CosS3Client
 from rest_framework import status
 from rest_framework.exceptions import APIException
@@ -37,8 +36,7 @@ class TempKeyGenerateFailed(APIException):
 
 
 # pylint: disable=R0902
-@dataclass
-class COSCredential:
+class COSCredential(BaseDataModel):
     """
     COS Credential
     """
@@ -130,7 +128,7 @@ class COSClient:
             logger.exception("[TempKeyGenerateFailed] %s", err)
             raise TempKeyGenerateFailed() from err
 
-    async def put_object(self, file: Union[bytes, BytesIO], file_name: str) -> str:
+    async def put_object(self, file: bytes | BytesIO, file_name: str) -> str:
         """
         Upload File To COS
         """

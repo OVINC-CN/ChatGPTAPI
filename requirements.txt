@@ -39,3 +39,6 @@ anthropic==0.40.0
 
 # websocket
 websockets==14.1
+
+# model
+pydantic==2.10.3

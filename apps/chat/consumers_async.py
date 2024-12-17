@@ -26,7 +26,7 @@ from apps.chat.client import (
 from apps.chat.client.base import BaseClient
 from apps.chat.constants import WS_CLOSED_KEY, AIModelProvider
 from apps.chat.exceptions import UnexpectedProvider, VerifyFailed
-from apps.chat.models import AIModel
+from apps.chat.models import AIModel, ChatRequest
 
 
 class AsyncConsumer:
@@ -69,13 +69,19 @@ class AsyncConsumer:
         request_data = self.load_data_from_cache(self.key)
 
         # model
-        model = await database_sync_to_async(self.get_model_inst)(request_data["model"])
+        model = await database_sync_to_async(self.get_model_inst)(request_data.model)
 
         # get client
         client = self.get_model_client(model)
 
         # init client
-        client = await database_sync_to_async(client)(**request_data)
+        client = await database_sync_to_async(client)(
+            user=request_data.user,
+            model=request_data.model,
+            messages=request_data.messages,
+            temperature=request_data.temperature,
+            top_p=request_data.top_p,
+        )
 
         # response
         is_closed = False
@@ -109,12 +115,12 @@ class AsyncConsumer:
 
         return is_closed
 
-    def load_data_from_cache(self, key: str) -> dict:
+    def load_data_from_cache(self, key: str) -> ChatRequest:
         request_data = cache.get(key=key)
         cache.delete(key=key)
         if not request_data:
             raise VerifyFailed()
-        return request_data
+        return ChatRequest(**request_data)
 
     def get_model_inst(self, model: str) -> AIModel:
         return get_object_or_404(AIModel, model=model)
