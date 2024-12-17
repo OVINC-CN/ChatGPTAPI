@@ -315,3 +315,8 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 ANTHROPIC_BASE_URL = os.getenv("ANTHROPIC_BASE_URL", "")
 ANTHROPIC_MAX_TOKENS = int(os.getenv("ANTHROPIC_MAX_TOKENS", "4096"))
 ANTHROPIC_TIMEOUT = int(os.getenv("ANTHROPIC_TIMEOUT", "60"))
+
+# Zhipu
+ZHIPU_API_KEY = os.getenv("ZHIPU_API_KEY", "")
+ZHIPU_API_URL = os.getenv("ZHIPU_API_URL", "https://open.bigmodel.cn/api/paas/v4/")
+ZHIPU_API_TIMEOUT = int(os.getenv("ZHIPU_API_TIMEOUT", "60"))
