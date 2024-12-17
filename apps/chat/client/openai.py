@@ -2,7 +2,6 @@
 
 import abc
 import uuid
-from typing import List, Optional
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -24,11 +23,11 @@ class OpenAIMixin(abc.ABC):
     OpenAI Mixin
     """
 
-    model_settings: Optional[dict]
+    model_settings: dict | None
 
     # pylint: disable=R0913,R0917
-    def __init__(self, user: str, model: str, messages: List[dict], temperature: float, top_p: float):
-        super().__init__(user=user, model=model, messages=messages, temperature=temperature, top_p=top_p)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.client = OpenAI(
             api_key=self.model_settings.get("api_key", settings.OPENAI_API_KEY),
             base_url=self.model_settings.get("base_url", settings.OPENAI_API_BASE),
@@ -46,7 +45,7 @@ class OpenAIClient(OpenAIMixin, BaseClient):
             with self.start_span(SpanType.API, SpanKind.CLIENT):
                 response = self.client.chat.completions.create(
                     model=self.model.replace(".", ""),
-                    messages=self.messages,
+                    messages=[message.model_dump(exclude_none=True) for message in self.messages],
                     temperature=self.temperature,
                     top_p=self.top_p,
                     stream=True,
@@ -84,7 +83,7 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
                 # noinspection PyTypeChecker
                 response = self.client.images.generate(
                     model=self.model.replace(".", ""),
-                    prompt=self.messages[-1]["content"],
+                    prompt=self.messages[-1].content,
                     n=1,
                     size=self.model_inst.vision_size,
                     quality=self.model_inst.vision_quality,
@@ -99,7 +98,7 @@ class OpenAIVisionClient(OpenAIMixin, BaseClient):
             await self.record(completion_tokens=1)
             # image
             if not settings.ENABLE_IMAGE_PROXY:
-                yield f"![{self.messages[-1]['content']}]({response.data[0].url})"
+                yield f"![{self.messages[-1].content}]({response.data[0].url})"
             httpx_client = AsyncClient(http2=True, proxy=settings.OPENAI_HTTP_PROXY_URL)
             image_resp = await httpx_client.get(response.data[0].url)
             await httpx_client.aclose()

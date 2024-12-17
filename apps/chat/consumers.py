@@ -3,9 +3,9 @@ import json
 from django.contrib.auth import get_user_model
 from ovinc_client.account.models import User
 
-from apps.cel.tasks import async_reply
 from apps.chat.exceptions import VerifyFailed
 from apps.chat.serializers import OpenAIChatRequestSerializer
+from apps.chat.tasks import async_reply
 from utils.consumers import AsyncWebsocketConsumer
 
 USER_MODEL: User = get_user_model()

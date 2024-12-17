@@ -1,5 +1,4 @@
 import datetime
-from typing import Union
 
 from django.contrib import admin
 from django.utils import timezone
@@ -7,15 +6,6 @@ from django.utils.translation import gettext_lazy
 from rest_framework.settings import api_settings
 
 from apps.chat.models import AIModel, ChatLog, SystemPreset
-
-
-class ModelNameMixin:
-    @admin.display(description=gettext_lazy("Model Name"))
-    def model_name(self, inst: Union[ChatLog]) -> str:
-        model_inst: AIModel = AIModel.objects.filter(model=inst.model, is_enabled=True).first()
-        if model_inst is None:
-            return "--"
-        return model_inst.name
 
 
 class UserNicknameMixin:
@@ -27,7 +17,7 @@ class UserNicknameMixin:
 
 
 @admin.register(ChatLog)
-class ChatLogAdmin(ModelNameMixin, UserNicknameMixin, admin.ModelAdmin):
+class ChatLogAdmin(UserNicknameMixin, admin.ModelAdmin):
     list_display = [
         "id",
         "user",
@@ -65,6 +55,13 @@ class ChatLogAdmin(ModelNameMixin, UserNicknameMixin, admin.ModelAdmin):
             .astimezone(timezone.get_current_timezone())
             .strftime(api_settings.DATETIME_FORMAT)
         )
+
+    @admin.display(description=gettext_lazy("Model Name"))
+    def model_name(self, inst: ChatLog) -> str:
+        model_inst: AIModel = AIModel.objects.filter(model=inst.model, is_enabled=True).first()
+        if model_inst is None:
+            return "--"
+        return model_inst.name
 
 
 @admin.register(AIModel)

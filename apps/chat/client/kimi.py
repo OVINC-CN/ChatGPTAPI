@@ -1,6 +1,5 @@
 # pylint: disable=R0801
 
-from typing import List
 
 from django.conf import settings
 from openai import OpenAI
@@ -17,20 +16,13 @@ class KimiClient(BaseClient):
     Kimi Client
     """
 
-    # pylint: disable=R0913,R0917
-    def __init__(self, user: str, model: str, messages: List[dict], temperature: float, top_p: float):
-        super().__init__(user=user, model=model, messages=messages, temperature=temperature, top_p=top_p)
-        self.client = OpenAI(
-            api_key=settings.KIMI_API_KEY,
-            base_url=settings.KIMI_API_BASE_URL,
-        )
-
     async def _chat(self, *args, **kwargs) -> any:
+        client = OpenAI(api_key=settings.KIMI_API_KEY, base_url=settings.KIMI_API_BASE_URL)
         try:
             with self.start_span(SpanType.API, SpanKind.CLIENT):
-                response = self.client.chat.completions.create(
+                response = client.chat.completions.create(
                     model=self.model,
-                    messages=self.messages,
+                    messages=[message.model_dump(exclude_none=True) for message in self.messages],
                     temperature=self.temperature,
                     top_p=self.top_p,
                     stream=True,

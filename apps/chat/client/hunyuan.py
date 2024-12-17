@@ -4,7 +4,6 @@ import asyncio
 import json
 import time
 import uuid
-from typing import Union
 
 import httpx
 from django.conf import settings
@@ -25,7 +24,7 @@ from apps.chat.constants import (
     SpanType,
 )
 from apps.chat.exceptions import GenerateFailed, LoadImageFailed
-from apps.chat.models import HunYuanChuck
+from apps.chat.models import HunYuanChuck, MessageContent
 from apps.cos.client import COSClient
 from apps.cos.utils import TCloudUrlParser
 
@@ -50,12 +49,12 @@ class HunYuanClient(BaseClient):
         # explain completion
         with self.start_span(SpanType.CHUNK, SpanKind.SERVER):
             for chunk in response:
-                chunk = json.loads(chunk["data"])
-                chunk = HunYuanChuck.create(chunk)
+                chunk = HunYuanChuck(**json.loads(chunk["data"]))
                 self.log.chat_id = chunk.Id
                 prompt_tokens = chunk.Usage.PromptTokens
                 completion_tokens = chunk.Usage.CompletionTokens
-                yield chunk.Choices[0].Delta.Content
+                if chunk.Choices:
+                    yield chunk.Choices[0].Delta.Content
         await self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens)
 
     def call_api(self) -> models.ChatCompletionsResponse:
@@ -65,9 +64,7 @@ class HunYuanClient(BaseClient):
         req = models.ChatCompletionsRequest()
         params = {
             "Model": self.model,
-            "Messages": [
-                {"Role": message["role"], **self.parse_content(message["content"])} for message in self.messages
-            ],
+            "Messages": [{"Role": message.role, **self.parse_content(message.content)} for message in self.messages],
             "TopP": self.top_p,
             "Temperature": self.temperature,
             "Stream": True,
@@ -76,23 +73,23 @@ class HunYuanClient(BaseClient):
         req.from_json_string(json.dumps(params))
         return client.ChatCompletions(req)
 
-    def parse_content(self, content: Union[str, list]) -> dict:
+    def parse_content(self, content: str | list[MessageContent]) -> dict:
         if isinstance(content, list):
             new_content = []
             for content_item in content:
-                if content_item.get("type") == MessageContentType.TEXT:
+                if content_item.type == MessageContentType.TEXT:
                     new_content.append(
                         {
                             "Type": MessageContentType.TEXT,
-                            "Text": content_item["text"],
+                            "Text": content_item.text,
                         }
                     )
-                elif content_item.get("type") == MessageContentType.IMAGE_URL:
+                elif content_item.type == MessageContentType.IMAGE_URL:
                     new_content.append(
                         {
                             "Type": MessageContentType.IMAGE_URL,
                             "ImageUrl": {
-                                "Url": content_item["image_url"]["url"],
+                                "Url": content_item.image_url.url,
                             },
                         }
                     )
@@ -167,7 +164,7 @@ class HunYuanVisionClient(BaseClient):
     def call_api(self, client: hunyuan_client) -> models.SubmitHunyuanImageJobResponse:
         req = models.SubmitHunyuanImageJobRequest()
         params = {
-            "Prompt": self.messages[-1]["content"],
+            "Prompt": self.messages[-1].content,
             "LogoAdd": HunyuanLogoControl.REMOVE,
             "Revise": HunyuanReviseControl.ENABLED,
         }

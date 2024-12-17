@@ -1,6 +1,5 @@
 # pylint: disable=C0103
 
-from dataclasses import dataclass
 from typing import List
 
 from django.contrib.auth import get_user_model
@@ -8,17 +7,75 @@ from django.db import models
 from django.utils.translation import gettext_lazy
 from ovinc_client.core.constants import MAX_CHAR_LENGTH, MEDIUM_CHAR_LENGTH
 from ovinc_client.core.models import BaseModel, ForeignKey, UniqIDField
+from pydantic import BaseModel as BaseDataModel
 
 from apps.chat.constants import (
     PRICE_DECIMAL_NUMS,
     PRICE_DIGIT_NUMS,
     AIModelProvider,
+    MessageContentType,
+    OpenAIRole,
     VisionQuality,
     VisionSize,
     VisionStyle,
 )
 
 USER_MODEL = get_user_model()
+
+
+class MessageContentImageUrl(BaseDataModel):
+    url: str
+
+
+class MessageContentSource(BaseDataModel):
+    type: str
+    media_type: str
+    data: str
+
+
+class MessageContent(BaseDataModel):
+    type: MessageContentType
+    text: str | None = None
+    image_url: MessageContentImageUrl | None = None
+    source: MessageContentSource | None = None
+
+
+class Message(BaseDataModel):
+    role: OpenAIRole
+    content: str | list[MessageContent]
+    file: str | None = None
+
+
+class ChatRequest(BaseDataModel):
+    user: str
+    model: str
+    messages: list[Message]
+    temperature: float
+    top_p: float
+
+
+class HunYuanDelta(BaseDataModel):
+    Role: str = ""
+    Content: str = ""
+
+
+class HunYuanChoice(BaseDataModel):
+    FinishReason: str = ""
+    Delta: HunYuanDelta = None
+
+
+class HunYuanUsage(BaseDataModel):
+    PromptTokens: int = 0
+    CompletionTokens: int = 0
+    TotalTokens: int = 0
+
+
+class HunYuanChuck(BaseDataModel):
+    Note: str = ""
+    Choices: List[HunYuanChoice] | None = None
+    Created: int = 0
+    Id: str = ""
+    Usage: HunYuanUsage | None = None
 
 
 class ChatLog(BaseModel):
@@ -64,44 +121,6 @@ class ChatLog(BaseModel):
             ["finished_at", "is_charged"],
             ["user", "finished_at", "created_at"],
         ]
-
-
-@dataclass
-class HunYuanDelta:
-    Role: str = ""
-    Content: str = ""
-
-
-@dataclass
-class HunYuanChoice:
-    FinishReason: str = ""
-    Delta: HunYuanDelta = None
-
-
-@dataclass
-class HunYuanUsage:
-    PromptTokens: int = 0
-    CompletionTokens: int = 0
-    TotalTokens: int = 0
-
-
-@dataclass
-class HunYuanChuck:
-    Note: str = ""
-    Choices: List[HunYuanChoice] = None
-    Created: str = ""
-    Id: str = ""
-    Usage: HunYuanUsage = None
-
-    @classmethod
-    def create(cls, data: dict) -> "HunYuanChuck":
-        chuck = cls(**data)
-        chuck.Usage = HunYuanUsage(**data.get("Usage", {}))
-        chuck.Choices = [
-            HunYuanChoice(FinishReason=choice.get("FinishReason", ""), Delta=HunYuanDelta(**choice.get("Delta", {})))
-            for choice in data.get("Choices", [])
-        ]
-        return chuck
 
 
 class AIModel(BaseModel):
