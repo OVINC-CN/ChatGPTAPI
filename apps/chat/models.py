@@ -15,9 +15,6 @@ from apps.chat.constants import (
     AIModelProvider,
     MessageContentType,
     OpenAIRole,
-    VisionQuality,
-    VisionSize,
-    VisionStyle,
 )
 
 USER_MODEL = get_user_model()
@@ -148,27 +145,6 @@ class AIModel(BaseModel):
     support_system_define = models.BooleanField(gettext_lazy("Support System Define"), default=True)
     support_vision = models.BooleanField(gettext_lazy("Support Vision"), default=False)
     is_vision = models.BooleanField(gettext_lazy("Is Vision"), default=False)
-    vision_size = models.CharField(
-        gettext_lazy("Vision Size"),
-        max_length=MEDIUM_CHAR_LENGTH,
-        choices=VisionSize.choices,
-        null=True,
-        blank=True,
-    )
-    vision_quality = models.CharField(
-        gettext_lazy("Vision Quality"),
-        max_length=MEDIUM_CHAR_LENGTH,
-        choices=VisionQuality.choices,
-        null=True,
-        blank=True,
-    )
-    vision_style = models.CharField(
-        gettext_lazy("Vision Style"),
-        max_length=MEDIUM_CHAR_LENGTH,
-        choices=VisionStyle.choices,
-        null=True,
-        blank=True,
-    )
     settings = models.JSONField(gettext_lazy("Settings"), blank=True, null=True)
 
     class Meta:
