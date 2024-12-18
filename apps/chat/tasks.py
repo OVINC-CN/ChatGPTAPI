@@ -38,8 +38,6 @@ def calculate_usage_limit(self, log_id: str):
     Calculate Model Usage Limit
     """
 
-    celery_logger.info("[CalculateUsageLimit] Start %s", self.request.id)
-
     log = get_object_or_404(ChatLog, id=log_id)
     usage = log.prompt_tokens + log.completion_tokens
     celery_logger.info(
@@ -56,8 +54,6 @@ def calculate_usage_limit(self, log_id: str):
         - (log.prompt_tokens * log.prompt_token_unit_price / 1000)
         - (log.completion_tokens * log.completion_token_unit_price / 1000)
     )
-
-    celery_logger.info("[CalculateUsageLimit] End %s", self.request.id)
 
 
 @app.task(bind=True)

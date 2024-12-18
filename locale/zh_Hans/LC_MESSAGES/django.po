@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-16 14:04+0800\n"
+"POT-Creation-Date: 2024-12-18 21:17+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,9 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-
-msgid "Model Name"
-msgstr "模型名称"
 
 msgid "Nick Name"
 msgstr "用户名"
@@ -32,6 +29,9 @@ msgstr "耗时(毫秒)"
 
 msgid "Create Time"
 msgstr "创建时间"
+
+msgid "Model Name"
+msgstr "模型名称"
 
 msgid "Parse Image To Base64 Failed"
 msgstr "解析图片失败"
@@ -51,20 +51,8 @@ msgstr "模型"
 msgid "Open AI"
 msgstr "Open AI"
 
-msgid "Google"
-msgstr "Google"
-
-msgid "Tencent"
-msgstr "Tencent"
-
 msgid "Midjourney"
 msgstr "Midjourney"
-
-msgid "Moonshot"
-msgstr "Moonshot"
-
-msgid "Claude"
-msgstr "Claude"
 
 msgid "1024x1024"
 msgstr "1024x1024"
@@ -218,6 +206,9 @@ msgstr "提示令牌价格"
 
 msgid "Completion Price"
 msgstr "响应令牌价格"
+
+msgid "Vision Price"
+msgstr "视觉价格"
 
 msgid "Support System Define"
 msgstr "支持系统预设"

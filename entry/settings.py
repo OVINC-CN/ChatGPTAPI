@@ -23,6 +23,10 @@ APP_CODE = getenv_or_raise("APP_CODE")
 APP_SECRET = getenv_or_raise("APP_SECRET")
 SECRET_KEY = getenv_or_raise("APP_SECRET")
 
+# Project
+PROJECT_NAME = os.getenv("PROJECT_NAME", "OVINC Chat")
+PROJECT_URL = os.getenv("PROJECT_URL", "https://github.com/OVINC-CN/ChatGPTWeb")
+
 # Hosts
 BACKEND_URL = getenv_or_raise("BACKEND_URL")
 ALLOWED_HOSTS = [getenv_or_raise("BACKEND_HOST")]
@@ -217,25 +221,12 @@ OVINC_WEB_URL = getenv_or_raise("OVINC_WEB_URL")
 OVINC_API_RECORD_LOG = strtobool(os.getenv("OVINC_API_RECORD_LOG", "True"))
 
 # OpenAI
-OPENAI_HTTP_PROXY_URL = os.getenv("OPENAI_HTTP_PROXY_URL")
-OPENAI_API_KEY = os.getenv("DEFAULT_OPENAI_API_KEY")
-OPENAI_API_BASE = os.getenv("DEFAULT_OPENAI_API_BASE")
 OPENAI_CHAT_TIMEOUT = int(os.getenv("OPENAI_CHAT_TIMEOUT", "60"))
 OPENAI_PRE_CHECK_TIMEOUT = int(os.getenv("OPENAI_PRE_CHECK_TIMEOUT", "600"))
-
-# Gemini
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_API_URL = os.getenv("GEMINI_API_URL", "")
-GEMINI_CHAT_TIMEOUT = int(os.getenv("GEMINI_CHAT_TIMEOUT", "60"))
 
 # QCLOUD
 QCLOUD_SECRET_ID = os.getenv("QCLOUD_SECRET_ID")
 QCLOUD_SECRET_KEY = os.getenv("QCLOUD_SECRET_KEY")
-
-# Hunyuan
-HUNYUAN_IMAGE_API_REGION = os.getenv("HUNYUAN_IMAGE_API_REGION", "ap-guangzhou")
-HUNYUAN_IMAGE_JOB_INTERVAL = int(os.getenv("HUNYUAN_IMAGE_JOB_INTERVAL", "5"))
-HUNYUAN_IMAGE_JOB_TIMEOUT = int(os.getenv("HUNYUAN_IMAGE_JOB_TIMEOUT", "600"))
 
 # Captcha
 CAPTCHA_TCLOUD_ID = os.getenv("CAPTCHA_TCLOUD_ID", QCLOUD_SECRET_ID)
@@ -268,17 +259,10 @@ QCLOUD_API_SCHEME = os.getenv("QCLOUD_API_SCHEME", "https")
 QCLOUD_STS_EXPIRE_TIME = int(os.getenv("QCLOUD_STS_EXPIRE_TIME", str(60 * 10)))
 
 # Log
-# this feature is removed and cannot be opened
-RECORD_CHAT_CONTENT = False
 CHATLOG_QUERY_DAYS = int(os.getenv("CHATLOG_QUERY_DAYS", "7"))
 
 # IMAGE
 ENABLE_IMAGE_PROXY = strtobool(os.getenv("ENABLE_IMAGE_PROXY", "False"))
-
-# Kimi
-KIMI_API_KEY = os.getenv("KIMI_API_KEY")
-KIMI_API_BASE_URL = os.getenv("KIMI_API_BASE_URL")
-KIMI_CHAT_TIMEOUT = int(os.getenv("KIMI_CHAT_TIMEOUT", "60"))
 
 # File
 ENABLE_FILE_UPLOAD = strtobool(os.getenv("ENABLE_FILE_UPLOAD", "False"))
@@ -300,23 +284,3 @@ WXPAY_UNIT_TRANS = int(os.getenv("WXPAY_UNIT_TRANS", "100"))
 WXPAY_UNIT = os.getenv("WXPAY_UNIT", "")
 WXPAY_ORDER_TIMEOUT = int(os.getenv("WXPAY_ORDER_TIMEOUT", str(60 * 10)))
 WXPAY_SUPPORT_FAPIAO = strtobool(os.getenv("WXPAY_SUPPORT_FAPIAO", "False"))
-
-# Midjourney
-MIDJOURNEY_API_BASE_URL = os.getenv("MIDJOURNEY_API_BASE_URL", "")
-MIDJOURNEY_API_KEY = os.getenv("MIDJOURNEY_API_KEY", "")
-MIDJOURNEY_IMAGINE_API_PATH = os.getenv("MIDJOURNEY_IMAGINE_API_PATH", "/fast/mj/submit/imagine")
-MIDJOURNEY_TASK_RESULT_API_PATH = os.getenv("MIDJOURNEY_TASK_RESULT_API_PATH", "/mj/task/{id}/fetch")
-MIDJOURNEY_IMAGE_JOB_INTERVAL = int(os.getenv("MIDJOURNEY_IMAGE_JOB_INTERVAL", "5"))
-MIDJOURNEY_IMAGE_JOB_TIMEOUT = int(os.getenv("MIDJOURNEY_IMAGE_JOB_TIMEOUT", "600"))
-MIDJOURNEY_API_TIMEOUT = int(os.getenv("MIDJOURNEY_API_TIMEOUT", "60"))
-
-# Claude
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-ANTHROPIC_BASE_URL = os.getenv("ANTHROPIC_BASE_URL", "")
-ANTHROPIC_MAX_TOKENS = int(os.getenv("ANTHROPIC_MAX_TOKENS", "4096"))
-ANTHROPIC_TIMEOUT = int(os.getenv("ANTHROPIC_TIMEOUT", "60"))
-
-# Zhipu
-ZHIPU_API_KEY = os.getenv("ZHIPU_API_KEY", "")
-ZHIPU_API_URL = os.getenv("ZHIPU_API_URL", "https://open.bigmodel.cn/api/paas/v4/")
-ZHIPU_API_TIMEOUT = int(os.getenv("ZHIPU_API_TIMEOUT", "60"))

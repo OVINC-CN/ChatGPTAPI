@@ -119,9 +119,9 @@ class COSClient:
                 start_time=response["startTime"],
                 expired_time=response["expiredTime"],
                 use_accelerate=settings.QCLOUD_COS_USE_ACCELERATE,
-                image_format=settings.QCLOUD_COS_IMAGE_STYLE
-                if key.split(".")[-1] in settings.QCLOUD_COS_IMAGE_SUFFIX
-                else "",
+                image_format=(
+                    settings.QCLOUD_COS_IMAGE_STYLE if key.split(".")[-1] in settings.QCLOUD_COS_IMAGE_SUFFIX else ""
+                ),
                 cdn_sign=TCloudUrlParser.sign("/" + quote(key)),
             )
         except Exception as err:

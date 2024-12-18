@@ -12,17 +12,7 @@ from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from ovinc_client.core.logger import logger
 
-from apps.chat.client import (
-    ClaudeClient,
-    GeminiClient,
-    HunYuanClient,
-    HunYuanVisionClient,
-    KimiClient,
-    MidjourneyClient,
-    OpenAIClient,
-    OpenAIVisionClient,
-    ZhipuClient,
-)
+from apps.chat.client import MidjourneyClient, OpenAIClient
 from apps.chat.client.base import BaseClient
 from apps.chat.constants import WS_CLOSED_KEY, AIModelProvider
 from apps.chat.exceptions import UnexpectedProvider, VerifyFailed
@@ -128,24 +118,10 @@ class AsyncConsumer:
     # pylint: disable=R0911
     def get_model_client(self, model: AIModel) -> Type[BaseClient]:
         match model.provider:
-            case AIModelProvider.TENCENT:
-                if model.is_vision:
-                    return HunYuanVisionClient
-                return HunYuanClient
-            case AIModelProvider.GOOGLE:
-                return GeminiClient
             case AIModelProvider.OPENAI:
-                if model.is_vision:
-                    return OpenAIVisionClient
                 return OpenAIClient
             case AIModelProvider.MIDJOURNEY:
                 return MidjourneyClient
-            case AIModelProvider.MOONSHOT:
-                return KimiClient
-            case AIModelProvider.CLAUDE:
-                return ClaudeClient
-            case AIModelProvider.ZHIPU:
-                return ZhipuClient
             case _:
                 raise UnexpectedProvider()
 
