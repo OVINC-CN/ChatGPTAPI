@@ -68,5 +68,6 @@ class MidjourneyClient(BaseClient):
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[GenerateContentFailed] %s", err)
             yield str(GenerateFailed())
+            await self.record()
         finally:
             await client.aclose()

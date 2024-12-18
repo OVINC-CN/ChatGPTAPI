@@ -1,111 +1,32 @@
-# pylint: disable=R0801
+from httpx import Client
 
-import abc
-import uuid
-from urllib.parse import urlparse
-
-from django.conf import settings
-from httpx import AsyncClient, Client
-from openai import OpenAI
-from opentelemetry.trace import SpanKind
-from ovinc_client.core.logger import logger
-from rest_framework import status
-
-from apps.chat.client.base import BaseClient
-from apps.chat.constants import SpanType
-from apps.chat.exceptions import GenerateFailed, LoadImageFailed
-from apps.cos.client import COSClient
-from apps.cos.utils import TCloudUrlParser
+from apps.chat.client.base import OpenAIBaseClient
 
 
-class OpenAIMixin(abc.ABC):
-    """
-    OpenAI Mixin
-    """
-
-    model_settings: dict | None
-
-    # pylint: disable=R0913,R0917
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.client = OpenAI(
-            api_key=self.model_settings.get("api_key", settings.OPENAI_API_KEY),
-            base_url=self.model_settings.get("base_url", settings.OPENAI_API_BASE),
-            http_client=Client(proxy=settings.OPENAI_HTTP_PROXY_URL) if settings.OPENAI_HTTP_PROXY_URL else None,
-        )
-
-
-class OpenAIClient(OpenAIMixin, BaseClient):
+class OpenAIClient(OpenAIBaseClient):
     """
     OpenAI Client
     """
 
-    async def _chat(self, *args, **kwargs) -> any:
-        try:
-            with self.start_span(SpanType.API, SpanKind.CLIENT):
-                response = self.client.chat.completions.create(
-                    model=self.model.replace(".", ""),
-                    messages=[message.model_dump(exclude_none=True) for message in self.messages],
-                    temperature=self.temperature,
-                    top_p=self.top_p,
-                    stream=True,
-                    timeout=settings.OPENAI_CHAT_TIMEOUT,
-                    stream_options={"include_usage": True},
-                )
-        except Exception as err:  # pylint: disable=W0718
-            logger.exception("[GenerateContentFailed] %s", err)
-            yield str(GenerateFailed())
-            response = []
-        content = ""
-        prompt_tokens = 0
-        completion_tokens = 0
-        with self.start_span(SpanType.CHUNK, SpanKind.SERVER):
-            # pylint: disable=E1133
-            for chunk in response:
-                self.log.chat_id = chunk.id
-                if chunk.choices:
-                    content += chunk.choices[0].delta.content or ""
-                    yield chunk.choices[0].delta.content or ""
-                if chunk.usage:
-                    prompt_tokens = chunk.usage.prompt_tokens
-                    completion_tokens = chunk.usage.completion_tokens
-        await self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens)
+    @property
+    def api_key(self) -> str:
+        return self.model_settings.get("api_key")
 
+    @property
+    def base_url(self) -> str:
+        return self.model_settings.get("base_url")
 
-class OpenAIVisionClient(OpenAIMixin, BaseClient):
-    """
-    OpenAI Vision Client
-    """
+    @property
+    def http_client(self) -> Client | None:
+        proxy = self.model_settings.get("proxy")
+        if proxy:
+            return Client(proxy=proxy)
+        return None
 
-    async def _chat(self, *args, **kwargs) -> any:
-        try:
-            with self.start_span(SpanType.API, SpanKind.CLIENT):
-                # noinspection PyTypeChecker
-                response = self.client.images.generate(
-                    model=self.model.replace(".", ""),
-                    prompt=self.messages[-1].content,
-                    n=1,
-                    size=self.model_inst.vision_size,
-                    quality=self.model_inst.vision_quality,
-                    style=self.model_inst.vision_style,
-                )
-        except Exception as err:  # pylint: disable=W0718
-            logger.exception("[GenerateContentFailed] %s", err)
-            yield str(GenerateFailed())
-            return
-        with self.start_span(SpanType.CHUNK, SpanKind.SERVER):
-            # record
-            await self.record(completion_tokens=1)
-            # image
-            if not settings.ENABLE_IMAGE_PROXY:
-                yield f"![{self.messages[-1].content}]({response.data[0].url})"
-            httpx_client = AsyncClient(http2=True, proxy=settings.OPENAI_HTTP_PROXY_URL)
-            image_resp = await httpx_client.get(response.data[0].url)
-            await httpx_client.aclose()
-            if image_resp.status_code != status.HTTP_200_OK:
-                raise LoadImageFailed()
-            url = await COSClient().put_object(
-                file=image_resp.content,
-                file_name=f"{uuid.uuid4().hex}.{urlparse(response.data[0].url).path.split('.')[-1]}",
-            )
-            yield f"![output]({TCloudUrlParser(url).url})"
+    @property
+    def timeout(self) -> int:
+        return self.model_settings.get("timeout", super().timeout)
+
+    @property
+    def api_model(self) -> str:
+        return self.model_settings.get("api_model", super().api_model)

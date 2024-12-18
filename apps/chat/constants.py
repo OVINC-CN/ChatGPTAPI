@@ -43,12 +43,7 @@ class AIModelProvider(TextChoices):
     """
 
     OPENAI = "openai", gettext_lazy("Open AI")
-    GOOGLE = "google", gettext_lazy("Google")
-    TENCENT = "tencent", gettext_lazy("Tencent")
     MIDJOURNEY = "midjourney", gettext_lazy("Midjourney")
-    MOONSHOT = "moonshot", gettext_lazy("Moonshot")
-    CLAUDE = "claude", gettext_lazy("Claude")
-    ZHIPU = "zhipu", gettext_lazy("Zhipu")
 
 
 class VisionSize(TextChoices):

@@ -74,6 +74,7 @@ class AIModelAdmin(admin.ModelAdmin):
         "is_enabled",
         "prompt_price",
         "completion_price",
+        "vision_price",
     ]
     list_filter = ["provider", "is_enabled"]
 

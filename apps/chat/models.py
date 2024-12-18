@@ -142,6 +142,9 @@ class AIModel(BaseModel):
     completion_price = models.DecimalField(
         gettext_lazy("Completion Price"), max_digits=PRICE_DIGIT_NUMS, decimal_places=PRICE_DECIMAL_NUMS
     )
+    vision_price = models.DecimalField(
+        gettext_lazy("Vision Price"), max_digits=PRICE_DIGIT_NUMS, decimal_places=PRICE_DECIMAL_NUMS, default=0
+    )
     support_system_define = models.BooleanField(gettext_lazy("Support System Define"), default=True)
     support_vision = models.BooleanField(gettext_lazy("Support Vision"), default=False)
     is_vision = models.BooleanField(gettext_lazy("Is Vision"), default=False)

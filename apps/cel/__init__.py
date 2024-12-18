@@ -12,10 +12,4 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
 
 # Schedule Tasks
-app.conf.beat_schedule = {
-    "check_usage_limit": {
-        "task": "apps.chat.tasks.check_usage_limit",
-        "schedule": crontab(minute="*"),
-        "args": (),
-    },
-}
+app.conf.beat_schedule = {}
