@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-18 21:17+0800\n"
+"POT-Creation-Date: 2024-12-19 17:28+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,56 +45,11 @@ msgstr "系统"
 msgid "Assistant"
 msgstr "助理"
 
-msgid "Model"
-msgstr "模型"
-
 msgid "Open AI"
 msgstr "Open AI"
 
 msgid "Midjourney"
 msgstr "Midjourney"
-
-msgid "1024x1024"
-msgstr "1024x1024"
-
-msgid "Standard"
-msgstr "标准"
-
-msgid "HD"
-msgstr "高清"
-
-msgid "Vivid"
-msgstr "生动"
-
-msgid "Natural"
-msgstr "自然"
-
-msgid "Add AI Logo"
-msgstr "增加 AI 标识"
-
-msgid "Remove AI Logo"
-msgstr "移除 AI 标识"
-
-msgid "Enabled"
-msgstr "启用"
-
-msgid "Disabled"
-msgstr "禁用"
-
-msgid "Waiting"
-msgstr "等待中"
-
-msgid "Running"
-msgstr "运行中"
-
-msgid "Failed"
-msgstr "失败"
-
-msgid "Finished"
-msgstr "完成"
-
-msgid "Function"
-msgstr "函数"
 
 msgid "Not Start"
 msgstr "未开始"
@@ -122,15 +77,6 @@ msgstr "图片链接"
 
 msgid "Image"
 msgstr "图片"
-
-msgid "Message Start"
-msgstr "消息开始"
-
-msgid "Message Delta"
-msgstr "消息块"
-
-msgid "Content Block Delta"
-msgstr "内容块"
 
 msgid "API"
 msgstr "API"
@@ -174,6 +120,9 @@ msgstr "ID"
 msgid "Chat ID"
 msgstr "对话ID"
 
+msgid "Model"
+msgstr "模型"
+
 msgid "Prompt Tokens"
 msgstr "提示Token数量"
 
@@ -201,6 +150,9 @@ msgstr "提供商"
 msgid "Description"
 msgstr "描述"
 
+msgid "Enabled"
+msgstr "启用"
+
 msgid "Prompt Price"
 msgstr "提示令牌价格"
 
@@ -218,15 +170,6 @@ msgstr "支持视觉"
 
 msgid "Is Vision"
 msgstr "是否为图像模型"
-
-msgid "Vision Size"
-msgstr "图像尺寸"
-
-msgid "Vision Quality"
-msgstr "图像质量"
-
-msgid "Vision Style"
-msgstr "图像风格"
 
 msgid "Settings"
 msgstr "配置"
@@ -276,9 +219,6 @@ msgstr "对象存储上传失败"
 msgid "Temp Key Generate Failed"
 msgstr "临时密钥生成失败"
 
-msgid "File Extract"
-msgstr "文件提取"
-
 msgid "Upload File Not Enabled"
 msgstr "文件上传未开启"
 
@@ -288,35 +228,8 @@ msgstr "文件唯一标识不存在"
 msgid "Extract Failed"
 msgstr "提取失败"
 
-msgid "Key"
-msgstr "键"
-
-msgid "File Path"
-msgstr "文件路径"
-
-msgid "Upload Info"
-msgstr "上传信息"
-
-msgid "Extract Info"
-msgstr "提取信息"
-
-msgid "Is Finished"
-msgstr "是否完成"
-
-msgid "Is Success"
-msgstr "是否成功"
-
-msgid "Created At"
-msgstr "创建时间"
-
-msgid "File Extract Info"
-msgstr "文件提取信息"
-
 msgid "File Name"
 msgstr "文件名"
-
-msgid "Purpose"
-msgstr "目的"
 
 msgid "Tencent Captcha"
 msgstr "腾讯云验证码"
@@ -348,6 +261,9 @@ msgstr "金额"
 msgid "Message"
 msgstr "消息"
 
+msgid "Is Success"
+msgstr "是否成功"
+
 msgid "Created Time"
 msgstr "创建时间"
 
@@ -377,6 +293,132 @@ msgstr "钱包充值"
 
 msgid "TCaptcha Verify Failed"
 msgstr "安全检查失败"
+
+msgid "Is Expired"
+msgstr "是否过期"
+
+msgid "Yes"
+msgstr "是"
+
+msgid "No"
+msgstr "否"
+
+msgid "User Account"
+msgstr "用户账户"
+
+msgid "Personal"
+msgstr "个人"
+
+msgid "Platform"
+msgstr "平台"
+
+msgid "Avatar"
+msgstr "头像"
+
+msgid "Phone Number"
+msgstr "联系电话"
+
+msgid "Mail Address"
+msgstr "邮件地址"
+
+msgid "Code Verify Failed"
+msgstr "验证码非法"
+
+msgid "Username Cannot be Empty"
+msgstr "用户名不能为空"
+
+msgid "username"
+msgstr "用户名"
+
+msgid "already in use"
+msgstr "已被使用"
+
+msgid "User Type"
+msgstr "用户类型"
+
+msgid "Date Joined"
+msgstr "注册日期"
+
+msgid "Is Staff"
+msgstr "是否管理员"
+
+msgid "Session Key"
+msgstr "会话Key"
+
+msgid "Cache Key"
+msgstr "缓存Key"
+
+msgid "Login IP"
+msgstr "登录IP"
+
+msgid "User Agent"
+msgstr "用户代理"
+
+msgid "Expired at"
+msgstr "过期时间"
+
+msgid "User Token"
+msgstr "用户令牌"
+
+msgid "Code"
+msgstr "Code"
+
+msgid "LIST"
+msgstr "LIST"
+
+msgid "CREATE"
+msgstr "CREATE"
+
+msgid "UPDATE"
+msgstr "UPDATE"
+
+msgid "PARTIAL_UPDATE"
+msgstr "PARTIAL_UPDATE"
+
+msgid "DESTROY"
+msgstr "DESTROY"
+
+msgid "Request Failed"
+msgstr "请求失败"
+
+msgid "Server Error"
+msgstr "服务异常"
+
+msgid "Login Required"
+msgstr "未登录"
+
+msgid "Login Failed"
+msgstr "登录失败"
+
+msgid "Permission Denied"
+msgstr "未授权"
+
+msgid "Operate Error"
+msgstr "操作异常"
+
+msgid "Resource Not Found"
+msgstr "资源未找到"
+
+msgid "Service Closed"
+msgstr "服务已关闭"
+
+msgid "Soft Delete"
+msgstr "软删除"
+
+msgid "Invalid Page Number"
+msgstr "页码异常"
+
+msgid "TCaptcha"
+msgstr "腾讯云验证码"
+
+msgid "Low"
+msgstr "低"
+
+msgid "High"
+msgstr "高"
+
+msgid "App Performance"
+msgstr "应用性能"
 
 msgid "Refund"
 msgstr "退款"
