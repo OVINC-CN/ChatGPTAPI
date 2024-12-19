@@ -1,4 +1,3 @@
-from channels.db import database_sync_to_async
 from django.conf import settings
 from ovinc_client.core.utils import get_ip
 from ovinc_client.core.viewsets import ListMixin, MainViewSet
@@ -7,9 +6,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.cos.client import COSClient
-from apps.cos.constants import FileUploadPurpose
 from apps.cos.exceptions import UploadNotEnabled
-from apps.cos.models import FileExtractInfo
 from apps.cos.serializers import GenerateTempSecretSerializer
 
 
@@ -46,14 +43,6 @@ class COSViewSet(ListMixin, MainViewSet):
 
         # generate
         data = await COSClient().generate_cos_upload_credential(filename=request_data["filename"])
-
-        # save db
-        if request_data["purpose"] == FileUploadPurpose.EXTRACT:
-            file_path = f"{settings.QCLOUD_COS_URL}/{data.key}"
-            await database_sync_to_async(FileExtractInfo.objects.create)(
-                file_path=file_path,
-                key=FileExtractInfo.build_key(file_path=file_path),
-            )
 
         # response
         return Response(data=data.model_dump())
