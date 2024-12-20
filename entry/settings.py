@@ -1,5 +1,6 @@
 import os
 import re
+from decimal import Decimal
 from pathlib import Path
 
 import pymysql
@@ -284,3 +285,11 @@ WXPAY_UNIT_TRANS = int(os.getenv("WXPAY_UNIT_TRANS", "100"))
 WXPAY_UNIT = os.getenv("WXPAY_UNIT", "")
 WXPAY_ORDER_TIMEOUT = int(os.getenv("WXPAY_ORDER_TIMEOUT", str(60 * 10)))
 WXPAY_SUPPORT_FAPIAO = strtobool(os.getenv("WXPAY_SUPPORT_FAPIAO", "False"))
+
+# Openroute
+ENABLE_OPENROUTER_PRICE_SYNC = strtobool(os.getenv("ENABLE_OPENROUTER_PRICE_SYNC", "False"))
+# Change this when you are not using US dollar as settlement currency
+OPENROUTER_EXCHANGE_RATE = Decimal(os.getenv("OPENROUTER_EXCHANGE_RATE", "1"))
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+OPENROUTER_API_BASE = os.getenv("OPENROUTER_API_BASE", "")
+OPENROUTER_API_TIMEOUT = int(os.getenv("OPENROUTER_API_TIMEOUT", "60"))

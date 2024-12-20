@@ -1,5 +1,6 @@
 # pylint: disable=C0103
 
+from decimal import Decimal
 from typing import List
 
 from django.contrib.auth import get_user_model
@@ -73,6 +74,17 @@ class HunYuanChuck(BaseDataModel):
     Created: int = 0
     Id: str = ""
     Usage: HunYuanUsage | None = None
+
+
+class OpenRouterModelPrice(BaseDataModel):
+    prompt: Decimal
+    completion: Decimal
+    image: Decimal
+
+
+class OpenRouterModelInfo(BaseDataModel):
+    id: str
+    pricing: OpenRouterModelPrice
 
 
 class ChatLog(BaseModel):

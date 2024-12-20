@@ -12,4 +12,10 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
 
 # Schedule Tasks
-app.conf.beat_schedule = {}
+app.conf.beat_schedule = {
+    "openrouter_model_sync": {
+        "task": "apps.chat.tasks.openrouter_model_sync",
+        "schedule": crontab(minute="*/10"),
+        "args": (),
+    }
+}
