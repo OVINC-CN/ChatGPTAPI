@@ -166,6 +166,7 @@ class AIModel(BaseModel):
         verbose_name_plural = verbose_name
         ordering = ["provider", "name"]
         unique_together = [["provider", "model"]]
+        index_together = [["is_enabled", "is_public", "model"]]
 
     def __str__(self) -> str:
         return f"{self.model}"
