@@ -58,7 +58,7 @@ class ChatLogAdmin(UserNicknameMixin, admin.ModelAdmin):
 
     @admin.display(description=gettext_lazy("Model Name"))
     def model_name(self, inst: ChatLog) -> str:
-        model_inst: AIModel = AIModel.objects.filter(model=inst.model, is_enabled=True).first()
+        model_inst: AIModel = AIModel.objects.filter(model=inst.model).first()
         if model_inst is None:
             return "--"
         return model_inst.name
