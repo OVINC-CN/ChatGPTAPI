@@ -15,7 +15,7 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     "openrouter_model_sync": {
         "task": "apps.chat.tasks.openrouter_model_sync",
-        "schedule": crontab(minute="0"),
+        "schedule": crontab(minute="*/10"),
         "args": (),
     }
 }
