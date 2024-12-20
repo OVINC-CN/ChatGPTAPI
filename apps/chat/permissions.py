@@ -1,6 +1,8 @@
 from channels.db import database_sync_to_async
 from rest_framework.permissions import BasePermission
 
+from apps.chat.exceptions import NoModelPermission
+from apps.chat.models import AIModel
 from apps.wallet.exceptions import NoBalanceException
 from apps.wallet.models import Wallet
 
@@ -12,6 +14,11 @@ class AIModelPermission(BasePermission):
 
     # pylint: disable=W0236
     async def has_permission(self, request, view):
+        allowed = await database_sync_to_async(AIModel.check_user_permission)(
+            request.user, model=str(request.data.get("model", ""))
+        )
+        if not allowed:
+            raise NoModelPermission()
         balance = await self.load_balance(request=request)
         if balance > 0:
             return True
