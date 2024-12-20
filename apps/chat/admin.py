@@ -92,6 +92,8 @@ class SystemPresetAdmin(UserNicknameMixin, admin.ModelAdmin):
 @admin.register(ModelPermission)
 class ModelPermissionAdmin(admin.ModelAdmin):
     list_display = ["id", "user", "model_names"]
+    list_filter = ["models"]
+    search_fields = ["user__nick_name", "user__username"]
 
     @admin.display(description=gettext_lazy("Model Name"))
     def model_names(self, p: ModelPermission) -> str:
