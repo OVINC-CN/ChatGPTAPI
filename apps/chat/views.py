@@ -163,7 +163,7 @@ class AIModelViewSet(ListMixin, MainViewSet):
 
     @database_sync_to_async
     def list_models(self, request) -> List[AIModel]:
-        return list(AIModel.objects.filter(is_enabled=True))
+        return list(AIModel.list_user_models(request.user))
 
 
 class SystemPresetViewSet(ListMixin, MainViewSet):

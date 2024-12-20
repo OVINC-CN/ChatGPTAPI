@@ -5,6 +5,7 @@ from typing import List
 
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import Q, QuerySet
 from django.utils.translation import gettext_lazy
 from ovinc_client.core.constants import MAX_CHAR_LENGTH, MEDIUM_CHAR_LENGTH
 from ovinc_client.core.models import BaseModel, ForeignKey, UniqIDField
@@ -158,12 +159,51 @@ class AIModel(BaseModel):
     support_vision = models.BooleanField(gettext_lazy("Support Vision"), default=False)
     is_vision = models.BooleanField(gettext_lazy("Is Vision"), default=False)
     settings = models.JSONField(gettext_lazy("Settings"), blank=True, null=True)
+    is_public = models.BooleanField(gettext_lazy("Is Public"), default=True)
 
     class Meta:
         verbose_name = gettext_lazy("AI Model")
         verbose_name_plural = verbose_name
         ordering = ["provider", "name"]
         unique_together = [["provider", "model"]]
+        index_together = [["is_enabled", "is_public", "model"]]
+
+    def __str__(self) -> str:
+        return f"{self.model}"
+
+    @classmethod
+    def list_user_models(cls, user: USER_MODEL) -> QuerySet:
+        return cls.objects.filter(
+            Q(Q(is_enabled=True) & Q(Q(is_public=True) | Q(pk__in=user.model_permissions.all().values("models"))))
+        )
+
+    @classmethod
+    def check_user_permission(cls, user: USER_MODEL, model: str) -> bool:
+        if not model:
+            return False
+        return cls.list_user_models(user).filter(model=model).exists()
+
+
+class ModelPermission(BaseModel):
+    """
+    Model Permission
+    """
+
+    id = UniqIDField(gettext_lazy("ID"), primary_key=True)
+    user = ForeignKey(
+        gettext_lazy("User"), to="account.User", on_delete=models.CASCADE, related_name="model_permissions"
+    )
+    models = models.ManyToManyField(
+        verbose_name=gettext_lazy("Model"), to="AIModel", related_name="model_permissions", db_constraint=False
+    )
+
+    class Meta:
+        verbose_name = gettext_lazy("Model Permission")
+        verbose_name_plural = verbose_name
+        ordering = ["user"]
+
+    def __str__(self) -> str:
+        return f"{self.user}"
 
 
 class SystemPreset(BaseModel):

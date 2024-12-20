@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-19 17:28+0800\n"
+"POT-Creation-Date: 2024-12-20 17:09+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -174,17 +174,20 @@ msgstr "是否为图像模型"
 msgid "Settings"
 msgstr "配置"
 
+msgid "Is Public"
+msgstr "是否公开"
+
 msgid "AI Model"
 msgstr "AI 模型"
+
+msgid "Model Permission"
+msgstr "模型权限"
 
 msgid "Name"
 msgstr "名称"
 
 msgid "Content"
 msgstr "内容"
-
-msgid "Is Public"
-msgstr "是否公开"
 
 msgid "Owner"
 msgstr "拥有者"
