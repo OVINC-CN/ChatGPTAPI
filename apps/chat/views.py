@@ -150,6 +150,7 @@ class AIModelViewSet(ListMixin, MainViewSet):
                 "prompt_price": float(model.prompt_price),
                 "completion_price": float(model.completion_price),
                 "vision_price": float(model.vision_price),
+                "request_price": float(model.request_price),
                 "config": {
                     "support_system_define": model.support_system_define,
                     "support_vision": model.support_vision,

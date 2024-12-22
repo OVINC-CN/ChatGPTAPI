@@ -81,6 +81,7 @@ class OpenRouterModelPrice(BaseDataModel):
     prompt: Decimal
     completion: Decimal
     image: Decimal
+    request: Decimal
 
 
 class OpenRouterModelInfo(BaseDataModel):
@@ -105,8 +106,9 @@ class ChatLog(BaseModel):
         blank=True,
         db_index=True,
     )
-    prompt_tokens = models.IntegerField(gettext_lazy("Prompt Tokens"), default=int)
-    completion_tokens = models.IntegerField(gettext_lazy("Completion Tokens"), default=int)
+    prompt_tokens = models.BigIntegerField(gettext_lazy("Prompt Tokens"), default=int)
+    completion_tokens = models.BigIntegerField(gettext_lazy("Completion Tokens"), default=int)
+    vision_count = models.BigIntegerField(gettext_lazy("Vision Count"), default=int)
     prompt_token_unit_price = models.DecimalField(
         gettext_lazy("Prompt Token Unit Price"),
         max_digits=PRICE_DIGIT_NUMS,
@@ -115,6 +117,18 @@ class ChatLog(BaseModel):
     )
     completion_token_unit_price = models.DecimalField(
         gettext_lazy("Completion Token Unit Price"),
+        max_digits=PRICE_DIGIT_NUMS,
+        decimal_places=PRICE_DECIMAL_NUMS,
+        default=float,
+    )
+    vision_unit_price = models.DecimalField(
+        gettext_lazy("Vision Unit Price"),
+        max_digits=PRICE_DIGIT_NUMS,
+        decimal_places=PRICE_DECIMAL_NUMS,
+        default=float,
+    )
+    request_unit_price = models.DecimalField(
+        gettext_lazy("Request Unit Price"),
         max_digits=PRICE_DIGIT_NUMS,
         decimal_places=PRICE_DECIMAL_NUMS,
         default=float,
@@ -147,19 +161,22 @@ class AIModel(BaseModel):
     name = models.CharField(gettext_lazy("Model Name"), max_length=MEDIUM_CHAR_LENGTH)
     is_enabled = models.BooleanField(gettext_lazy("Enabled"), default=True, db_index=True)
     prompt_price = models.DecimalField(
-        gettext_lazy("Prompt Price"), max_digits=PRICE_DIGIT_NUMS, decimal_places=PRICE_DECIMAL_NUMS
+        gettext_lazy("Prompt Price"), max_digits=PRICE_DIGIT_NUMS, decimal_places=PRICE_DECIMAL_NUMS, default=0
     )
     completion_price = models.DecimalField(
-        gettext_lazy("Completion Price"), max_digits=PRICE_DIGIT_NUMS, decimal_places=PRICE_DECIMAL_NUMS
+        gettext_lazy("Completion Price"), max_digits=PRICE_DIGIT_NUMS, decimal_places=PRICE_DECIMAL_NUMS, default=0
     )
     vision_price = models.DecimalField(
         gettext_lazy("Vision Price"), max_digits=PRICE_DIGIT_NUMS, decimal_places=PRICE_DECIMAL_NUMS, default=0
+    )
+    request_price = models.DecimalField(
+        gettext_lazy("Request Price"), max_digits=PRICE_DIGIT_NUMS, decimal_places=PRICE_DECIMAL_NUMS, default=0
     )
     support_system_define = models.BooleanField(gettext_lazy("Support System Define"), default=True)
     support_vision = models.BooleanField(gettext_lazy("Support Vision"), default=False)
     is_vision = models.BooleanField(gettext_lazy("Is Vision"), default=False)
     settings = models.JSONField(gettext_lazy("Settings"), blank=True, null=True)
-    is_public = models.BooleanField(gettext_lazy("Is Public"), default=True)
+    is_public = models.BooleanField(gettext_lazy("Is Public"), default=False)
 
     class Meta:
         verbose_name = gettext_lazy("AI Model")

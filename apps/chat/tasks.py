@@ -43,11 +43,12 @@ def calculate_usage_limit(self, log_id: str):
     log = get_object_or_404(ChatLog, id=log_id)
     usage = log.prompt_tokens + log.completion_tokens
     celery_logger.info(
-        "[CalculateUsageLimit] LogID: %s; User: %s; Model: %s; Usage: %d",
+        "[CalculateUsageLimit] LogID: %s; User: %s; Model: %s; Usage: %d; Vision: %d",
         log_id,
         log.user.username,
         log.model,
         usage,
+        log.vision_count,
     )
 
     ChatLog.objects.filter(id=log.id).update(is_charged=True)
@@ -55,6 +56,8 @@ def calculate_usage_limit(self, log_id: str):
         balance=F("balance")
         - (log.prompt_tokens * log.prompt_token_unit_price / 1000)
         - (log.completion_tokens * log.completion_token_unit_price / 1000)
+        - (log.vision_count * log.vision_unit_price / 1000)
+        - (log.request_unit_price / 1000)
     )
 
 
@@ -104,13 +107,15 @@ def openrouter_model_sync(self):
         db_model.prompt_price = openrouter_model.pricing.prompt * 1000 * settings.OPENROUTER_EXCHANGE_RATE
         db_model.completion_price = openrouter_model.pricing.completion * 1000 * settings.OPENROUTER_EXCHANGE_RATE
         db_model.vision_price = openrouter_model.pricing.image * 1000 * settings.OPENROUTER_EXCHANGE_RATE
-        db_model.save(update_fields=["prompt_price", "completion_price", "vision_price"])
+        db_model.request_price = openrouter_model.pricing.request * 1000 * settings.OPENROUTER_EXCHANGE_RATE
+        db_model.save(update_fields=["prompt_price", "completion_price", "vision_price", "request_price"])
         celery_logger.info(
-            "[SyncOpenRouterPrice] Model Price Updated: %s %s %s %s",
+            "[SyncOpenRouterPrice] Model Price Updated: %s %s %s %s %s",
             db_model.model,
             db_model.prompt_price,
             db_model.completion_price,
             db_model.vision_price,
+            db_model.request_price,
         )
 
     celery_logger.info("[SyncOpenRouterPrice] End %s", self.request.id)

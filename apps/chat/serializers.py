@@ -95,8 +95,11 @@ class ChatLogSerializer(ModelSerializer):
             "model_name",
             "prompt_tokens",
             "completion_tokens",
+            "vision_count",
             "prompt_token_unit_price",
             "completion_token_unit_price",
+            "vision_unit_price",
+            "request_unit_price",
             "created_at",
         ]
 
