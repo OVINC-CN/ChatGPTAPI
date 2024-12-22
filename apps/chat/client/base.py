@@ -73,14 +73,14 @@ class BaseClient:
         if not self.log:
             return
         # calculate tokens
-        vision_tokens = 0
-        if self.model_inst.prompt_price and self.model_inst.vision_price and vision_count:
-            vision_tokens = vision_count * self.model_inst.vision_price / self.model_inst.prompt_price
-        self.log.prompt_tokens = max(prompt_tokens, self.log.prompt_tokens) + vision_tokens
+        self.log.prompt_tokens = max(prompt_tokens, self.log.prompt_tokens)
         self.log.completion_tokens = max(completion_tokens, self.log.completion_tokens)
+        self.log.vision_count = max(vision_count, self.log.vision_count)
         # calculate price
         self.log.prompt_token_unit_price = self.model_inst.prompt_price
         self.log.completion_token_unit_price = self.model_inst.completion_price
+        self.log.vision_unit_price = self.model_inst.vision_price
+        self.log.request_unit_price = self.model_inst.request_price
         # save
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
         await database_sync_to_async(self.log.save)()

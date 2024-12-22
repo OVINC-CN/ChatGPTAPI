@@ -26,6 +26,7 @@ class ChatLogAdmin(UserNicknameMixin, admin.ModelAdmin):
         "model_name",
         "prompt_tokens",
         "completion_tokens",
+        "vision_count",
         "total_price",
         "created_at_formatted",
         "duration",
@@ -39,6 +40,8 @@ class ChatLogAdmin(UserNicknameMixin, admin.ModelAdmin):
         price = (
             log.prompt_tokens * log.prompt_token_unit_price / 1000
             + log.completion_tokens * log.completion_token_unit_price / 1000
+            + log.vision_count * log.vision_unit_price / 1000
+            + log.request_unit_price / 1000
         )
         return f"{price:.4f}"
 
@@ -74,6 +77,7 @@ class AIModelAdmin(admin.ModelAdmin):
         "prompt_price",
         "completion_price",
         "vision_price",
+        "request_price",
         "support_vision",
         "support_system_define",
         "is_vision",

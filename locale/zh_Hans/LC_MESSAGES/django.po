@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-20 17:09+0800\n"
+"POT-Creation-Date: 2024-12-22 20:38+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -129,11 +129,20 @@ msgstr "提示Token数量"
 msgid "Completion Tokens"
 msgstr "响应Token数量"
 
+msgid "Vision Count"
+msgstr "视觉Token数量"
+
 msgid "Prompt Token Unit Price"
 msgstr "提示Token单价"
 
 msgid "Completion Token Unit Price"
 msgstr "响应Token单价"
+
+msgid "Vision Unit Price"
+msgstr "视觉Token单价"
+
+msgid "Request Unit Price"
+msgstr "请求单价"
 
 msgid "Finish Time"
 msgstr "完成时间"
@@ -161,6 +170,9 @@ msgstr "响应令牌价格"
 
 msgid "Vision Price"
 msgstr "视觉价格"
+
+msgid "Request Price"
+msgstr "请求价格"
 
 msgid "Support System Define"
 msgstr "支持系统预设"
