@@ -10,6 +10,7 @@ from rest_framework import status
 from apps.chat.client.base import BaseClient
 from apps.chat.constants import MidjourneyResult, SpanType
 from apps.chat.exceptions import GenerateFailed, LoadImageFailed
+from apps.chat.utils import format_error
 from apps.cos.client import COSClient
 from apps.cos.utils import TCloudUrlParser
 
@@ -47,7 +48,7 @@ class MidjourneyClient(BaseClient):
                     continue
                 # if failed
                 if result_data["status"] == MidjourneyResult.FAILURE:
-                    yield str(result_data.get("failReason") or GenerateFailed())
+                    yield format_error(GenerateFailed(result_data.get("failReason") or None))
                     await self.record()
                     break
                 with self.start_span(SpanType.CHUNK, SpanKind.SERVER):
@@ -66,7 +67,7 @@ class MidjourneyClient(BaseClient):
                 break
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[GenerateContentFailed] %s", err)
-            yield str(GenerateFailed())
+            yield format_error(err)
             await self.record()
         finally:
             await client.aclose()
