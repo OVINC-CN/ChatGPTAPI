@@ -17,6 +17,7 @@ from apps.chat.client.base import BaseClient
 from apps.chat.constants import WS_CLOSED_KEY, AIModelProvider
 from apps.chat.exceptions import UnexpectedProvider, VerifyFailed
 from apps.chat.models import AIModel, ChatRequest
+from apps.chat.utils import format_error
 
 
 class AsyncConsumer:
@@ -37,7 +38,7 @@ class AsyncConsumer:
             await self.send(text_data=json.dumps({"is_finished": True}, ensure_ascii=False))
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[ChatError] %s", err)
-            await self.send(text_data=json.dumps({"data": str(err), "is_finished": True}, ensure_ascii=False))
+            await self.send(text_data=json.dumps({"data": format_error(err), "is_finished": True}, ensure_ascii=False))
         await self.close()
 
     async def send(self, text_data: str):

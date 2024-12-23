@@ -16,8 +16,9 @@ from opentelemetry.trace import SpanKind
 from ovinc_client.core.logger import logger
 
 from apps.chat.constants import MessageContentType, OpenAIRole, SpanType
-from apps.chat.exceptions import FileExtractFailed, GenerateFailed
+from apps.chat.exceptions import FileExtractFailed
 from apps.chat.models import AIModel, ChatLog, Message, MessageContent
+from apps.chat.utils import format_error
 
 USER_MODEL = get_user_model()
 
@@ -138,7 +139,7 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                 )
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[GenerateContentFailed] %s", err)
-            yield str(GenerateFailed())
+            yield format_error(err)
             response = []
         prompt_tokens = 0
         completion_tokens = 0
