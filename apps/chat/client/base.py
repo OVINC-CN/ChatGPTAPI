@@ -149,6 +149,8 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                 if chunk.usage:
                     prompt_tokens = chunk.usage.prompt_tokens
                     completion_tokens = chunk.usage.completion_tokens
+                if chunk.id:
+                    self.log.chat_id = chunk.id
         await self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens, vision_count=image_count)
 
     def format_message(self) -> int:
