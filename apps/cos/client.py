@@ -7,7 +7,7 @@ from urllib.parse import quote
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
-from django.utils.translation import gettext_lazy
+from django.utils.translation import gettext, gettext_lazy
 from django_redis.client import DefaultClient
 from ovinc_client.account.models import User
 from ovinc_client.core.logger import logger
@@ -18,6 +18,9 @@ from rest_framework import status
 from rest_framework.exceptions import APIException
 from sts.sts import Sts
 
+from apps.cos.constants import TEXT_AUDIT_BATCH_SIZE, AuditResult, TextAuditCallbackType
+from apps.cos.exceptions import SensitiveData
+from apps.cos.models import ImageAuditResponse, TextAuditResponse
 from apps.cos.utils import TCloudUrlParser
 
 cache: DefaultClient
@@ -145,3 +148,50 @@ class COSClient:
             raise COSUploadFailed() from err
         logger.info("[UploadFileSuccess] %s %s", key, result)
         return f"{settings.QCLOUD_COS_URL}/{key}"
+
+    async def text_audit(self, user: USER_MODEL, content: str, data_id: str = None) -> None:
+        """
+        Text Audit
+        """
+
+        if not settings.QCLOUD_TEXT_AUDIT_ENABLED:
+            return
+
+        for index in range(0, len(content), TEXT_AUDIT_BATCH_SIZE):
+            _content = content[index : index + TEXT_AUDIT_BATCH_SIZE]
+            if not _content:
+                break
+            response_data = self.client.ci_auditing_text_submit(
+                Bucket=settings.QCLOUD_COS_BUCKET,
+                BizType=settings.QCLOUD_CI_TEXT_AUDIT_BIZ_TYPE,
+                Content=_content.encode("utf-8"),
+                CallbackType=TextAuditCallbackType.SENSITIVE,
+                UserInfo={"username": user.username},
+                DataId=data_id,
+            )
+            response = TextAuditResponse.model_validate(response_data)
+            if response.JobsDetail.Result == AuditResult.NORMAL:
+                continue
+            logger.warning("[TextAuditFailed] %s %s", data_id, response.model_dump_json())
+            raise SensitiveData(gettext("%s Sensitive") % response.JobsDetail.Label)
+
+    async def image_audit(self, user: USER_MODEL, image_url: str, data_id: str = None) -> None:
+        """
+        Image Audit
+        """
+
+        if not settings.QCLOUD_IMAGE_AUDIT_ENABLED:
+            return
+
+        response_data = self.client.get_object_sensitive_content_recognition(
+            Bucket=settings.QCLOUD_COS_BUCKET,
+            BizType=settings.QCLOUD_CI_IMAGE_AUDIT_BIZ_TYPE,
+            DetectUrl=image_url,
+            LargeImageDetect=settings.QCLOUD_CI_IMAGE_AUDIT_LARGE_IMAGE,
+            DataId=f"{user.username}:{data_id}",
+        )
+        response = ImageAuditResponse.model_validate(response_data)
+        if response.Result == AuditResult.NORMAL:
+            return
+        logger.warning("[ImageAuditFailed] %s %s", data_id, response.model_dump_json())
+        raise SensitiveData(gettext("%s Sensitive") % response.Label)

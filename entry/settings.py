@@ -249,6 +249,11 @@ QCLOUD_COS_IMAGE_STYLE = os.getenv("QCLOUD_COS_IMAGE_STYLE", "imageMogr2/quality
 QCLOUD_COS_IMAGE_SUFFIX = ["jpg", "jpeg", "png", "bmp", "webp", "tiff", "gif", "avif", "heif", "heic", "tpg", "apng"]
 QCLOUD_COS_USE_ACCELERATE = strtobool(os.getenv("QCLOUD_COS_USE_ACCELERATE", "False"))
 QCLOUD_COS_MAX_UPLOAD_SIZE = int(os.getenv("QCLOUD_COS_MAX_UPLOAD_SIZE", str(10 * 1024 * 1024)))
+QCLOUD_TEXT_AUDIT_ENABLED = strtobool(os.getenv("QCLOUD_TEXT_AUDIT_ENABLED", "False"))
+QCLOUD_CI_TEXT_AUDIT_BIZ_TYPE = os.getenv("QCLOUD_CI_TEXT_AUDIT_BIZ_TYPE")
+QCLOUD_IMAGE_AUDIT_ENABLED = strtobool(os.getenv("QCLOUD_IMAGE_AUDIT_ENABLED", "False"))
+QCLOUD_CI_IMAGE_AUDIT_LARGE_IMAGE = int(os.getenv("QCLOUD_CI_IMAGE_AUDIT_LARGE_IMAGE", "0"))
+QCLOUD_CI_IMAGE_AUDIT_BIZ_TYPE = os.getenv("QCLOUD_CI_IMAGE_AUDIT_BIZ_TYPE")
 
 # CDN
 QCLOUD_CDN_SIGN_KEY_URL_PARAM = os.getenv("QCLOUD_CDN_SIGN_KEY_URL_PARAM", "sign")
@@ -264,6 +269,7 @@ CHATLOG_QUERY_DAYS = int(os.getenv("CHATLOG_QUERY_DAYS", "7"))
 
 # IMAGE
 ENABLE_IMAGE_PROXY = strtobool(os.getenv("ENABLE_IMAGE_PROXY", "False"))
+LOAD_IMAGE_TIMEOUT = int(os.getenv("LOAD_IMAGE_TIMEOUT", "60"))
 
 # File
 ENABLE_FILE_UPLOAD = strtobool(os.getenv("ENABLE_FILE_UPLOAD", "False"))
