@@ -69,3 +69,4 @@ class SpanType(TextChoices):
     CHUNK = "chunk", gettext_lazy("Chunk")
     FETCH = "fetch", gettext_lazy("Fetch")
     CHAT = "chat", gettext_lazy("Chat")
+    AUDIT = "audit", gettext_lazy("Audit")

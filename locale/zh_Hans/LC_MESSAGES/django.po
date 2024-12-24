@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-23 19:58+0800\n"
+"POT-Creation-Date: 2024-12-24 12:01+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -89,6 +89,9 @@ msgstr "拉取"
 
 msgid "Chat"
 msgstr "对话"
+
+msgid "Audit"
+msgstr "审核"
 
 msgid "Unauthorized Model"
 msgstr "未授权的模型"
@@ -245,6 +248,25 @@ msgstr "对象存储上传失败"
 msgid "Temp Key Generate Failed"
 msgstr "临时密钥生成失败"
 
+#, python-format
+msgid "%s Sensitive"
+msgstr "存在 %s 类型敏感信息"
+
+msgid "Full Text"
+msgstr "完整文本"
+
+msgid "Sensitive Text"
+msgstr "敏感文本"
+
+msgid "Normal"
+msgstr "正常"
+
+msgid "Sensitive"
+msgstr "敏感"
+
+msgid "Abnormal"
+msgstr "异常"
+
 msgid "Upload File Not Enabled"
 msgstr "文件上传未开启"
 
@@ -253,6 +275,9 @@ msgstr "文件唯一标识不存在"
 
 msgid "Extract Failed"
 msgstr "提取失败"
+
+msgid "Sensitive Data"
+msgstr "敏感数据"
 
 msgid "File Name"
 msgstr "文件名"

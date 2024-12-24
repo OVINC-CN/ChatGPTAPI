@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext
-from httpx import Client
+from httpx import AsyncClient, Client
 from openai import OpenAI
 from opentelemetry import trace
 from opentelemetry.sdk.trace import Span
@@ -19,6 +19,7 @@ from apps.chat.constants import MessageContentType, OpenAIRole, SpanType
 from apps.chat.exceptions import FileExtractFailed
 from apps.chat.models import AIModel, ChatLog, Message, MessageContent
 from apps.chat.utils import format_error
+from apps.cos.client import COSClient
 
 USER_MODEL = get_user_model()
 
@@ -53,6 +54,29 @@ class BaseClient:
         """
         Chat
         """
+
+        with self.start_span(SpanType.AUDIT, SpanKind.INTERNAL):
+            try:
+                # prepare data
+                audit_content = ""
+                audit_image = []
+                content = self.messages[-1].content
+                if isinstance(content, list):
+                    for item in content:
+                        if item.type == MessageContentType.TEXT:
+                            audit_content += str(item.text)
+                        elif item.type == MessageContentType.IMAGE_URL:
+                            audit_image.append(item.image_url.url)
+                else:
+                    audit_content = str(content)
+                # call audit api
+                client = COSClient()
+                await client.text_audit(user=self.user, content=audit_content, data_id=self.log.id)
+                for image in audit_image:
+                    await client.image_audit(user=self.user, image_url=image, data_id=self.log.id)
+            except Exception as e:
+                await self.record()
+                raise e
 
         with self.start_span(SpanType.CHAT, SpanKind.SERVER):
             try:
@@ -123,7 +147,7 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
         return self.model
 
     async def _chat(self, *args, **kwargs) -> any:
-        image_count = self.format_message()
+        image_count = await self.format_message()
         client = OpenAI(api_key=self.api_key, base_url=self.base_url, http_client=self.http_client)
         try:
             with self.start_span(SpanType.API, SpanKind.CLIENT):
@@ -154,7 +178,7 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                     self.log.chat_id = chunk.id
         await self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens, vision_count=image_count)
 
-    def format_message(self) -> int:
+    async def format_message(self) -> int:
         image_count = 0
         for message in self.messages:
             message: Message
@@ -164,13 +188,16 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                 content: MessageContent
                 if content.type != MessageContentType.IMAGE_URL or not content.image_url:
                     continue
-                content.image_url.url = self.convert_url_to_base64(content.image_url.url)
+                content.image_url.url = await self.convert_url_to_base64(content.image_url.url)
                 image_count += 1
         return image_count
 
-    def convert_url_to_base64(self, url: str) -> str:
-        with Client(http2=True) as client:
-            response = client.get(url)
+    async def convert_url_to_base64(self, url: str) -> str:
+        client = AsyncClient(http2=True, timeout=settings.LOAD_IMAGE_TIMEOUT)
+        try:
+            response = await client.get(url)
             if response.status_code == 200:
                 return f"data:image/webp;base64,{base64.b64encode(response.content).decode()}"
             raise FileExtractFailed(gettext("Parse Image To Base64 Failed"))
+        finally:
+            await client.aclose()
