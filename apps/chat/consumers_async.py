@@ -65,6 +65,11 @@ class AsyncConsumer:
         # get client
         client = self.get_model_client(model)
 
+        # check closed
+        if cache.get(WS_CLOSED_KEY.format(self.channel_name)):
+            logger.warning("[ConnectClosedBeforeReplyStart] %s %s", self.channel_name, request_data.user)
+            return True
+
         # init client
         client = await database_sync_to_async(client)(
             user=request_data.user,
