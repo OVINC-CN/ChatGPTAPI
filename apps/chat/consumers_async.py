@@ -75,8 +75,6 @@ class AsyncConsumer:
             user=request_data.user,
             model=request_data.model,
             messages=request_data.messages,
-            temperature=request_data.temperature,
-            top_p=request_data.top_p,
         )
 
         # response

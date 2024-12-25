@@ -49,8 +49,6 @@ class ChatRequest(BaseDataModel):
     user: str
     model: str
     messages: list[Message]
-    temperature: float
-    top_p: float
 
 
 class HunYuanDelta(BaseDataModel):
