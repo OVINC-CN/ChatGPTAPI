@@ -167,7 +167,6 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                     stream=True,
                     timeout=self.timeout,
                     stream_options={"include_usage": True},
-                    user=self.user.username,
                     extra_headers={
                         "HTTP-Referer": settings.PROJECT_URL,
                         "X-Title": settings.PROJECT_NAME,
