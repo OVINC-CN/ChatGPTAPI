@@ -30,3 +30,11 @@ class OpenAIClient(OpenAIBaseClient):
     @property
     def api_model(self) -> str:
         return self.model_settings.get("api_model", super().api_model)
+
+    @property
+    def extra_headers(self) -> dict[str, str]:
+        return self.model_settings.get("extra_headers", super().extra_headers)
+
+    @property
+    def extra_body(self) -> dict | None:
+        return self.model_settings.get("extra_body", super().extra_body)

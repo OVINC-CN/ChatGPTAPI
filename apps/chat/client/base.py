@@ -146,6 +146,14 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
     def api_model(self) -> str:
         return self.model
 
+    @property
+    def extra_headers(self) -> dict[str, str]:
+        return {}
+
+    @property
+    def extra_body(self) -> dict | None:
+        return None
+
     async def _chat(self, *args, **kwargs) -> any:
         image_count = await self.format_message()
         client = OpenAI(api_key=self.api_key, base_url=self.base_url, http_client=self.http_client)
@@ -159,7 +167,13 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                     stream=True,
                     timeout=self.timeout,
                     stream_options={"include_usage": True},
-                    extra_headers={"HTTP-Referer": settings.PROJECT_URL, "X-Title": settings.PROJECT_NAME},
+                    user=self.user.username,
+                    extra_headers={
+                        "HTTP-Referer": settings.PROJECT_URL,
+                        "X-Title": settings.PROJECT_NAME,
+                        **self.extra_headers,
+                    },
+                    extra_body=self.extra_body,
                 )
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[GenerateContentFailed] %s", err)
