@@ -6,15 +6,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy
 from rest_framework import serializers
 
-from apps.chat.constants import (
-    MESSAGE_MIN_LENGTH,
-    TEMPERATURE_DEFAULT,
-    TEMPERATURE_MAX,
-    TEMPERATURE_MIN,
-    TOP_P_DEFAULT,
-    TOP_P_MIN,
-    OpenAIRole,
-)
+from apps.chat.constants import MESSAGE_MIN_LENGTH, OpenAIRole
 from apps.chat.models import ChatLog, SystemPreset
 
 
@@ -36,16 +28,6 @@ class OpenAIRequestSerializer(Serializer):
     model = serializers.CharField(label=gettext_lazy("Model"))
     messages = serializers.ListField(
         label=gettext_lazy("Messages"), child=OpenAIMessageSerializer(), min_length=MESSAGE_MIN_LENGTH
-    )
-    temperature = serializers.FloatField(
-        label=gettext_lazy("Temperature"),
-        min_value=TEMPERATURE_MIN,
-        max_value=TEMPERATURE_MAX,
-        default=TEMPERATURE_DEFAULT,
-        required=False,
-    )
-    top_p = serializers.FloatField(
-        label=gettext_lazy("Top Probability"), min_value=TOP_P_MIN, default=TOP_P_DEFAULT, required=False
     )
 
 

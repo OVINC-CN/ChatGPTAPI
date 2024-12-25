@@ -31,7 +31,7 @@ class BaseClient:
     """
 
     # pylint: disable=R0913,R0917
-    def __init__(self, user: str, model: str, messages: list[Message], temperature: float, top_p: float):
+    def __init__(self, user: str, model: str, messages: list[Message]):
         self.user: USER_MODEL = get_object_or_404(USER_MODEL, username=user)
         self.model: str = model
         self.model_inst: AIModel = AIModel.objects.get(model=model, is_enabled=True)
@@ -41,8 +41,6 @@ class BaseClient:
             for message in messages
             if (message.role != OpenAIRole.SYSTEM or self.model_inst.support_system_define)
         ]
-        self.temperature: float = temperature
-        self.top_p: float = top_p
         self.log = ChatLog.objects.create(
             user=self.user,
             model=self.model,
@@ -162,8 +160,6 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                 response = client.chat.completions.create(
                     model=self.api_model,
                     messages=[message.model_dump(exclude_none=True) for message in self.messages],
-                    temperature=self.temperature,
-                    top_p=self.top_p,
                     stream=True,
                     timeout=self.timeout,
                     stream_options={"include_usage": True},

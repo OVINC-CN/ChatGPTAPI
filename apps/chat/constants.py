@@ -2,13 +2,6 @@ from django.utils.translation import gettext_lazy
 from ovinc_client.core.models import TextChoices
 
 MESSAGE_MIN_LENGTH = 1
-TEMPERATURE_DEFAULT = 1
-TEMPERATURE_MIN = 0
-TEMPERATURE_MAX = 2
-TOP_P_DEFAULT = 0.5
-TOP_P_MIN = 0
-
-AI_API_REQUEST_TIMEOUT = 10 * 60
 
 PRICE_DIGIT_NUMS = 20
 PRICE_DECIMAL_NUMS = 10
