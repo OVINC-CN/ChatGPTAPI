@@ -152,6 +152,10 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
     def extra_body(self) -> dict | None:
         return None
 
+    @property
+    def extra_chat_params(self) -> dict[str, any]:
+        return {}
+
     async def _chat(self, *args, **kwargs) -> any:
         image_count = await self.format_message()
         client = OpenAI(api_key=self.api_key, base_url=self.base_url, http_client=self.http_client)
@@ -170,6 +174,7 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                         **self.extra_headers,
                     },
                     extra_body=self.extra_body,
+                    **self.extra_chat_params,
                 )
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[GenerateContentFailed] %s", err)

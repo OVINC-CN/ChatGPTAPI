@@ -38,3 +38,7 @@ class OpenAIClient(OpenAIBaseClient):
     @property
     def extra_body(self) -> dict | None:
         return self.model_settings.get("extra_body", super().extra_body)
+
+    @property
+    def extra_chat_params(self) -> dict[str, any]:
+        return self.model_settings.get("extra_chat_params", super().extra_chat_params)
