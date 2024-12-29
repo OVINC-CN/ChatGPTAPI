@@ -30,10 +30,10 @@ PROJECT_URL = os.getenv("PROJECT_URL", "https://github.com/OVINC-CN/ChatGPTWeb")
 
 # Hosts
 BACKEND_URL = getenv_or_raise("BACKEND_URL")
-ALLOWED_HOSTS = [getenv_or_raise("BACKEND_HOST")]
+ALLOWED_HOSTS = getenv_or_raise("ALLOWED_HOSTS").split(",")
 CORS_ALLOW_CREDENTIALS = strtobool(os.getenv("CORS_ALLOW_CREDENTIALS", "True"))
-CORS_ORIGIN_WHITELIST = [getenv_or_raise("FRONTEND_URL")]
-CSRF_TRUSTED_ORIGINS = [getenv_or_raise("FRONTEND_URL")]
+CORS_ORIGIN_WHITELIST = getenv_or_raise("CORS_ORIGIN_WHITELIST").split(",")
+CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
 FRONTEND_URL = getenv_or_raise("FRONTEND_URL")
 
 # APPs
@@ -97,7 +97,7 @@ TEMPLATES = [
 # DB and Cache
 DATABASES = {
     "default": {
-        "ENGINE": "dj_db_conn_pool.backends.mysql",
+        "ENGINE": "django.db.backends.mysql",
         "NAME": getenv_or_raise("DB_NAME"),
         "USER": getenv_or_raise("DB_USER"),
         "PASSWORD": getenv_or_raise("DB_PASSWORD"),
@@ -105,10 +105,6 @@ DATABASES = {
         "PORT": int(getenv_or_raise("DB_PORT")),
         "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", str(60 * 60))),
         "OPTIONS": {"charset": "utf8mb4"},
-        "POOL_OPTIONS": {
-            "POOL_SIZE": int(os.getenv("DB_POOL_SIZE", "10")),
-            "MAX_OVERFLOW": int(os.getenv("DB_POOL_MAX_OVERFLOW", "0")),
-        },
     }
 }
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
