@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.translation import gettext
 from httpx import AsyncClient, Client
 from openai import OpenAI
+from openai.types import CompletionUsage
 from opentelemetry import trace
 from opentelemetry.sdk.trace import Span
 from opentelemetry.trace import SpanKind
@@ -186,8 +187,7 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                 if chunk.choices:
                     yield chunk.choices[0].delta.content or ""
                 if chunk.usage:
-                    prompt_tokens = chunk.usage.prompt_tokens
-                    completion_tokens = chunk.usage.completion_tokens
+                    prompt_tokens, completion_tokens = self.get_tokens(chunk.usage)
                 if chunk.id:
                     self.log.chat_id = chunk.id
         await self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens, vision_count=image_count)
@@ -215,3 +215,9 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
             raise FileExtractFailed(gettext("Parse Image To Base64 Failed"))
         finally:
             await client.aclose()
+
+    def get_tokens(self, usage: CompletionUsage) -> (int, int):
+        return (
+            getattr(usage, "prompt_tokens", 0) or getattr(usage, "promptTokens", 0) or 0,
+            getattr(usage, "completion_tokens", 0) or getattr(usage, "completionTokens", 0) or 0,
+        )
