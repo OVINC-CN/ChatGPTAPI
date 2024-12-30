@@ -157,6 +157,7 @@ class AIModel(BaseModel):
     desc = models.TextField(gettext_lazy("Description"), null=True, blank=True)
     model = models.CharField(gettext_lazy("Model"), max_length=MEDIUM_CHAR_LENGTH, db_index=True)
     name = models.CharField(gettext_lazy("Model Name"), max_length=MEDIUM_CHAR_LENGTH)
+    icon = models.URLField(gettext_lazy("Icon"), null=True, blank=True)
     is_enabled = models.BooleanField(gettext_lazy("Enabled"), default=True, db_index=True)
     prompt_price = models.DecimalField(
         gettext_lazy("Prompt Price"), max_digits=PRICE_DIGIT_NUMS, decimal_places=PRICE_DECIMAL_NUMS, default=0
