@@ -1,7 +1,9 @@
 import datetime
 
+from django.conf import settings
 from django.contrib import admin
 from django.utils import timezone
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy
 from rest_framework.settings import api_settings
 
@@ -71,6 +73,7 @@ class ChatLogAdmin(UserNicknameMixin, admin.ModelAdmin):
 class AIModelAdmin(admin.ModelAdmin):
     list_display = [
         "id",
+        "icon_display",
         "model",
         "name",
         "is_enabled",
@@ -84,6 +87,13 @@ class AIModelAdmin(admin.ModelAdmin):
         "is_public",
     ]
     list_filter = ["provider", "is_enabled", "support_vision", "support_system_define", "is_vision", "is_public"]
+
+    @admin.display(description=gettext_lazy("Icon"))
+    def icon_display(self, model: AIModel) -> str:
+        return format_html(
+            f'<img src="{model.icon if model.icon else f"{settings.FRONTEND_URL}/favicon.ico"}" '
+            f'width="18" height="18" />'
+        )
 
 
 @admin.register(SystemPreset)
