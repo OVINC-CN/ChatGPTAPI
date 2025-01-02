@@ -5,7 +5,7 @@ from typing import List
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Q, QuerySet
+from django.db.models import Index, Q, QuerySet
 from django.utils.translation import gettext_lazy
 from ovinc_client.core.constants import MAX_CHAR_LENGTH, MEDIUM_CHAR_LENGTH
 from ovinc_client.core.models import BaseModel, ForeignKey, UniqIDField
@@ -16,6 +16,7 @@ from apps.chat.constants import (
     PRICE_DIGIT_NUMS,
     AIModelProvider,
     MessageContentType,
+    MessageSyncAction,
     OpenAIRole,
 )
 
@@ -240,3 +241,25 @@ class SystemPreset(BaseModel):
         verbose_name_plural = verbose_name
         ordering = ["-created_at"]
         index_together = ["is_public", "user", "name"]
+
+
+class ChatMessageChangeLog(BaseModel):
+    """
+    Chat Message Change Log
+    """
+
+    id = models.BigAutoField(gettext_lazy("ID"), primary_key=True)
+    user = ForeignKey(gettext_lazy("User"), to="account.User", on_delete=models.PROTECT)
+    message_id = models.CharField(gettext_lazy("Message ID"), max_length=MEDIUM_CHAR_LENGTH)
+    action = models.SmallIntegerField(gettext_lazy("Action"), choices=MessageSyncAction.choices)
+    content = models.TextField(gettext_lazy("Content"), help_text=gettext_lazy("Encrypted Message Content"), blank=True)
+    created_at = models.DateTimeField(gettext_lazy("Create Time"), auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = gettext_lazy("Chat Message Change Log")
+        verbose_name_plural = verbose_name
+        ordering = ["-id"]
+        indexes = [Index(fields=["user", "created_at"])]
+
+    def __str__(self) -> str:
+        return f"{self.user}:{self.message_id}"

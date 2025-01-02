@@ -7,7 +7,13 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy
 from rest_framework.settings import api_settings
 
-from apps.chat.models import AIModel, ChatLog, ModelPermission, SystemPreset
+from apps.chat.models import (
+    AIModel,
+    ChatLog,
+    ChatMessageChangeLog,
+    ModelPermission,
+    SystemPreset,
+)
 
 
 class UserNicknameMixin:
@@ -112,3 +118,11 @@ class ModelPermissionAdmin(admin.ModelAdmin):
     @admin.display(description=gettext_lazy("Model Name"))
     def model_names(self, p: ModelPermission) -> str:
         return "; ".join(p.models.all().values_list("name", flat=True))
+
+
+@admin.register(ChatMessageChangeLog)
+class ChatMessageChangeLogAdmin(admin.ModelAdmin):
+    list_display = ["id", "user", "message_id", "action", "created_at"]
+    list_filter = ["action"]
+    search_fields = ["user__nick_name", "user__username"]
+    ordering = ["-id"]
