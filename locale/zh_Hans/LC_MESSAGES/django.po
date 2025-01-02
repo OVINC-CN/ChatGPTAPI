@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-30 20:27+0800\n"
+"POT-Creation-Date: 2025-01-02 18:44+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -95,6 +95,12 @@ msgstr "对话"
 
 msgid "Audit"
 msgstr "审核"
+
+msgid "Update"
+msgstr "更新"
+
+msgid "Delete"
+msgstr "删除"
 
 msgid "Unauthorized Model"
 msgstr "未授权的模型"
@@ -216,6 +222,18 @@ msgstr "更新时间"
 msgid "System Preset"
 msgstr "系统预设"
 
+msgid "Message ID"
+msgstr "消息ID"
+
+msgid "Action"
+msgstr "操作"
+
+msgid "Encrypted Message Content"
+msgstr "加密的消息内容"
+
+msgid "Chat Message Change Log"
+msgstr "对话消息变更记录"
+
 msgid "Role"
 msgstr "角色"
 
@@ -224,6 +242,12 @@ msgstr "文件"
 
 msgid "Messages"
 msgstr "消息"
+
+msgid "Start Time"
+msgstr "创建时间"
+
+msgid "Invalid Start Time"
+msgstr "起始时间异常"
 
 #, python-format
 msgid "Request Failed: %s"

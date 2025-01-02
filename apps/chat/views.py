@@ -10,8 +10,9 @@ from django.utils import timezone
 from ovinc_client.core.auth import SessionAuthenticate
 from ovinc_client.core.paginations import NumPagination
 from ovinc_client.core.utils import uniq_id
-from ovinc_client.core.viewsets import ListMixin, MainViewSet
+from ovinc_client.core.viewsets import CreateMixin, ListMixin, MainViewSet
 from rest_framework.decorators import action
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.chat.constants import MESSAGE_CACHE_KEY, MessageContentType
@@ -19,6 +20,7 @@ from apps.chat.consumers_async import JSONModeConsumer
 from apps.chat.models import (
     AIModel,
     ChatLog,
+    ChatMessageChangeLog,
     ChatRequest,
     MessageContent,
     MessageContentImageUrl,
@@ -27,6 +29,9 @@ from apps.chat.models import (
 from apps.chat.permissions import AIModelPermission
 from apps.chat.serializers import (
     ChatLogSerializer,
+    CreateMessageChangeLogSerializer,
+    ListMessageChangeLogSerializer,
+    MessageChangeLogSerializer,
     OpenAIRequestSerializer,
     SystemPresetSerializer,
 )
@@ -182,3 +187,54 @@ class SystemPresetViewSet(ListMixin, MainViewSet):
 
         queryset = SystemPreset.get_queryset().filter(Q(Q(is_public=True) | Q(user=request.user))).order_by("name")
         return Response(await SystemPresetSerializer(instance=queryset, many=True).adata)
+
+
+class ChatMessageChangeLogView(ListMixin, CreateMixin, MainViewSet):
+    """
+    Chat Message Change Log
+    """
+
+    queryset = ChatMessageChangeLog.objects.all()
+
+    async def list(self, request: Request, *args, **kwargs) -> Response:
+        """
+        load messages
+        """
+
+        # validate
+        req_slz = ListMessageChangeLogSerializer(data=request.query_params)
+        req_slz.is_valid(raise_exception=True)
+        req_data = req_slz.validated_data
+
+        # load data
+        logs = ChatMessageChangeLog.objects.filter(user=request.user).order_by("id")
+        if req_data.get("start_time"):
+            logs = logs.filter(created_at__gt=req_data["start_time"])
+
+        # page
+        queryset = await database_sync_to_async(self.paginate_queryset)(logs)
+
+        # response
+        resp_slz = MessageChangeLogSerializer(instance=queryset, many=True)
+        return self.get_paginated_response(await resp_slz.adata)
+
+    async def create(self, request: Request, *args, **kwargs) -> Response:
+        """
+        save message
+        """
+
+        # validate request
+        req_slz = CreateMessageChangeLogSerializer(data=request.data)
+        req_slz.is_valid(raise_exception=True)
+        req_data = req_slz.validated_data
+
+        # save to db
+        await database_sync_to_async(ChatMessageChangeLog.objects.create)(
+            user=request.user,
+            message_id=req_data["message_id"],
+            action=req_data["action"],
+            content=req_data["content"],
+        )
+
+        # response
+        return Response()

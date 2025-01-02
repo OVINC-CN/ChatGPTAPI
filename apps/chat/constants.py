@@ -1,5 +1,5 @@
 from django.utils.translation import gettext_lazy
-from ovinc_client.core.models import TextChoices
+from ovinc_client.core.models import IntegerChoices, TextChoices
 
 MESSAGE_MIN_LENGTH = 1
 
@@ -63,3 +63,12 @@ class SpanType(TextChoices):
     FETCH = "fetch", gettext_lazy("Fetch")
     CHAT = "chat", gettext_lazy("Chat")
     AUDIT = "audit", gettext_lazy("Audit")
+
+
+class MessageSyncAction(IntegerChoices):
+    """
+    Message Sync Action
+    """
+
+    UPDATE = 1, gettext_lazy("Update")
+    DELETE = 2, gettext_lazy("Delete")

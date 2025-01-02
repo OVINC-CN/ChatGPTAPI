@@ -1,15 +1,18 @@
+import datetime
+
 from asgiref.sync import async_to_sync
 from django.conf import settings
 from django.db import transaction
 from django.db.models import F
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from httpx import Client
 from ovinc_client.core.lock import task_lock
 from ovinc_client.core.logger import celery_logger
 
 from apps.cel import app
 from apps.chat.consumers_async import AsyncConsumer
-from apps.chat.models import AIModel, ChatLog, OpenRouterModelInfo
+from apps.chat.models import AIModel, ChatLog, ChatMessageChangeLog, OpenRouterModelInfo
 from apps.wallet.models import Wallet
 
 
@@ -119,3 +122,23 @@ def openrouter_model_sync(self):
         )
 
     celery_logger.info("[SyncOpenRouterPrice] End %s", self.request.id)
+
+
+@app.task(bind=True)
+@task_lock()
+def delete_old_history(self):
+    """
+    Delete Old Message History
+    """
+
+    celery_logger.info("[DeleteOldMessageHistory] Start %s", self.request.id)
+
+    logs = ChatMessageChangeLog.objects.filter(
+        updated_lt=(timezone.now() - datetime.timedelta(days=settings.MESSAGE_LOG_RETAIN_DAYS))
+    ).prefetch_related("user")
+    celery_logger.info("[DeleteOldMessageHistory] Total: %d", logs.count())
+    for log in logs:
+        celery_logger.info("[DeleteOldMessageHistory] User: %s; MessageID: %s", log.user, log.message_id)
+    logs.delete()
+
+    celery_logger.info("[DeleteOldMessageHistory] End %s", self.request.id)
