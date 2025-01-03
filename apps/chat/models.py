@@ -259,7 +259,10 @@ class ChatMessageChangeLog(BaseModel):
         verbose_name = gettext_lazy("Chat Message Change Log")
         verbose_name_plural = verbose_name
         ordering = ["-id"]
-        indexes = [Index(fields=["user", "created_at"])]
+        indexes = [
+            Index(fields=["user", "created_at"]),
+            Index(fields=["user", "message_id", "created_at"]),
+        ]
 
     def __str__(self) -> str:
         return f"{self.user}:{self.message_id}"

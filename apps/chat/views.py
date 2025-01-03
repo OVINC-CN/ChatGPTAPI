@@ -4,7 +4,7 @@ from typing import List
 from channels.db import database_sync_to_async
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from ovinc_client.core.auth import SessionAuthenticate
@@ -207,7 +207,14 @@ class ChatMessageChangeLogView(ListMixin, CreateMixin, MainViewSet):
         req_data = req_slz.validated_data
 
         # load data
-        logs = ChatMessageChangeLog.objects.filter(user=request.user).order_by("id")
+        logs = ChatMessageChangeLog.objects.filter(
+            user=request.user,
+            created_at=Subquery(
+                ChatMessageChangeLog.objects.filter(message_id=OuterRef("message_id"), user=request.user)
+                .order_by("-created_at")
+                .values("created_at")[:1]
+            ),
+        ).order_by("created_at")
         if req_data.get("start_time"):
             logs = logs.filter(created_at__gt=req_data["start_time"])
 
