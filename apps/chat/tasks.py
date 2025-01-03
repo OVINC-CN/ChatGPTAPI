@@ -134,11 +134,17 @@ def delete_old_history(self):
     celery_logger.info("[DeleteOldMessageHistory] Start %s", self.request.id)
 
     logs = ChatMessageChangeLog.objects.filter(
-        updated_lt=(timezone.now() - datetime.timedelta(days=settings.MESSAGE_LOG_RETAIN_DAYS))
+        created_at__lt=(timezone.now() - datetime.timedelta(days=settings.MESSAGE_LOG_RETAIN_DAYS))
     ).prefetch_related("user")
     celery_logger.info("[DeleteOldMessageHistory] Total: %d", logs.count())
     for log in logs:
-        celery_logger.info("[DeleteOldMessageHistory] User: %s; MessageID: %s", log.user, log.message_id)
+        celery_logger.info(
+            "[DeleteOldMessageHistory] ID: %d; User: %s; MessageID: %s; CreatedAt: %s",
+            log.id,
+            log.user,
+            log.message_id,
+            log.created_at,
+        )
     logs.delete()
 
     celery_logger.info("[DeleteOldMessageHistory] End %s", self.request.id)
