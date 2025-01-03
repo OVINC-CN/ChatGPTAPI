@@ -17,5 +17,10 @@ app.conf.beat_schedule = {
         "task": "apps.chat.tasks.openrouter_model_sync",
         "schedule": crontab(minute="*/10"),
         "args": (),
-    }
+    },
+    "delete_old_history": {
+        "task": "apps.chat.tasks.delete_old_history",
+        "schedule": crontab(minute="0", hour="8"),
+        "args": (),
+    },
 }
