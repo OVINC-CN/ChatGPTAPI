@@ -2,7 +2,7 @@
 
 import datetime
 from io import BytesIO
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -99,14 +99,10 @@ class COSClient:
             "bucket": settings.QCLOUD_COS_BUCKET,
             "region": settings.QCLOUD_COS_REGION,
             "allow_prefix": [key],
-            "allow_actions": [
-                "cos:PutObject",
-                "cos:ListMultipartUploads",
-                "cos:ListParts",
-                "cos:InitiateMultipartUpload",
-                "cos:UploadPart",
-                "cos:CompleteMultipartUpload",
-            ],
+            "allow_actions": ["cos:PutObject"],
+            "condition": {
+                "numeric_less_than_equal": {"cos:content-length": settings.QCLOUD_COS_MAX_UPLOAD_SIZE},
+            },
         }
         try:
             sts = Sts(config)
@@ -125,7 +121,10 @@ class COSClient:
                 image_format=(
                     settings.QCLOUD_COS_IMAGE_STYLE if key.split(".")[-1] in settings.QCLOUD_COS_IMAGE_SUFFIX else ""
                 ),
-                cdn_sign=TCloudUrlParser.sign("/" + quote(key)),
+                cdn_sign=TCloudUrlParser.sign(
+                    hostname=urlparse(settings.QCLOUD_COS_URL).hostname,
+                    path="/" + quote(key.lstrip("/"), safe=""),
+                ),
             )
         except Exception as err:
             logger.exception("[TempKeyGenerateFailed] %s", err)
