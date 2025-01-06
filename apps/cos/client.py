@@ -123,7 +123,7 @@ class COSClient:
                 ),
                 cdn_sign=TCloudUrlParser.sign(
                     hostname=urlparse(settings.QCLOUD_COS_URL).hostname,
-                    path="/" + quote(key.lstrip("/"), safe=""),
+                    path="/" + quote(key.lstrip("/"), safe="/"),
                 ),
             )
         except Exception as err:
