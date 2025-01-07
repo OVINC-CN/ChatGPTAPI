@@ -36,6 +36,10 @@ class OpenAIClient(OpenAIBaseClient):
         return self.model_settings.get("extra_headers", super().extra_headers)
 
     @property
+    def extra_query(self) -> dict | None:
+        return self.model_settings.get("extra_query", super().extra_query)
+
+    @property
     def extra_body(self) -> dict | None:
         return self.model_settings.get("extra_body", super().extra_body)
 

@@ -150,6 +150,10 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
         return {}
 
     @property
+    def extra_query(self) -> dict | None:
+        return None
+
+    @property
     def extra_body(self) -> dict | None:
         return None
 
@@ -173,6 +177,7 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                         "X-Title": settings.PROJECT_NAME,
                         **self.extra_headers,
                     },
+                    extra_query=self.extra_query,
                     extra_body=self.extra_body,
                     **self.extra_chat_params,
                 )
