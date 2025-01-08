@@ -87,7 +87,7 @@ class COSClient:
             return key
         return self.build_key(file_name=file_name)
 
-    async def generate_cos_upload_credential(self, filename: str) -> COSCredential:
+    def generate_cos_upload_credential(self, filename: str) -> COSCredential:
         key = self.build_key(file_name=filename)
         tencent_cloud_api_domain = settings.QCLOUD_API_DOMAIN_TMPL.format("sts")
         config = {
@@ -130,7 +130,7 @@ class COSClient:
             logger.exception("[TempKeyGenerateFailed] %s", err)
             raise TempKeyGenerateFailed() from err
 
-    async def put_object(self, file: bytes | BytesIO, file_name: str) -> str:
+    def put_object(self, file: bytes | BytesIO, file_name: str) -> str:
         """
         Upload File To COS
         """
@@ -148,7 +148,7 @@ class COSClient:
         logger.info("[UploadFileSuccess] %s %s", key, result)
         return f"{settings.QCLOUD_COS_URL}/{key}"
 
-    async def text_audit(self, user: USER_MODEL, content: str, data_id: str = None) -> None:
+    def text_audit(self, user: USER_MODEL, content: str, data_id: str = None) -> None:
         """
         Text Audit
         """
@@ -174,7 +174,7 @@ class COSClient:
             logger.warning("[TextAuditFailed] %s %s", data_id, response.model_dump_json())
             raise SensitiveData(gettext("%s Sensitive") % response.JobsDetail.Label)
 
-    async def image_audit(self, user: USER_MODEL, image_url: str, data_id: str = None) -> None:
+    def image_audit(self, user: USER_MODEL, image_url: str, data_id: str = None) -> None:
         """
         Image Audit
         """

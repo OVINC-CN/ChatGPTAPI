@@ -2,13 +2,12 @@ import abc
 import base64
 import datetime
 
-from channels.db import database_sync_to_async
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext
-from httpx import AsyncClient, Client
+from httpx import Client
 from openai import OpenAI
 from openai.types import CompletionUsage
 from opentelemetry import trace
@@ -49,7 +48,7 @@ class BaseClient:
         )
         self.tracer = trace.get_tracer(self.__class__.__name__)
 
-    async def chat(self, *args, **kwargs) -> any:
+    def chat(self, *args, **kwargs) -> any:
         """
         Chat
         """
@@ -70,30 +69,29 @@ class BaseClient:
                     audit_content = str(content)
                 # call audit api
                 client = COSClient()
-                await client.text_audit(user=self.user, content=audit_content, data_id=self.log.id)
+                client.text_audit(user=self.user, content=audit_content, data_id=self.log.id)
                 for image in audit_image:
-                    await client.image_audit(user=self.user, image_url=image, data_id=self.log.id)
+                    client.image_audit(user=self.user, image_url=image, data_id=self.log.id)
             except Exception as e:
-                await self.record()
+                self.record()
                 raise e
 
         with self.start_span(SpanType.CHAT, SpanKind.SERVER):
             try:
-                async for text in self._chat(*args, **kwargs):
-                    yield text
+                yield from self._chat(*args, **kwargs)
             except Exception as e:
-                await self.record()
+                self.record()
                 raise e
 
     @abc.abstractmethod
-    async def _chat(self, *args, **kwargs) -> any:
+    def _chat(self, *args, **kwargs) -> any:
         """
         Chat
         """
 
         raise NotImplementedError()
 
-    async def record(self, prompt_tokens: int = 0, completion_tokens: int = 0, vision_count: int = 0) -> None:
+    def record(self, prompt_tokens: int = 0, completion_tokens: int = 0, vision_count: int = 0) -> None:
         if not self.log:
             return
         # calculate tokens
@@ -107,11 +105,11 @@ class BaseClient:
         self.log.request_unit_price = self.model_inst.request_price
         # save
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
-        await database_sync_to_async(self.log.save)()
+        self.log.save()
         # calculate usage
         from apps.chat.tasks import calculate_usage_limit  # pylint: disable=C0415
 
-        await database_sync_to_async(calculate_usage_limit)(log_id=self.log.id)  # pylint: disable=E1120
+        calculate_usage_limit(log_id=self.log.id)  # pylint: disable=E1120
 
     def start_span(self, name: str, kind: SpanKind, **kwargs) -> Span:
         span: Span = self.tracer.start_as_current_span(name=name, kind=kind, **kwargs)
@@ -161,8 +159,8 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
     def extra_chat_params(self) -> dict[str, any]:
         return {}
 
-    async def _chat(self, *args, **kwargs) -> any:
-        image_count = await self.format_message()
+    def _chat(self, *args, **kwargs) -> any:
+        image_count = self.format_message()
         client = OpenAI(api_key=self.api_key, base_url=self.base_url, http_client=self.http_client)
         try:
             with self.start_span(SpanType.API, SpanKind.CLIENT):
@@ -195,9 +193,9 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                     prompt_tokens, completion_tokens = self.get_tokens(chunk.usage)
                 if chunk.id:
                     self.log.chat_id = chunk.id
-        await self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens, vision_count=image_count)
+        self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens, vision_count=image_count)
 
-    async def format_message(self) -> int:
+    def format_message(self) -> int:
         image_count = 0
         for message in self.messages:
             message: Message
@@ -207,19 +205,19 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                 content: MessageContent
                 if content.type != MessageContentType.IMAGE_URL or not content.image_url:
                     continue
-                content.image_url.url = await self.convert_url_to_base64(content.image_url.url)
+                content.image_url.url = self.convert_url_to_base64(content.image_url.url)
                 image_count += 1
         return image_count
 
-    async def convert_url_to_base64(self, url: str) -> str:
-        client = AsyncClient(http2=True, timeout=settings.LOAD_IMAGE_TIMEOUT)
+    def convert_url_to_base64(self, url: str) -> str:
+        client = Client(http2=True, timeout=settings.LOAD_IMAGE_TIMEOUT)
         try:
-            response = await client.get(url)
+            response = client.get(url)
             if response.status_code == 200:
                 return f"data:image/webp;base64,{base64.b64encode(response.content).decode()}"
             raise FileExtractFailed(gettext("Parse Image To Base64 Failed"))
         finally:
-            await client.aclose()
+            client.close()
 
     def get_tokens(self, usage: CompletionUsage) -> (int, int):
         return (

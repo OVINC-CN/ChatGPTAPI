@@ -1,13 +1,11 @@
-from adrf.serializers import Serializer
 from django.utils.translation import gettext, gettext_lazy
-from ovinc_client.core.async_tools import SyncRunner
 from ovinc_client.tcaptcha.utils import TCaptchaVerify
 from rest_framework import serializers
 
 from core.exceptions import TCaptchaVerifyFailed
 
 
-class GenerateTempSecretSerializer(Serializer):
+class GenerateTempSecretSerializer(serializers.Serializer):
     """
     Temp Secret
     """
@@ -17,9 +15,7 @@ class GenerateTempSecretSerializer(Serializer):
 
     def validate(self, attrs: dict) -> dict:
         data = super().validate(attrs)
-        if not SyncRunner().run(
-            TCaptchaVerify(user_ip=self.context.get("user_ip"), **data.pop("tcaptcha", {})).verify()
-        ):
+        if not TCaptchaVerify(user_ip=self.context.get("user_ip"), **data.pop("tcaptcha", {})).verify():
             raise TCaptchaVerifyFailed()
         return data
 
