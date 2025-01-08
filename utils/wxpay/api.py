@@ -31,14 +31,14 @@ class WXPayAPI:
     def url_keys(self) -> List[str]:
         return []
 
-    async def request(self, url_params: dict = None, data: dict = None) -> dict:
+    def request(self, url_params: dict = None, data: dict = None) -> dict:
         # build params
-        url = await self.build_url(url_params=url_params)
-        headers = await self.build_headers(url=url, data=data)
+        url = self.build_url(url_params=url_params)
+        headers = self.build_headers(url=url, data=data)
         # call api
-        client = httpx.AsyncClient(http2=True, headers=headers)
+        client = httpx.Client(http2=True, headers=headers)
         try:
-            response = await client.request(method=self.request_method, url=url, json=data)
+            response = client.request(method=self.request_method, url=url, json=data)
             logger.info(
                 "[WxPayAPIResult] Method: %s; Path: %s; Status: %s",
                 self.request_method,
@@ -51,7 +51,7 @@ class WXPayAPI:
             )
             raise WxPayAPIException() from err
         finally:
-            await client.aclose()
+            client.close()
         # parse response
         if response.status_code >= status.HTTP_400_BAD_REQUEST:
             logger.exception(
@@ -66,19 +66,17 @@ class WXPayAPI:
         # verify
         if not self.verify_response:
             return response.json()
-        await WXPaySignatureTool.verify(headers=response.headers, content=response.content)
+        WXPaySignatureTool.verify(headers=response.headers, content=response.content)
         return response.json()
 
-    async def build_url(self, url_params: dict) -> str:
+    def build_url(self, url_params: dict) -> str:
         url = f"{settings.WXPAY_API_BASE_URL}{self.request_path}"
         if self.url_keys:
             url = url.format(**{key: url_params[key] for key in self.url_keys})
         return url
 
-    async def build_headers(self, url: str, data: dict = None) -> Dict[str, str]:
-        signature = await WXPaySignatureTool.generate(
-            request_method=self.request_method, request_url=url, request_body=data
-        )
+    def build_headers(self, url: str, data: dict = None) -> Dict[str, str]:
+        signature = WXPaySignatureTool.generate(request_method=self.request_method, request_url=url, request_body=data)
         return {"Authorization": signature}
 
 

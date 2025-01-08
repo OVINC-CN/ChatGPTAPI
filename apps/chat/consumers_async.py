@@ -1,9 +1,9 @@
-import asyncio
 import json
+import time
 from typing import Type
 
+from asgiref.sync import async_to_sync
 from autobahn.exception import Disconnected
-from channels.db import database_sync_to_async
 from channels.exceptions import ChannelFull
 from channels.layers import get_channel_layer
 from channels_redis.core import RedisChannelLayer
@@ -30,37 +30,37 @@ class AsyncConsumer:
         self.channel_name = channel_name
         self.key = key
 
-    async def chat(self) -> None:
+    def chat(self) -> None:
         try:
-            is_closed = await self.do_chat()
+            is_closed = self.do_chat()
             if is_closed:
                 return
-            await self.send(text_data=json.dumps({"is_finished": True}, ensure_ascii=False))
+            self.send(text_data=json.dumps({"is_finished": True}, ensure_ascii=False))
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[ChatError] %s", err)
-            await self.send(text_data=json.dumps({"data": format_error(err), "is_finished": True}, ensure_ascii=False))
-        await self.close()
+            self.send(text_data=json.dumps({"data": format_error(err), "is_finished": True}, ensure_ascii=False))
+        self.close()
 
-    async def send(self, text_data: str):
-        await self.channel_layer.send(
+    def send(self, text_data: str):
+        async_to_sync(self.channel_layer.send)(
             channel=self.channel_name,
             message={"type": "chat.send", "text_data": text_data},
         )
 
-    async def close(self):
-        await self.channel_layer.send(
+    def close(self):
+        async_to_sync(self.channel_layer.send)(
             channel=self.channel_name,
             message={
                 "type": "chat.close",
             },
         )
 
-    async def do_chat(self) -> bool:
+    def do_chat(self) -> bool:
         # cache
         request_data = self.load_data_from_cache(self.key)
 
         # model
-        model = await database_sync_to_async(self.get_model_inst)(request_data.model)
+        model = self.get_model_inst(request_data.model)
 
         # get client
         client = self.get_model_client(model)
@@ -71,7 +71,7 @@ class AsyncConsumer:
             return True
 
         # init client
-        client = await database_sync_to_async(client)(
+        client = client(
             user=request_data.user,
             model=request_data.model,
             messages=request_data.messages,
@@ -79,18 +79,17 @@ class AsyncConsumer:
 
         # response
         is_closed = False
-        async for data in client.chat():
+        for data in client.chat():
             if is_closed:
                 continue
             retry_times = 0
             while retry_times <= settings.CHANNEL_RETRY_TIMES:
                 try:
-                    await self.send(
+                    self.send(
                         text_data=json.dumps(
                             {"data": data, "is_finished": False, "log_id": client.log.id}, ensure_ascii=False
                         )
                     )
-                    await asyncio.sleep(0)
                     break
                 except Disconnected:
                     logger.warning("[SendMessageFailed-Disconnected] Channel: %s", self.channel_name)
@@ -104,7 +103,7 @@ class AsyncConsumer:
                     logger.warning(
                         "[SendMessageFailed-ChannelFull] Channel: %s; Retry: %d;", self.channel_name, retry_times
                     )
-                    await asyncio.sleep(settings.CHANNEL_RETRY_SLEEP)
+                    time.sleep(settings.CHANNEL_RETRY_SLEEP)
                 retry_times += 1
 
         return is_closed
@@ -139,8 +138,8 @@ class JSONModeConsumer(AsyncConsumer):
         super().__init__("", key)
         self.message = ""
 
-    async def send(self, text_data: str):
+    def send(self, text_data: str):
         self.message += json.loads(text_data).get("data", "")
 
-    async def close(self):
+    def close(self):
         return

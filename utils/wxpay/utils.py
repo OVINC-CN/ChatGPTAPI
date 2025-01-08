@@ -40,7 +40,7 @@ class WXPaySignatureTool:
     """
 
     @classmethod
-    async def generate(cls, request_method: str, request_url: str, request_body: dict) -> str:
+    def generate(cls, request_method: str, request_url: str, request_body: dict) -> str:
         """
         Generate signature for WXPay API
         """
@@ -78,7 +78,7 @@ class WXPaySignatureTool:
         )
 
     @classmethod
-    async def verify(cls, headers: dict, content: bytes) -> None:
+    def verify(cls, headers: dict, content: bytes) -> None:
         """
         Verify Request is from WXPay
         """
@@ -89,7 +89,7 @@ class WXPaySignatureTool:
             content=content.decode(),
         )
         signature = base64.b64decode(headers.get("wechatpay-signature", "").encode())
-        wxpay_cert = await cls.load_wxpay_cert(serial_no=headers.get("wechatpay-serial", ""))
+        wxpay_cert = cls.load_wxpay_cert(serial_no=headers.get("wechatpay-serial", ""))
         try:
             wxpay_cert.public_key.verify(
                 signature=signature, data=raw_info.encode(), padding=PKCS1v15(), algorithm=SHA256()
@@ -98,7 +98,7 @@ class WXPaySignatureTool:
             raise WxPayInsecureResponse() from err
 
     @classmethod
-    async def load_wxpay_cert(cls, serial_no: str) -> WXPayCert:
+    def load_wxpay_cert(cls, serial_no: str) -> WXPayCert:
         """
         Load WXPay Cert
         """
@@ -113,7 +113,7 @@ class WXPaySignatureTool:
         from utils.wxpay.api import GetCerts
 
         # load cert
-        cert_data: dict = await GetCerts().request()
+        cert_data: dict = GetCerts().request()
         for cert in cert_data["data"]:
             # check serial id
             if not cert["serial_no"] == serial_no:

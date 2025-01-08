@@ -1,7 +1,5 @@
 import datetime
-from typing import List
 
-from channels.db import database_sync_to_async
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import OuterRef, Q, Subquery
@@ -47,7 +45,7 @@ class ChatViewSet(MainViewSet):
     queryset = ChatLog.objects.all()
 
     @action(methods=["POST"], detail=False, permission_classes=[AIModelPermission])
-    async def pre_check(self, request, *args, **kwargs):
+    def pre_check(self, request, *args, **kwargs):
         """
         pre-check before chat
         """
@@ -58,9 +56,7 @@ class ChatViewSet(MainViewSet):
         request_data = ChatRequest(user=request.user.username, **request_serializer.validated_data)
 
         # check model
-        model: AIModel = await database_sync_to_async(get_object_or_404)(
-            AIModel, model=request_data.model, is_enabled=True
-        )
+        model: AIModel = get_object_or_404(AIModel, model=request_data.model, is_enabled=True)
 
         # format message
         for message in request_data.messages:
@@ -85,7 +81,7 @@ class ChatViewSet(MainViewSet):
         return Response(data={"key": cache_key})
 
     @action(methods=["GET"], detail=False, authentication_classes=[SessionAuthenticate])
-    async def logs(self, request, *args, **kwargs):
+    def logs(self, request, *args, **kwargs):
         """
         chat logs
         """
@@ -104,33 +100,26 @@ class ChatViewSet(MainViewSet):
         )
 
         page = NumPagination()
-        paged_queryset = await database_sync_to_async(page.paginate_queryset)(
-            queryset=queryset, request=request, view=self
-        )
+        paged_queryset = page.paginate_queryset(queryset=queryset, request=request, view=self)
 
-        model_map = await self.load_model_map()
+        model_map = {model.model: model.name for model in AIModel.objects.all()}
         serializer = ChatLogSerializer(instance=paged_queryset, many=True, context={"model_map": model_map})
 
-        return page.get_paginated_response(data=await serializer.adata)
-
-    @database_sync_to_async
-    def load_model_map(self) -> dict:
-        models = AIModel.objects.all()
-        return {model.model: model.name for model in models}
+        return page.get_paginated_response(data=serializer.data)
 
     @action(methods=["POST"], detail=False, permission_classes=[AIModelPermission])
-    async def json(self, request, *args, **kwargs):
+    def json(self, request, *args, **kwargs):
         """
         JSON Mode
         """
 
         # pre check
-        pre_response = await self.pre_check(request, *args, **kwargs)
+        pre_response = self.pre_check(request, *args, **kwargs)
         data = pre_response.data
 
         # chat
         consumer = JSONModeConsumer(data["key"])
-        await consumer.chat()
+        consumer.chat()
 
         # response
         return Response(data={"data": consumer.message})
@@ -142,7 +131,7 @@ class AIModelViewSet(ListMixin, MainViewSet):
     Model
     """
 
-    async def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         """
         List Models
         """
@@ -163,14 +152,10 @@ class AIModelViewSet(ListMixin, MainViewSet):
                     "is_vision": model.is_vision,
                 },
             }
-            for model in await self.list_models(request)
+            for model in AIModel.list_user_models(request.user)
         ]
         data.sort(key=lambda model: model["name"])
         return Response(data=data)
-
-    @database_sync_to_async
-    def list_models(self, request) -> List[AIModel]:
-        return list(AIModel.list_user_models(request.user))
 
 
 class SystemPresetViewSet(ListMixin, MainViewSet):
@@ -180,13 +165,13 @@ class SystemPresetViewSet(ListMixin, MainViewSet):
 
     queryset = SystemPreset.objects.all()
 
-    async def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         """
         List System Presets
         """
 
         queryset = SystemPreset.get_queryset().filter(Q(Q(is_public=True) | Q(user=request.user))).order_by("name")
-        return Response(await SystemPresetSerializer(instance=queryset, many=True).adata)
+        return Response(SystemPresetSerializer(instance=queryset, many=True).data)
 
 
 class ChatMessageChangeLogView(ListMixin, CreateMixin, MainViewSet):
@@ -196,7 +181,7 @@ class ChatMessageChangeLogView(ListMixin, CreateMixin, MainViewSet):
 
     queryset = ChatMessageChangeLog.objects.all()
 
-    async def list(self, request: Request, *args, **kwargs) -> Response:
+    def list(self, request: Request, *args, **kwargs) -> Response:
         """
         load messages
         """
@@ -219,13 +204,13 @@ class ChatMessageChangeLogView(ListMixin, CreateMixin, MainViewSet):
             logs = logs.filter(created_at__gt=req_data["start_time"])
 
         # page
-        queryset = await database_sync_to_async(self.paginate_queryset)(logs)
+        queryset = self.paginate_queryset(logs)
 
         # response
         resp_slz = MessageChangeLogSerializer(instance=queryset, many=True)
-        return self.get_paginated_response(await resp_slz.adata)
+        return self.get_paginated_response(resp_slz.data)
 
-    async def create(self, request: Request, *args, **kwargs) -> Response:
+    def create(self, request: Request, *args, **kwargs) -> Response:
         """
         save message
         """
@@ -236,7 +221,7 @@ class ChatMessageChangeLogView(ListMixin, CreateMixin, MainViewSet):
         req_data = req_slz.validated_data
 
         # save to db
-        await database_sync_to_async(ChatMessageChangeLog.objects.create)(
+        ChatMessageChangeLog.objects.create(
             user=request.user,
             message_id=req_data["message_id"],
             action=req_data["action"],

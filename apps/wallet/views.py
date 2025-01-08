@@ -4,7 +4,6 @@ import io
 import json
 
 import qrcode
-from channels.db import database_sync_to_async
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -36,7 +35,7 @@ class WalletViewSet(MainViewSet):
     queryset = Wallet.objects.all()
 
     @action(methods=["GET"], detail=False, authentication_classes=[SessionAuthenticate])
-    async def config(self, request, *args, **kwargs):
+    def config(self, request, *args, **kwargs):
         """
         wallet config
         """
@@ -49,16 +48,16 @@ class WalletViewSet(MainViewSet):
         )
 
     @action(methods=["GET"], detail=False)
-    async def mine(self, request, *args, **kwargs):
+    def mine(self, request, *args, **kwargs):
         """
         load user wallet
         """
 
-        inst, _ = await database_sync_to_async(Wallet.objects.get_or_create)(user=request.user)
+        inst, _ = Wallet.objects.get_or_create(user=request.user)
         return Response(data={"balance": float(inst.balance)})
 
     @action(methods=["POST"], detail=False)
-    async def pre_charge(self, request, *args, **kwargs):
+    def pre_charge(self, request, *args, **kwargs):
         """
         build charge image
         """
@@ -69,14 +68,12 @@ class WalletViewSet(MainViewSet):
         request_data = request_serializer.validated_data
 
         # build billing
-        billing: BillingHistory = await database_sync_to_async(BillingHistory.objects.create)(
-            user=request.user, amount=request_data["amount"]
-        )
+        billing: BillingHistory = BillingHistory.objects.create(user=request.user, amount=request_data["amount"])
 
         # create wxpay charge
         expire_time = timezone.now() + datetime.timedelta(seconds=settings.WXPAY_ORDER_TIMEOUT)
         formatted_expire_time = expire_time.strftime(settings.WXPAY_TIME_FORMAT)
-        prepay_data = await NaivePrePay().request(
+        prepay_data = NaivePrePay().request(
             data={
                 "appid": settings.WXPAY_APP_ID,
                 "mchid": settings.WXPAY_MCHID,
@@ -96,7 +93,7 @@ class WalletViewSet(MainViewSet):
             return Response(data=base64.b64encode(buffered.getvalue()).decode("utf-8"))
 
     @action(methods=["POST"], detail=False, authentication_classes=[SessionAuthenticate])
-    async def wxpay_notify(self, request, *args, **kwargs):
+    def wxpay_notify(self, request, *args, **kwargs):
         """
         wxpay callback
         """
@@ -109,7 +106,7 @@ class WalletViewSet(MainViewSet):
         request_data = request_serializer.validated_data
 
         # verify header
-        await WXPaySignatureTool.verify(headers=request.headers, content=raw_content)
+        WXPaySignatureTool.verify(headers=request.headers, content=raw_content)
 
         # decrypt data
         decrypt_data: bytes = WXPaySignatureTool.decrypt(
@@ -120,21 +117,17 @@ class WalletViewSet(MainViewSet):
         data = json.loads(decrypt_data.decode())
 
         # load billing
-        billing: BillingHistory = await database_sync_to_async(get_object_or_404)(
-            BillingHistory, id=data.get("out_trade_no")
-        )
+        billing: BillingHistory = get_object_or_404(BillingHistory, id=data.get("out_trade_no"))
         billing.callback_data = data
         billing.is_success = data["trade_state"] == TradeStatus.SUCCESS
         billing.callback_at = timezone.now()
         billing.state = data["trade_state"]
-        await database_sync_to_async(billing.save_to_wallet)(
-            update_fields=["is_success", "callback_at", "state", "callback_data"]
-        )
+        billing.save_to_wallet(update_fields=["is_success", "callback_at", "state", "callback_data"])
 
         return HttpResponse(status=status.HTTP_200_OK)
 
     @action(methods=["GET"], detail=False)
-    async def billing_history(self, request, *args, **kwargs):
+    def billing_history(self, request, *args, **kwargs):
         """
         Billing History
         """
@@ -144,9 +137,7 @@ class WalletViewSet(MainViewSet):
 
         # page
         paginator = NumPagination()
-        page_queryset = await database_sync_to_async(paginator.paginate_queryset)(
-            queryset=queryset, request=request, view=self
-        )
+        page_queryset = paginator.paginate_queryset(queryset=queryset, request=request, view=self)
 
         serializer = BillingHistorySerializer(instance=page_queryset, many=True)
-        return paginator.get_paginated_response(data=await serializer.adata)
+        return paginator.get_paginated_response(data=serializer.data)

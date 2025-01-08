@@ -1,6 +1,5 @@
 import datetime
 
-from asgiref.sync import async_to_sync
 from django.conf import settings
 from django.db import transaction
 from django.db.models import F
@@ -71,7 +70,7 @@ def async_reply(self, channel_name: str, key: str):
     """
 
     celery_logger.info("[AsyncReply] Start %s %s %s", self.request.id, channel_name, key)
-    async_to_sync(AsyncConsumer(channel_name=channel_name, key=key).chat)()
+    AsyncConsumer(channel_name=channel_name, key=key).chat()
     celery_logger.info("[AsyncReply] End %s %s %s", self.request.id, channel_name, key)
 
 

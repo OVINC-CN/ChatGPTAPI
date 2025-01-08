@@ -15,7 +15,7 @@ class COSViewSet(ListMixin, MainViewSet):
     COS
     """
 
-    async def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         """
         Load Configs
         """
@@ -28,7 +28,7 @@ class COSViewSet(ListMixin, MainViewSet):
         )
 
     @action(methods=["POST"], detail=False)
-    async def temp_secret(self, request: Request, *args, **kwargs):
+    def temp_secret(self, request: Request, *args, **kwargs):
         """
         Generate New Temp Secret for COS
         """
@@ -42,7 +42,7 @@ class COSViewSet(ListMixin, MainViewSet):
         request_data = serializer.validated_data
 
         # generate
-        data = await COSClient().generate_cos_upload_credential(filename=request_data["filename"])
+        data = COSClient().generate_cos_upload_credential(filename=request_data["filename"])
 
         # response
         return Response(data=data.model_dump())

@@ -1,11 +1,10 @@
-from adrf.serializers import ModelSerializer, Serializer
 from django.utils.translation import gettext_lazy
 from rest_framework import serializers
 
 from apps.wallet.models import BillingHistory, Wallet
 
 
-class WalletSerializer(ModelSerializer):
+class WalletSerializer(serializers.ModelSerializer):
     """
     Wallet Serializer class
     """
@@ -15,7 +14,7 @@ class WalletSerializer(ModelSerializer):
         fields = ["balance"]
 
 
-class PreChargeSerializer(Serializer):
+class PreChargeSerializer(serializers.Serializer):
     """
     PreCharge Serializer class
     """
@@ -23,7 +22,7 @@ class PreChargeSerializer(Serializer):
     amount = serializers.IntegerField(label=gettext_lazy("Amount"))
 
 
-class NotifySerializer(Serializer):
+class NotifySerializer(serializers.Serializer):
     """
     Notify Serializer class
     """
@@ -36,7 +35,7 @@ class NotifySerializer(Serializer):
     summary = serializers.CharField(label=gettext_lazy("Summary"))
 
 
-class BillingHistorySerializer(ModelSerializer):
+class BillingHistorySerializer(serializers.ModelSerializer):
     """
     Billing History
     """

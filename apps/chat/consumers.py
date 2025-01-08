@@ -6,13 +6,13 @@ from ovinc_client.account.models import User
 from apps.chat.exceptions import VerifyFailed
 from apps.chat.serializers import OpenAIChatRequestSerializer
 from apps.chat.tasks import async_reply
-from utils.consumers import AsyncWebsocketConsumer
+from utils.consumers import WebsocketConsumer
 
 USER_MODEL: User = get_user_model()
 
 
-class ChatConsumer(AsyncWebsocketConsumer):
-    async def receive(self, text_data=None, *args, **kwargs):
+class ChatConsumer(WebsocketConsumer):
+    def receive(self, text_data=None, *args, **kwargs):
         # load input
         try:
             data = json.loads(text_data)
@@ -27,11 +27,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # async chat
         async_reply.apply_async(kwargs={"channel_name": self.channel_name, "key": data["key"]})
 
-    async def chat_send(self, event: dict):
-        await self.send(text_data=event["text_data"])
+    def chat_send(self, event: dict):
+        self.send(text_data=event["text_data"])
 
-    async def chat_close(self, event: dict):
-        await self.close()
-
-    async def disconnect(self, code):
-        await super().disconnect(code)
+    def chat_close(self, event: dict):
+        self.close()

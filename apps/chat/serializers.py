@@ -1,7 +1,6 @@
 import datetime
 
 import pytz
-from adrf.serializers import ModelSerializer, Serializer
 from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import gettext_lazy
@@ -11,7 +10,7 @@ from apps.chat.constants import MESSAGE_MIN_LENGTH, MessageSyncAction, OpenAIRol
 from apps.chat.models import ChatLog, ChatMessageChangeLog, SystemPreset
 
 
-class OpenAIMessageSerializer(Serializer):
+class OpenAIMessageSerializer(serializers.Serializer):
     """
     OpenAI Message
     """
@@ -21,7 +20,7 @@ class OpenAIMessageSerializer(Serializer):
     content = serializers.CharField(label=gettext_lazy("Content"))
 
 
-class OpenAIRequestSerializer(Serializer):
+class OpenAIRequestSerializer(serializers.Serializer):
     """
     OpenAI Request
     """
@@ -32,7 +31,7 @@ class OpenAIRequestSerializer(Serializer):
     )
 
 
-class CheckModelPermissionSerializer(Serializer):
+class CheckModelPermissionSerializer(serializers.Serializer):
     """
     Model Permission
     """
@@ -40,7 +39,7 @@ class CheckModelPermissionSerializer(Serializer):
     model = serializers.CharField(label=gettext_lazy("Model"))
 
 
-class OpenAIChatRequestSerializer(Serializer):
+class OpenAIChatRequestSerializer(serializers.Serializer):
     """
     OpenAI Chat
     """
@@ -48,7 +47,7 @@ class OpenAIChatRequestSerializer(Serializer):
     key = serializers.CharField()
 
 
-class SystemPresetSerializer(ModelSerializer):
+class SystemPresetSerializer(serializers.ModelSerializer):
     """
     System Preset
     """
@@ -58,18 +57,13 @@ class SystemPresetSerializer(ModelSerializer):
         exclude = ["user", "created_at", "updated_at"]
 
 
-class SerializerMethodField(serializers.SerializerMethodField):
-    async def ato_representation(self, value):
-        return super().to_representation(value)
-
-
-class ChatLogSerializer(ModelSerializer):
+class ChatLogSerializer(serializers.ModelSerializer):
     """
     Chat Log
     """
 
-    model_name = SerializerMethodField()
-    created_at = SerializerMethodField()
+    model_name = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField()
 
     class Meta:
         model = ChatLog
@@ -94,7 +88,7 @@ class ChatLogSerializer(ModelSerializer):
         return _datetime.strftime("%y/%m/%d %H:%M:%S")
 
 
-class MessageChangeLogSerializer(ModelSerializer):
+class MessageChangeLogSerializer(serializers.ModelSerializer):
     """
     Message Change Log
     """
@@ -104,7 +98,7 @@ class MessageChangeLogSerializer(ModelSerializer):
         fields = ["message_id", "action", "content"]
 
 
-class ListMessageChangeLogSerializer(Serializer):
+class ListMessageChangeLogSerializer(serializers.Serializer):
     """
     List Message Change Log
     """
@@ -118,7 +112,7 @@ class ListMessageChangeLogSerializer(Serializer):
             raise serializers.ValidationError(gettext_lazy("Invalid Start Time")) from err
 
 
-class CreateMessageChangeLogSerializer(Serializer):
+class CreateMessageChangeLogSerializer(serializers.Serializer):
     """
     Create Message Change Log
     """
