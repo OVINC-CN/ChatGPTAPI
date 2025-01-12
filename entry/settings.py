@@ -177,8 +177,8 @@ SESSION_COOKIE_DOMAIN = os.getenv("SESSION_COOKIE_DOMAIN")
 
 # Log
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
-LOG_DIR = os.path.join(BASE_DIR, "logs")
-LOGGING = get_logging_config_dict(LOG_LEVEL, LOG_DIR)
+LOG_FORMAT = os.getenv("LOG_FORMAT", "json")
+LOGGING = get_logging_config_dict(log_level=LOG_LEVEL, log_format=LOG_FORMAT)
 
 # rest_framework
 REST_FRAMEWORK = {
@@ -200,6 +200,7 @@ CELERY_ENABLE_UTC = True
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_ACCEPT_CONTENT = ["pickle", "json"]
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 BROKER_URL = f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
 
 # APM
