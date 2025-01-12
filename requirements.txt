@@ -1,5 +1,5 @@
 # ovinc
-ovinc-client==0.4.0b5
+ovinc-client==0.4.0
 
 # Celery
 celery==5.4.0
