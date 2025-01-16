@@ -197,29 +197,30 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                     if is_first_letter:
                         is_first_letter = False
                         first_letter_time = PrometheusExporter.current_ts()
-                        PrometheusExporter(
-                            name=PrometheusMetrics.WAIT_FIRST_LETTER,
-                            samples=[(first_letter_time, first_letter_time - req_time)],
-                            labels=[
-                                (PrometheusLabels.MODEL_NAME, self.model),
-                                (PrometheusLabels.HOSTNAME, PrometheusExporter.hostname()),
-                            ],
-                        ).export()
+                        self.report_metric(name=PrometheusMetrics.WAIT_FIRST_LETTER, value=first_letter_time - req_time)
                     yield chunk.choices[0].delta.content or ""
                 if chunk.usage:
                     prompt_tokens, completion_tokens = self.get_tokens(chunk.usage)
                 if chunk.id:
                     self.log.chat_id = chunk.id
         finish_chat_time = PrometheusExporter.current_ts()
-        PrometheusExporter(
+        self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens, vision_count=image_count)
+        self.report_metric(
             name=PrometheusMetrics.TOKEN_PER_SECOND,
-            samples=[(finish_chat_time, math.ceil(completion_tokens / (finish_chat_time - first_letter_time) * 1000))],
+            value=math.ceil(completion_tokens / max(finish_chat_time - first_letter_time, 1) * 1000),
+        )
+        self.report_metric(name=PrometheusMetrics.PROMPT_TOKEN, value=prompt_tokens)
+        self.report_metric(name=PrometheusMetrics.COMPLETION_TOKEN, value=completion_tokens)
+
+    def report_metric(self, name: str, value: float) -> None:
+        PrometheusExporter(
+            name=name,
+            samples=[(None, value)],
             labels=[
                 (PrometheusLabels.MODEL_NAME, self.model),
                 (PrometheusLabels.HOSTNAME, PrometheusExporter.hostname()),
             ],
         ).export()
-        self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens, vision_count=image_count)
 
     def format_message(self) -> int:
         image_count = 0
