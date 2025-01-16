@@ -65,6 +65,7 @@ class PrometheusExporter:
 
     @classmethod
     def hostname(cls) -> str:
+        # pylint: disable=W0603
         global HOSTNAME, HOSTNAME_INIT
 
         if HOSTNAME_INIT:
