@@ -39,3 +39,7 @@ websockets==14.1
 
 # model
 pydantic==2.10.3
+
+# prometheus
+prometheus_client==0.21.1
+python-snappy==0.7.3

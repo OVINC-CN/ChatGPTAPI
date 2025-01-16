@@ -6,6 +6,9 @@ from django.core.cache import cache
 from django_redis.client import DefaultClient
 from redis import Redis
 
+from utils.prometheus.constants import PrometheusLabels, PrometheusMetrics
+from utils.prometheus.exporters import PrometheusExporter
+
 cache: DefaultClient
 CONNECTION_CACHE_KEY = "websocket_connections"
 
@@ -28,12 +31,18 @@ class ConnectionsHandler:
         self.log_connection(desc="WebSocket DISCONNECT", connection=connection, client_ip=client_ip)
 
     def log_connection(self, desc: str, **kwargs) -> None:
+        connections = self.connections_count()
         logger.info(
             "%s Connections: %d; Extra: %s",
             desc,
-            self.connections_count(),
+            connections,
             json.dumps(kwargs, ensure_ascii=False),
         )
+        PrometheusExporter(
+            name=PrometheusMetrics.WEBSOCKET_CONN,
+            samples=[(None, connections)],
+            labels=[(PrometheusLabels.HOSTNAME, PrometheusExporter.hostname())],
+        ).export()
 
     def connections_count(self) -> int:
         return self.redis.hlen(CONNECTION_CACHE_KEY)
