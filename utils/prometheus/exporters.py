@@ -10,6 +10,9 @@ from ovinc_client.core.logger import logger
 
 from utils.prometheus import prometheus_pb2
 
+HOSTNAME_INIT = False
+HOSTNAME = ""
+
 
 class PrometheusExporter:
     """
@@ -62,11 +65,20 @@ class PrometheusExporter:
 
     @classmethod
     def hostname(cls) -> str:
-        hostname = os.getenv("HOSTNAME")
-        if hostname:
-            return hostname
+        global HOSTNAME, HOSTNAME_INIT
+
+        if HOSTNAME_INIT:
+            return HOSTNAME
+
+        HOSTNAME = os.getenv("HOSTNAME")
+        if HOSTNAME:
+            HOSTNAME_INIT = True
+            return HOSTNAME
+
         try:
             with open("/etc/hostname", "r", encoding="utf-8") as f:
-                return f.readline().strip()
-        except Exception:  # pylint: disable=W0718
-            return ""
+                HOSTNAME = f.readline().strip()
+        finally:
+            HOSTNAME_INIT = True
+
+        return HOSTNAME
