@@ -1,6 +1,7 @@
 import abc
 import base64
 import datetime
+import math
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -20,6 +21,8 @@ from apps.chat.exceptions import FileExtractFailed
 from apps.chat.models import AIModel, ChatLog, Message, MessageContent
 from apps.chat.utils import format_error
 from apps.cos.client import COSClient
+from utils.prometheus.constants import PrometheusLabels, PrometheusMetrics
+from utils.prometheus.exporters import PrometheusExporter
 
 USER_MODEL = get_user_model()
 
@@ -162,6 +165,7 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
     def _chat(self, *args, **kwargs) -> any:
         image_count = self.format_message()
         client = OpenAI(api_key=self.api_key, base_url=self.base_url, http_client=self.http_client)
+        req_time = PrometheusExporter.current_ts()
         try:
             with self.start_span(SpanType.API, SpanKind.CLIENT):
                 response = client.chat.completions.create(
@@ -185,15 +189,38 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
             response = []
         prompt_tokens = 0
         completion_tokens = 0
+        is_first_letter = True
+        first_letter_time = PrometheusExporter.current_ts()
         with self.start_span(SpanType.CHUNK, SpanKind.SERVER):
             for chunk in response:
                 if chunk.choices:
+                    if is_first_letter:
+                        is_first_letter = False
+                        first_letter_time = PrometheusExporter.current_ts()
+                        self.report_metric(name=PrometheusMetrics.WAIT_FIRST_LETTER, value=first_letter_time - req_time)
                     yield chunk.choices[0].delta.content or ""
                 if chunk.usage:
                     prompt_tokens, completion_tokens = self.get_tokens(chunk.usage)
                 if chunk.id:
                     self.log.chat_id = chunk.id
+        finish_chat_time = PrometheusExporter.current_ts()
         self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens, vision_count=image_count)
+        self.report_metric(
+            name=PrometheusMetrics.TOKEN_PER_SECOND,
+            value=math.ceil(completion_tokens / max(finish_chat_time - first_letter_time, 1) * 1000),
+        )
+        self.report_metric(name=PrometheusMetrics.PROMPT_TOKEN, value=prompt_tokens)
+        self.report_metric(name=PrometheusMetrics.COMPLETION_TOKEN, value=completion_tokens)
+
+    def report_metric(self, name: str, value: float) -> None:
+        PrometheusExporter(
+            name=name,
+            samples=[(None, value)],
+            labels=[
+                (PrometheusLabels.MODEL_NAME, self.model),
+                (PrometheusLabels.HOSTNAME, PrometheusExporter.hostname()),
+            ],
+        ).export()
 
     def format_message(self) -> int:
         image_count = 0

@@ -13,6 +13,8 @@ from apps.cel import app
 from apps.chat.consumers_async import AsyncConsumer
 from apps.chat.models import AIModel, ChatLog, ChatMessageChangeLog, OpenRouterModelInfo
 from apps.wallet.models import Wallet
+from utils.prometheus.constants import PrometheusLabels, PrometheusMetrics
+from utils.prometheus.exporters import PrometheusExporter
 
 
 @app.task(bind=True)
@@ -68,6 +70,15 @@ def async_reply(self, channel_name: str, key: str):
     """
     Async Reply to User
     """
+
+    process_time = PrometheusExporter.current_ts()
+    schedule_time = self.request.headers.get("schedule_time")
+    if schedule_time and isinstance(schedule_time, int):
+        PrometheusExporter(
+            name=PrometheusMetrics.WAIT_FOR_PROCESS,
+            samples=[(process_time, process_time - schedule_time)],
+            labels=[(PrometheusLabels.HOSTNAME, PrometheusExporter.hostname())],
+        ).export()
 
     celery_logger.info("[AsyncReply] Start %s %s %s", self.request.id, channel_name, key)
     AsyncConsumer(channel_name=channel_name, key=key).chat()

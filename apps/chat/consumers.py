@@ -1,4 +1,5 @@
 import json
+import time
 
 from django.contrib.auth import get_user_model
 from ovinc_client.account.models import User
@@ -25,7 +26,10 @@ class ChatConsumer(WebsocketConsumer):
         data = request_serializer.validated_data
 
         # async chat
-        async_reply.apply_async(kwargs={"channel_name": self.channel_name, "key": data["key"]})
+        async_reply.apply_async(
+            kwargs={"channel_name": self.channel_name, "key": data["key"]},
+            headers={"schedule_time": int(time.time() * 1000)},
+        )
 
     def chat_send(self, event: dict):
         self.send(text_data=event["text_data"])
