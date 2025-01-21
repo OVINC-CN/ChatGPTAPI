@@ -194,7 +194,7 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
         with self.start_span(SpanType.CHUNK, SpanKind.SERVER):
             for chunk in response:
                 if chunk.choices:
-                    if is_first_letter:
+                    if is_first_letter and chunk.choices[0].delta.content:
                         is_first_letter = False
                         first_letter_time = PrometheusExporter.current_ts()
                         self.report_metric(name=PrometheusMetrics.WAIT_FIRST_LETTER, value=first_letter_time - req_time)
