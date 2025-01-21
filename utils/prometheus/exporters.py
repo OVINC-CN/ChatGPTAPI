@@ -79,6 +79,8 @@ class PrometheusExporter:
         try:
             with open("/etc/hostname", "r", encoding="utf-8") as f:
                 HOSTNAME = f.readline().strip()
+        except Exception as e:  # pylint: disable=W0718
+            logger.exception("prometheus export failed: %s", e)
         finally:
             HOSTNAME_INIT = True
 
