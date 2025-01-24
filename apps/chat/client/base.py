@@ -56,7 +56,7 @@ class BaseClient:
         Chat
         """
 
-        with self.start_span(SpanType.AUDIT, SpanKind.INTERNAL):
+        with self.start_span(SpanType.AUDIT, SpanKind.SERVER):
             try:
                 # prepare data
                 audit_content = ""
@@ -75,16 +75,16 @@ class BaseClient:
                 client.text_audit(user=self.user, content=audit_content, data_id=self.log.id)
                 for image in audit_image:
                     client.image_audit(user=self.user, image_url=image, data_id=self.log.id)
-            except Exception as e:
+            except Exception as err:
                 self.record()
-                raise e
+                raise err
 
         with self.start_span(SpanType.CHAT, SpanKind.SERVER):
             try:
                 yield from self._chat(*args, **kwargs)
-            except Exception as e:
+            except Exception as err:
                 self.record()
-                raise e
+                raise err
 
     @abc.abstractmethod
     def _chat(self, *args, **kwargs) -> any:
@@ -184,7 +184,7 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                     **self.extra_chat_params,
                 )
         except Exception as err:  # pylint: disable=W0718
-            logger.exception("[GenerateContentFailed] %s", err)
+            logger.error("[GenerateContentFailed] %s", err)
             yield format_error(err)
             response = []
         prompt_tokens = 0

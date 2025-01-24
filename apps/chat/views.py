@@ -14,7 +14,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.chat.constants import MESSAGE_CACHE_KEY, MessageContentType
-from apps.chat.consumers_async import JSONModeConsumer
+from apps.chat.consumers import JSONModeConsumer
 from apps.chat.models import (
     AIModel,
     ChatLog,
@@ -116,10 +116,11 @@ class ChatViewSet(MainViewSet):
         # pre check
         pre_response = self.pre_check(request, *args, **kwargs)
         data = pre_response.data
+        key = data["key"]
 
         # chat
-        consumer = JSONModeConsumer(data["key"])
-        consumer.chat()
+        consumer = JSONModeConsumer(channel_name=key)
+        consumer.chat(consumer.load_data_from_cache(key))
 
         # response
         return Response(data={"data": consumer.message})
