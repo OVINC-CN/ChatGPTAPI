@@ -19,6 +19,7 @@ from ovinc_client.core.logger import logger
 from apps.chat.constants import MessageContentType, OpenAIRole, SpanType
 from apps.chat.exceptions import FileExtractFailed
 from apps.chat.models import AIModel, ChatLog, Message, MessageContent
+from apps.chat.tasks import calculate_usage_limit
 from apps.chat.utils import format_error
 from apps.cos.client import COSClient
 from utils.prometheus.constants import PrometheusLabels, PrometheusMetrics
@@ -110,8 +111,6 @@ class BaseClient:
         self.log.finished_at = int(timezone.now().timestamp() * 1000)
         self.log.save()
         # calculate usage
-        from apps.chat.tasks import calculate_usage_limit  # pylint: disable=C0415
-
         calculate_usage_limit(log_id=self.log.id)  # pylint: disable=E1120
 
     def start_span(self, name: str, kind: SpanKind, **kwargs) -> Span:
