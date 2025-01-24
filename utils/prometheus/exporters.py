@@ -27,6 +27,7 @@ class PrometheusExporter:
 
     def export(self) -> None:
         if not settings.ENABLE_METRIC:
+            logger.info("[PrometheusMetric] %s %s %s", self.name, self.labels, self.samples)
             return
         try:
             request = prometheus_pb2.WriteRequest(
@@ -80,7 +81,7 @@ class PrometheusExporter:
             with open("/etc/hostname", "r", encoding="utf-8") as f:
                 HOSTNAME = f.readline().strip()
         except Exception as e:  # pylint: disable=W0718
-            logger.exception("prometheus export failed: %s", e)
+            logger.error("load hostname failed: %s", e)
         finally:
             HOSTNAME_INIT = True
 
