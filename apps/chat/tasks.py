@@ -15,26 +15,6 @@ from apps.wallet.models import Wallet
 
 
 @app.task(bind=True)
-@task_lock()
-def check_usage_limit(self):
-    """
-    Check Model Usage Limit
-    """
-
-    celery_logger.info("[CheckUsageLimit] Start %s", self.request.id)
-
-    # load logs
-    logs = ChatLog.objects.filter(is_charged=False, finished_at__isnull=False).values_list("id", flat=True)
-    celery_logger.info("[CheckUsageLimit] LogsCount: %d", len(logs))
-
-    # charge
-    for log_id in logs:
-        calculate_usage_limit.apply_async(kwargs={"log_id": log_id})
-
-    celery_logger.info("[CheckUsageLimit] End %s", self.request.id)
-
-
-@app.task(bind=True)
 @transaction.atomic()
 def calculate_usage_limit(self, log_id: str):
     """
