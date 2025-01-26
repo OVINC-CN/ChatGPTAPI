@@ -197,10 +197,12 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                         is_first_letter = False
                         first_letter_time = PrometheusExporter.current_ts()
                         self.report_metric(name=PrometheusMetrics.WAIT_FIRST_LETTER, value=first_letter_time - req_time)
-                    yield chunk.choices[0].delta.content or ""
+                    content = chunk.choices[0].delta.content or ""
+                    if content:
+                        yield content
                 if chunk.usage:
                     prompt_tokens, completion_tokens = self.get_tokens(chunk.usage)
-                if chunk.id:
+                if chunk.id and not self.log.chat_id:
                     self.log.chat_id = chunk.id
         finish_chat_time = PrometheusExporter.current_ts()
         self.record(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens, vision_count=image_count)
