@@ -161,6 +161,10 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
     def extra_chat_params(self) -> dict[str, any]:
         return {}
 
+    @property
+    def use_stream(self) -> bool:
+        return True
+
     def _chat(self, *args, **kwargs) -> any:
         image_count = self.format_message()
         client = OpenAI(api_key=self.api_key, base_url=self.base_url, http_client=self.http_client)
@@ -170,7 +174,7 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                 response = client.chat.completions.create(
                     model=self.api_model,
                     messages=[message.model_dump(exclude_none=True) for message in self.messages],
-                    stream=True,
+                    stream=self.use_stream,
                     timeout=self.timeout,
                     stream_options={"include_usage": True},
                     extra_headers={
