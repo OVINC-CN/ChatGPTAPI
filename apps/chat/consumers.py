@@ -41,8 +41,8 @@ class ChatConsumer(WebsocketConsumer):
         # async chat
         self.chat(request_data=self.load_data_from_cache(request_data["key"]))
 
-    def chat_send(self, text_data: str):
-        self.send(text_data=text_data)
+    def chat_send(self, data: dict):
+        self.send(text_data=json.dumps(data, ensure_ascii=False))
 
     def chat_close(self):
         self.close()
@@ -52,10 +52,10 @@ class ChatConsumer(WebsocketConsumer):
             is_closed = self.inner_chat(request_data=request_data)
             if is_closed:
                 return
-            self.chat_send(text_data=json.dumps({"is_finished": True}, ensure_ascii=False))
+            self.chat_send(data={"is_finished": True})
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[ChatError] %s", err)
-            self.chat_send(text_data=json.dumps({"data": format_error(err), "is_finished": True}, ensure_ascii=False))
+            self.chat_send(data=format_error(log_id="", error=err))
         self.chat_close()
 
     def inner_chat(self, request_data: ChatRequest) -> bool:
@@ -77,11 +77,7 @@ class ChatConsumer(WebsocketConsumer):
             retry_times = 0
             while retry_times <= settings.CHANNEL_RETRY_TIMES:
                 try:
-                    self.chat_send(
-                        text_data=json.dumps(
-                            {"data": data, "is_finished": False, "log_id": client.log.id}, ensure_ascii=False
-                        )
-                    )
+                    self.chat_send(data)
                     break
                 except Disconnected:
                     logger.warning("[SendMessageFailed-Disconnected] Channel: %s", self.channel_name)
@@ -130,8 +126,8 @@ class JSONModeConsumer(ChatConsumer):
         self.message = ""
         self.channel_name = channel_name
 
-    def chat_send(self, text_data: str):
-        self.message += json.loads(text_data).get("data", "")
+    def chat_send(self, data: dict):
+        self.message += data.get("data", "")
 
     def chat_close(self):
         return

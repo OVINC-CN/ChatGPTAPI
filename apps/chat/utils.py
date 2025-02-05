@@ -13,8 +13,17 @@ def get_current_trace_id() -> str | None:
         return None
 
 
-def format_error(error: Exception) -> str:
+def format_error(log_id: str, error: Exception) -> dict:
     message = gettext("Request Failed: %s") % str(error)
     trace_id = gettext("TraceID: %s") % get_current_trace_id()
     contact = gettext("Please contact admin for more information")
-    return f"\n:::warning\n{message}\n{trace_id}\n{contact}\n:::\n"
+    return {
+        "data": f"\n:::warning\n{message}\n{trace_id}\n{contact}\n:::\n",
+        "thinking": "",
+        "is_finished": True,
+        "log_id": log_id,
+    }
+
+
+def format_response(log_id: str, data: str = "", thinking: str = "") -> dict:
+    return {"data": data, "thinking": thinking, "is_finished": False, "log_id": log_id}

@@ -9,7 +9,7 @@ from rest_framework import status
 from apps.chat.client.base import BaseClient
 from apps.chat.constants import MidjourneyResult, SpanType
 from apps.chat.exceptions import GenerateFailed, LoadImageFailed
-from apps.chat.utils import format_error
+from apps.chat.utils import format_error, format_response
 from apps.cos.client import COSClient
 from apps.cos.utils import TCloudUrlParser
 
@@ -42,12 +42,12 @@ class MidjourneyClient(BaseClient):
                 result_data = result.json()
                 # if not finished, continue loop
                 if result_data["status"] not in [MidjourneyResult.FAILURE, MidjourneyResult.SUCCESS]:
-                    yield ""
+                    yield format_response(log_id=self.log.id, data="")
                     time.sleep(self.model_settings.get("no_result_sleep", 5))
                     continue
                 # if failed
                 if result_data["status"] == MidjourneyResult.FAILURE:
-                    yield format_error(GenerateFailed(result_data.get("failReason") or None))
+                    yield format_error(log_id=self.log.id, error=GenerateFailed(result_data.get("failReason") or None))
                     self.record()
                     break
                 with self.start_span(SpanType.CHUNK, SpanKind.SERVER):
@@ -62,11 +62,11 @@ class MidjourneyClient(BaseClient):
                         file=image_resp.content,
                         file_name=f"{uuid.uuid4().hex}.{image_resp.headers['content-type'].split('/')[-1]}",
                     )
-                    yield f"![output]({TCloudUrlParser(url).url})"
+                    yield format_response(log_id=self.log.id, data=f"![output]({TCloudUrlParser(url).url})")
                 break
         except Exception as err:  # pylint: disable=W0718
             logger.exception("[GenerateContentFailed] %s", err)
-            yield format_error(err)
+            yield format_error(log_id=self.log.id, error=err)
             self.record()
         finally:
             client.close()

@@ -20,7 +20,7 @@ from apps.chat.constants import MessageContentType, OpenAIRole, SpanType
 from apps.chat.exceptions import FileExtractFailed
 from apps.chat.models import AIModel, ChatLog, Message, MessageContent
 from apps.chat.tasks import calculate_usage_limit
-from apps.chat.utils import format_error
+from apps.chat.utils import format_error, format_response
 from apps.cos.client import COSClient
 from utils.prometheus.constants import PrometheusLabels, PrometheusMetrics
 from utils.prometheus.exporters import PrometheusExporter
@@ -165,6 +165,10 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
     def use_stream(self) -> bool:
         return True
 
+    @property
+    def thinking_key(self) -> str:
+        return ""
+
     def _chat(self, *args, **kwargs) -> any:
         image_count = self.format_message()
         client = OpenAI(api_key=self.api_key, base_url=self.base_url, http_client=self.http_client)
@@ -188,7 +192,7 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                 )
         except Exception as err:  # pylint: disable=W0718
             logger.error("[GenerateContentFailed] %s", err)
-            yield format_error(err)
+            yield format_error(self.log.id, err)
             response = []
         if not self.use_stream:
             response = [response]
@@ -208,7 +212,16 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                         first_letter_time = PrometheusExporter.current_ts()
                         self.report_metric(name=PrometheusMetrics.WAIT_FIRST_LETTER, value=first_letter_time - req_time)
                     if content:
-                        yield content
+                        yield format_response(log_id=self.log.id, data=content)
+                    elif self.thinking_key:
+                        # reasoning content
+                        reasoning_content = (
+                            getattr(chunk.choices[0].delta, self.thinking_key, "")
+                            if self.use_stream
+                            else getattr(chunk.choices[0].message, self.thinking_key, "")
+                        )
+                        if reasoning_content:
+                            yield format_response(log_id=self.log.id, thinking=reasoning_content)
                 if chunk.usage:
                     prompt_tokens, completion_tokens = self.get_tokens(chunk.usage)
                 if chunk.id and not self.log.chat_id:
