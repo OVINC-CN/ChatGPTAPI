@@ -46,3 +46,7 @@ class OpenAIClient(OpenAIBaseClient):
     @property
     def extra_chat_params(self) -> dict[str, any]:
         return self.model_settings.get("extra_chat_params", super().extra_chat_params)
+
+    @property
+    def use_stream(self) -> bool:
+        return self.model_settings.get("use_stream", super().use_stream)

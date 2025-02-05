@@ -161,6 +161,10 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
     def extra_chat_params(self) -> dict[str, any]:
         return {}
 
+    @property
+    def use_stream(self) -> bool:
+        return True
+
     def _chat(self, *args, **kwargs) -> any:
         image_count = self.format_message()
         client = OpenAI(api_key=self.api_key, base_url=self.base_url, http_client=self.http_client)
@@ -170,9 +174,9 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                 response = client.chat.completions.create(
                     model=self.api_model,
                     messages=[message.model_dump(exclude_none=True) for message in self.messages],
-                    stream=True,
+                    stream=self.use_stream,
                     timeout=self.timeout,
-                    stream_options={"include_usage": True},
+                    stream_options={"include_usage": True} if self.use_stream else None,
                     extra_headers={
                         "HTTP-Referer": settings.PROJECT_URL,
                         "X-Title": settings.PROJECT_NAME,
@@ -186,6 +190,11 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
             logger.error("[GenerateContentFailed] %s", err)
             yield format_error(err)
             response = []
+        if not self.use_stream:
+            response = [response]
+        yield from self.parse_response(response=response, image_count=image_count, req_time=req_time)
+
+    def parse_response(self, response, image_count, req_time) -> None:
         prompt_tokens = 0
         completion_tokens = 0
         is_first_letter = True
@@ -193,11 +202,11 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
         with self.start_span(SpanType.CHUNK, SpanKind.SERVER):
             for chunk in response:
                 if chunk.choices:
-                    if is_first_letter and chunk.choices[0].delta.content:
+                    content = chunk.choices[0].delta.content if self.use_stream else chunk.choices[0].message.content
+                    if is_first_letter and content:
                         is_first_letter = False
                         first_letter_time = PrometheusExporter.current_ts()
                         self.report_metric(name=PrometheusMetrics.WAIT_FIRST_LETTER, value=first_letter_time - req_time)
-                    content = chunk.choices[0].delta.content or ""
                     if content:
                         yield content
                 if chunk.usage:
