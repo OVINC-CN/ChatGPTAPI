@@ -50,3 +50,7 @@ class OpenAIClient(OpenAIBaseClient):
     @property
     def use_stream(self) -> bool:
         return self.model_settings.get("use_stream", super().use_stream)
+
+    @property
+    def thinking_key(self) -> str:
+        return self.model_settings.get("thinking_key", super().thinking_key)
