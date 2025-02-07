@@ -89,10 +89,9 @@ class AIModelAdmin(admin.ModelAdmin):
         "request_price",
         "support_vision",
         "support_system_define",
-        "is_vision",
         "is_public",
     ]
-    list_filter = ["provider", "is_enabled", "support_vision", "support_system_define", "is_vision", "is_public"]
+    list_filter = ["provider", "is_enabled", "support_vision", "support_system_define", "is_public"]
     search_fields = ["name"]
 
     @admin.display(description=gettext_lazy("Icon"))
