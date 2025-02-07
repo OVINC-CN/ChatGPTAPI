@@ -12,7 +12,7 @@ from django_redis.client import DefaultClient
 from ovinc_client.account.models import User
 from ovinc_client.core.logger import logger
 
-from apps.chat.client import MidjourneyClient, OpenAIClient
+from apps.chat.client import OpenAIClient
 from apps.chat.client.base import BaseClient
 from apps.chat.constants import WS_CLOSED_KEY, AIModelProvider
 from apps.chat.exceptions import UnexpectedProvider, VerifyFailed
@@ -110,8 +110,6 @@ class ChatConsumer(WebsocketConsumer):
         match model.provider:
             case AIModelProvider.OPENAI:
                 return OpenAIClient
-            case AIModelProvider.MIDJOURNEY:
-                return MidjourneyClient
             case _:
                 raise UnexpectedProvider()
 

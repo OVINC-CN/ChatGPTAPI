@@ -27,7 +27,6 @@ class AIModelProvider(TextChoices):
     """
 
     OPENAI = "openai", gettext_lazy("Open AI")
-    MIDJOURNEY = "midjourney", gettext_lazy("Midjourney")
 
 
 class MidjourneyResult(TextChoices):

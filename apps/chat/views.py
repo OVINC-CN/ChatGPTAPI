@@ -150,7 +150,6 @@ class AIModelViewSet(ListMixin, MainViewSet):
                 "config": {
                     "support_system_define": model.support_system_define,
                     "support_vision": model.support_vision,
-                    "is_vision": model.is_vision,
                 },
             }
             for model in AIModel.list_user_models(request.user)

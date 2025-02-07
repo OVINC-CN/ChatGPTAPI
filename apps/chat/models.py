@@ -174,7 +174,6 @@ class AIModel(BaseModel):
     )
     support_system_define = models.BooleanField(gettext_lazy("Support System Define"), default=True)
     support_vision = models.BooleanField(gettext_lazy("Support Vision"), default=False)
-    is_vision = models.BooleanField(gettext_lazy("Is Vision"), default=False)
     settings = models.JSONField(gettext_lazy("Settings"), blank=True, null=True)
     is_public = models.BooleanField(gettext_lazy("Is Public"), default=False)
 
