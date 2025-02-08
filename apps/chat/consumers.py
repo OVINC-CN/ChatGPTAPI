@@ -112,20 +112,3 @@ class ChatConsumer(WebsocketConsumer):
                 return OpenAIClient
             case _:
                 raise UnexpectedProvider()
-
-
-class JSONModeConsumer(ChatConsumer):
-    """
-    JSON Mode Consumer
-    """
-
-    def __init__(self, channel_name: str):
-        super().__init__()
-        self.message = ""
-        self.channel_name = channel_name
-
-    def chat_send(self, data: dict):
-        self.message += data.get("data", "")
-
-    def chat_close(self):
-        return

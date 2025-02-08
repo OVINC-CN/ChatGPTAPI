@@ -14,7 +14,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.chat.constants import MESSAGE_CACHE_KEY, MessageContentType
-from apps.chat.consumers import JSONModeConsumer
 from apps.chat.models import (
     AIModel,
     ChatLog,
@@ -106,24 +105,6 @@ class ChatViewSet(MainViewSet):
         serializer = ChatLogSerializer(instance=paged_queryset, many=True, context={"model_map": model_map})
 
         return page.get_paginated_response(data=serializer.data)
-
-    @action(methods=["POST"], detail=False, permission_classes=[AIModelPermission])
-    def json(self, request, *args, **kwargs):
-        """
-        JSON Mode
-        """
-
-        # pre check
-        pre_response = self.pre_check(request, *args, **kwargs)
-        data = pre_response.data
-        key = data["key"]
-
-        # chat
-        consumer = JSONModeConsumer(channel_name=key)
-        consumer.chat(consumer.load_data_from_cache(key))
-
-        # response
-        return Response(data={"data": consumer.message})
 
 
 # pylint: disable=R0901
