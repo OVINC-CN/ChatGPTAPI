@@ -24,7 +24,7 @@ pycryptodome==3.21.0
 tencentcloud-sdk-python==3.0.1282
 
 # OpenAI
-openai==1.57.4
+openai==1.62.0
 
 # COS
 cos-python-sdk-v5==1.9.29
