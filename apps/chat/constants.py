@@ -71,3 +71,13 @@ class MessageSyncAction(IntegerChoices):
 
     UPDATE = 1, gettext_lazy("Update")
     DELETE = 2, gettext_lazy("Delete")
+
+
+class ThinkStatus(IntegerChoices):
+    """
+    Think Status
+    """
+
+    NOT_START = 0, gettext_lazy("Not Start")
+    THINKING = 1, gettext_lazy("Thinking")
+    COMPLETED = 2, gettext_lazy("Completed")
