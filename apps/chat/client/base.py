@@ -16,7 +16,7 @@ from opentelemetry.sdk.trace import Span
 from opentelemetry.trace import SpanKind
 from ovinc_client.core.logger import logger
 
-from apps.chat.constants import MessageContentType, OpenAIRole, SpanType
+from apps.chat.constants import MessageContentType, OpenAIRole, SpanType, ThinkStatus
 from apps.chat.exceptions import FileExtractFailed
 from apps.chat.models import AIModel, ChatLog, Message, MessageContent
 from apps.chat.tasks import calculate_usage_limit
@@ -203,6 +203,7 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
         completion_tokens = 0
         is_first_letter = True
         first_letter_time = PrometheusExporter.current_ts()
+        think_status = ThinkStatus.NOT_START
         with self.start_span(SpanType.CHUNK, SpanKind.SERVER):
             for chunk in response:
                 if chunk.choices:
@@ -212,7 +213,11 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
                         first_letter_time = PrometheusExporter.current_ts()
                         self.report_metric(name=PrometheusMetrics.WAIT_FIRST_LETTER, value=first_letter_time - req_time)
                     if content:
-                        yield format_response(log_id=self.log.id, data=content)
+                        data, reasoning_content, think_status = self.parse_think_tag(
+                            chunk=content, think_status=think_status
+                        )
+                        if data or reasoning_content:
+                            yield format_response(log_id=self.log.id, data=data, thinking=reasoning_content)
                     elif self.thinking_key:
                         # reasoning content
                         reasoning_content = (
@@ -234,6 +239,19 @@ class OpenAIBaseClient(BaseClient, abc.ABC):
         )
         self.report_metric(name=PrometheusMetrics.PROMPT_TOKEN, value=prompt_tokens)
         self.report_metric(name=PrometheusMetrics.COMPLETION_TOKEN, value=completion_tokens)
+
+    def parse_think_tag(self, chunk: str, think_status: int) -> (str, str, int):
+        match think_status:
+            case ThinkStatus.NOT_START:
+                if chunk == "<think>":
+                    return "", "", ThinkStatus.THINKING
+                return chunk, "", ThinkStatus.NOT_START
+            case ThinkStatus.THINKING:
+                if chunk == "</think>":
+                    return "", "", ThinkStatus.COMPLETED
+                return "", chunk, ThinkStatus.THINKING
+            case ThinkStatus.COMPLETED:
+                return chunk, "", ThinkStatus.COMPLETED
 
     def report_metric(self, name: str, value: float) -> None:
         PrometheusExporter(
